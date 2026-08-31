@@ -1,0 +1,553 @@
+[
+  {
+    "subjectId": "civil",
+    "domains": [
+      {
+        "name": "民事主体",
+        "status": "partial",
+        "lessonIds": ["civil-capacity"],
+        "note": "已讲限制行为能力与交易效力的代表规则；主体类型、法人及其他能力问题未完整覆盖。"
+      },
+      {
+        "name": "法律行为与代理",
+        "status": "partial",
+        "lessonIds": ["civil-capacity", "civil-agency"],
+        "note": "已讲行为能力相关效力、代理名义与权限、表见代理入口；意思表示及全部效力规则仍待展开。"
+      },
+      {
+        "name": "诉讼时效",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，作为后续选学；不能由合同或诉讼课程进度推定已经掌握。"
+      },
+      {
+        "name": "物权",
+        "status": "partial",
+        "lessonIds": ["civil-property-change"],
+        "note": "已讲房屋合同请求权与登记、物权变动的区分；物权类型及其他变动规则未完整覆盖。"
+      },
+      {
+        "name": "债与合同",
+        "status": "partial",
+        "lessonIds": [
+          "civil-property-change",
+          "civil-performance-defence",
+          "civil-subrogation"
+        ],
+        "note": "已讲合同与物权区分、履行抗辩和代位保全；债的发生消灭及合同规则未形成完整体系。"
+      },
+      {
+        "name": "典型合同",
+        "status": "partial",
+        "lessonIds": ["civil-gift-revocation"],
+        "note": "已讲普通赠与任意撤销的时间和性质边界；买卖、租赁等其他典型合同仍待学习。"
+      },
+      {
+        "name": "担保",
+        "status": "partial",
+        "lessonIds": ["civil-guarantee"],
+        "note": "已讲一般保证顺序及先诉抗辩例外；抵押、质押、留置及保证其他细节未完整覆盖。"
+      },
+      {
+        "name": "人格权",
+        "status": "partial",
+        "lessonIds": ["civil-personality-body-health"],
+        "note": "已讲身体权与健康权的利益定位；其他人格权与请求权规则未完整覆盖。"
+      },
+      {
+        "name": "婚姻家庭",
+        "status": "partial",
+        "lessonIds": ["civil-marital-debt"],
+        "note": "已讲夫妻日常生活债务和超日常用途的证明分支；婚姻家庭完整制度仍待学习。"
+      },
+      {
+        "name": "继承",
+        "status": "partial",
+        "lessonIds": ["civil-inheritance-order"],
+        "note": "已讲代位继承与转继承的时间条件；继承人范围、遗嘱及其他继承规则未完整覆盖。"
+      },
+      {
+        "name": "侵权责任",
+        "status": "partial",
+        "lessonIds": ["civil-tort-foundation"],
+        "note": "已讲一般过错责任的分析结构；特殊侵权、其他归责原则与免责规则未完整覆盖。"
+      }
+    ]
+  },
+  {
+    "subjectId": "criminal",
+    "domains": [
+      {
+        "name": "刑法基础",
+        "status": "partial",
+        "lessonIds": ["criminal-conduct"],
+        "note": "已从行为与不作为建立分析入口；罪刑法定、刑法效力等基础内容尚未系统制作。"
+      },
+      {
+        "name": "犯罪构成",
+        "status": "partial",
+        "lessonIds": [
+          "criminal-conduct",
+          "criminal-causation",
+          "criminal-mental-state"
+        ],
+        "note": "已讲行为、因果关系及故意过失辨别；构成要件的全部类型与错误问题未完整覆盖。"
+      },
+      {
+        "name": "违法阻却",
+        "status": "partial",
+        "lessonIds": ["criminal-defence"],
+        "note": "已讲正当防卫的代表条件；紧急避险及其他阻却事由未完整覆盖。"
+      },
+      {
+        "name": "犯罪形态",
+        "status": "partial",
+        "lessonIds": ["criminal-stages"],
+        "note": "已用阶段、停止原因和有效性区分代表形态；具体犯罪中的全部边界仍需扩展。"
+      },
+      {
+        "name": "共同犯罪",
+        "status": "partial",
+        "lessonIds": ["criminal-joint-principals"],
+        "note": "已讲共同实行与共同范围内的归责；教唆、帮助、退出等其他规则未完整覆盖。"
+      },
+      {
+        "name": "罪数",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留为后续选学；不由犯罪形态课程外推。"
+      },
+      {
+        "name": "刑罚",
+        "status": "partial",
+        "lessonIds": ["criminal-penalties"],
+        "note": "已讲主刑、附加刑及管制的基本性质；量刑、缓刑、减刑假释与执行细节未完整覆盖。"
+      },
+      {
+        "name": "人身犯罪",
+        "status": "partial",
+        "lessonIds": ["criminal-injury-death"],
+        "note": "已讲故意伤害致死中因果与死亡过失的分层；其他人身犯罪未完整覆盖。"
+      },
+      {
+        "name": "财产犯罪",
+        "status": "partial",
+        "lessonIds": ["criminal-theft-fraud"],
+        "note": "已讲盗窃与诈骗中的处分行为辨别；抢劫、侵占及其他财产犯罪未完整覆盖。"
+      },
+      {
+        "name": "公共安全犯罪",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留为后续选学，不作考试重要性或分值判断。"
+      },
+      {
+        "name": "经济犯罪",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留为后续选学；商经知市场规则不替代刑法构成判断。"
+      },
+      {
+        "name": "贪污贿赂与其他犯罪",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留目录入口及后续学习范围。"
+      }
+    ]
+  },
+  {
+    "subjectId": "commercial",
+    "domains": [
+      {
+        "name": "公司",
+        "status": "partial",
+        "lessonIds": [
+          "commercial-personality",
+          "commercial-governance",
+          "commercial-capital-call"
+        ],
+        "note": "已讲公司人格、治理分工及2024年7月1日起新设普通有限公司出资期限和催缴失权；存量过渡及其他出资责任未完整覆盖。"
+      },
+      {
+        "name": "合伙企业",
+        "status": "partial",
+        "lessonIds": ["commercial-partnership"],
+        "note": "已讲普通与有限合伙身份、企业债务与个人债务；事务执行、转让退伙及特殊普通合伙未完整覆盖。"
+      },
+      {
+        "name": "破产",
+        "status": "partial",
+        "lessonIds": ["commercial-bankruptcy"],
+        "note": "已讲债务人财产、旧债与管理人要求继续履行产生的债务；完整清偿顺位、重整及其他程序未覆盖。"
+      },
+      {
+        "name": "票据与证券",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留为后续选学。"
+      },
+      {
+        "name": "保险与海商",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无本领域独立课程；三国贸易术语及信用证课程不替代保险合同和海商规则。"
+      },
+      {
+        "name": "劳动与社会保障",
+        "status": "partial",
+        "lessonIds": ["commercial-labor"],
+        "note": "已用劳务派遣区分三方及退工、解除；一般劳动合同规则仅有基础提示，社会保障尚未制作。"
+      },
+      {
+        "name": "经济法",
+        "status": "partial",
+        "lessonIds": ["commercial-market-environment"],
+        "note": "仅以竞争协议与独立定价作入口；消费者、财税、金融及其他经济制度未完整覆盖。"
+      },
+      {
+        "name": "环境资源",
+        "status": "partial",
+        "lessonIds": ["commercial-market-environment"],
+        "note": "仅讲环境影响评价的基本目的；审批、责任、自然资源制度及具体数字条件未制作。"
+      },
+      {
+        "name": "知识产权",
+        "status": "partial",
+        "lessonIds": ["commercial-copyright"],
+        "note": "仅讲著作权中现场、同步与按需传播的代表分类；专利、商标及其他著作权规则未完整覆盖。"
+      }
+    ]
+  },
+  {
+    "subjectId": "theory",
+    "domains": [
+      {
+        "name": "法治思想",
+        "status": "partial",
+        "lessonIds": ["theory-law-thought"],
+        "note": "已讲党的领导与以人民为中心两项命题及含义；其他核心要义和实践要求未完整覆盖。"
+      },
+      {
+        "name": "法理学",
+        "status": "partial",
+        "lessonIds": ["theory-rules", "theory-reasoning"],
+        "note": "已讲规则、原则、条文、渊源入口及内外部证成；解释方法、法律关系、价值及其他理论仍待展开。"
+      },
+      {
+        "name": "宪法基本理论",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无专门课程；当前先学国家机关与基本权利，宪法概念、分类、效力等保留后续选学。"
+      },
+      {
+        "name": "国家机构",
+        "status": "partial",
+        "lessonIds": ["theory-state-powers"],
+        "note": "已讲全国人大与常委会的宪法修改、解释及监督分工；其他机构、任免与重大事项职权未完整覆盖。"
+      },
+      {
+        "name": "基本权利",
+        "status": "partial",
+        "lessonIds": ["theory-rights"],
+        "note": "已讲合理差别与公民监督的代表入口；其他权利及其完整保障规则未覆盖。"
+      },
+      {
+        "name": "司法制度与职业道德",
+        "status": "partial",
+        "lessonIds": ["theory-ethics"],
+        "note": "已讲职业伦理与法律责任、法官处分解除和纠错；其他司法制度与各法律职业规则未完整覆盖。"
+      },
+      {
+        "name": "中国法律史",
+        "status": "partial",
+        "lessonIds": ["theory-history"],
+        "note": "仅选三部法典的完整性质作双向检索；朝代制度演变及近现代法律史未完整覆盖。"
+      },
+      {
+        "name": "外国法律史",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留为后续选学，不计入当前已制作单元。"
+      }
+    ]
+  },
+  {
+    "subjectId": "international",
+    "domains": [
+      {
+        "name": "国际法主体",
+        "status": "partial",
+        "lessonIds": ["international-immunity"],
+        "note": "已讲外国国家管辖豁免、诉讼行为与执行豁免分层；其他主体、承认、继承和国际组织未完整覆盖。"
+      },
+      {
+        "name": "国际法上的空间",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，海域、领土及其他空间规则保留后续选学。"
+      },
+      {
+        "name": "居民与人权",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留为后续选学。"
+      },
+      {
+        "name": "外交与领事",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程；国家豁免不替代外交领事的人员及馆舍保护规则。"
+      },
+      {
+        "name": "条约与争端解决",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，条约制度、国际争端及战争法等仍需后续学习。"
+      },
+      {
+        "name": "国际私法基础",
+        "status": "partial",
+        "lessonIds": ["international-layers"],
+        "note": "已讲问题分层、冲突规范、准据法与连结点入口；外国法查明、公共秩序保留等尚未形成独立小课。"
+      },
+      {
+        "name": "法律适用",
+        "status": "partial",
+        "lessonIds": [
+          "international-family-choice",
+          "international-consumer-choice"
+        ],
+        "note": "已讲夫妻财产与诉讼离婚、消费者合同的选定分支；其他关系与适用例外未完整覆盖。"
+      },
+      {
+        "name": "国际民商事程序",
+        "status": "partial",
+        "lessonIds": ["international-layers"],
+        "note": "目前只建立管辖与选法的区分；具体涉外管辖、送达与司法协助等程序规则仍需补充。"
+      },
+      {
+        "name": "国际货物买卖",
+        "status": "partial",
+        "lessonIds": ["international-trade-terms"],
+        "note": "已讲CIF/CIP的代表风险点及费用区分；其他术语及国际买卖公约体系未完整覆盖。"
+      },
+      {
+        "name": "运输保险与支付",
+        "status": "partial",
+        "lessonIds": ["international-credit"],
+        "note": "已讲信用证审单、独立性与不符点入口；运输和保险的具体责任、托收细节尚未完整制作。"
+      },
+      {
+        "name": "贸易投资与争端解决",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，贸易救济、投资、国际经济争端及相关制度保留后续选学。"
+      }
+    ]
+  },
+  {
+    "subjectId": "civil-procedure",
+    "domains": [
+      {
+        "name": "基本制度",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无以基本原则、审判组织或回避等为目标的独立课程，保留后续选学。"
+      },
+      {
+        "name": "主管与管辖",
+        "status": "partial",
+        "lessonIds": [
+          "civil-procedure-entry",
+          "civil-procedure-foreign-arbitration"
+        ],
+        "note": "已讲起诉入口、管辖恒定及仲裁协议对法院受理的代表影响；主管管辖全体系未完整覆盖。"
+      },
+      {
+        "name": "当事人",
+        "status": "partial",
+        "lessonIds": ["civil-procedure-entry"],
+        "note": "已讲诉讼权利能力、行为能力、适格及公司清算相关入口；共同诉讼、第三人等未完整覆盖。"
+      },
+      {
+        "name": "证据与证明",
+        "status": "partial",
+        "lessonIds": ["civil-procedure-burden"],
+        "note": "已讲证明对象、责任分配与证明标准的代表关系；证据种类、认定及其他规则未完整覆盖。"
+      },
+      {
+        "name": "诉讼保障",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保全、期间送达及其他保障规则保留后续选学。"
+      },
+      {
+        "name": "一审程序",
+        "status": "partial",
+        "lessonIds": ["civil-procedure-entry", "civil-procedure-tracks"],
+        "note": "已讲起诉条件及普通、简易、小额程序的代表区别；一审全部流程与处理规则未完整覆盖。"
+      },
+      {
+        "name": "二审与再审",
+        "status": "partial",
+        "lessonIds": ["civil-procedure-review"],
+        "note": "已讲生效状态、上诉与再审入口；受理审理及具体裁判规则未完整覆盖。"
+      },
+      {
+        "name": "特别与督促程序",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留为后续选学。"
+      },
+      {
+        "name": "执行",
+        "status": "partial",
+        "lessonIds": ["civil-procedure-enforcement"],
+        "note": "已讲执行异议对象与相关救济分流；执行措施、参与分配等其他制度未完整覆盖。"
+      },
+      {
+        "name": "涉外程序",
+        "status": "partial",
+        "lessonIds": ["civil-procedure-foreign-arbitration"],
+        "note": "已讲中国法院涉外诉讼的程序法入口及与实体选法的区分；完整管辖、送达和协助规则未覆盖。"
+      },
+      {
+        "name": "仲裁",
+        "status": "partial",
+        "lessonIds": ["civil-procedure-foreign-arbitration"],
+        "note": "已讲仲裁协议独立性及向法院及时提出协议的代表规则；仲裁全部流程与司法审查未完整覆盖。"
+      }
+    ]
+  },
+  {
+    "subjectId": "administrative",
+    "domains": [
+      {
+        "name": "行政法基础与主体",
+        "status": "partial",
+        "lessonIds": ["administrative-act"],
+        "note": "已讲机关身份与行政主体、特定行政管理行为的入口；完整主体与行为分类体系未覆盖。"
+      },
+      {
+        "name": "行政许可",
+        "status": "partial",
+        "lessonIds": ["administrative-powers", "administrative-hearing"],
+        "note": "已讲设定实施权限、委托及听证的代表区别；许可全过程与各项期限未完整覆盖。"
+      },
+      {
+        "name": "行政处罚",
+        "status": "partial",
+        "lessonIds": ["administrative-powers", "administrative-hearing"],
+        "note": "已讲设定实施、委托与听证的代表规则；处罚种类、裁量及其他程序未完整覆盖。"
+      },
+      {
+        "name": "行政强制",
+        "status": "partial",
+        "lessonIds": ["administrative-powers"],
+        "note": "已讲设定、实施及保管与扣押的区别；强制措施和强制执行的完整程序未覆盖。"
+      },
+      {
+        "name": "政府信息公开",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无独立课程，保留为后续选学。"
+      },
+      {
+        "name": "行政复议",
+        "status": "partial",
+        "lessonIds": [
+          "administrative-remedy-route",
+          "administrative-review-defendant"
+        ],
+        "note": "已讲复议前置、救济衔接及复议结果相关诉讼主体；复议受理、审理和决定体系未完整覆盖。"
+      },
+      {
+        "name": "行政诉讼",
+        "status": "partial",
+        "lessonIds": [
+          "administrative-review-defendant",
+          "administrative-remedy-route",
+          "administrative-proof-judgment"
+        ],
+        "note": "已讲复议后被告、起诉入口、举证及代表判决；管辖、受案范围及完整审理规则未完整覆盖。"
+      },
+      {
+        "name": "国家赔偿",
+        "status": "partial",
+        "lessonIds": ["administrative-compensation"],
+        "note": "已讲行政赔偿中的职务关联与范围入口；赔偿程序、标准及其他国家赔偿规则未完整覆盖。"
+      }
+    ]
+  },
+  {
+    "subjectId": "criminal-procedure",
+    "domains": [
+      {
+        "name": "基本原则与机关",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-stages"],
+        "note": "已讲阶段分工、机关关系和分析入口；基本原则及全部机关职权未完整覆盖。"
+      },
+      {
+        "name": "管辖与回避",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-stages"],
+        "note": "已选检察机关直接侦查的主体与行为辨别；其他管辖及回避规则尚未制作。"
+      },
+      {
+        "name": "辩护与代理",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-defense"],
+        "note": "已讲委托辩护、法援和值班律师的代表入口；诉讼代理及完整辩护权利未覆盖。"
+      },
+      {
+        "name": "证据与证明",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-evidence"],
+        "note": "已讲证据载体、种类及非法证据排除的代表分工；证明标准与其他证据规则未完整覆盖。"
+      },
+      {
+        "name": "强制措施",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-measures"],
+        "note": "已讲五种措施入口，并用取保候审练习主体和期限；其他措施及羁押期限未完整覆盖。"
+      },
+      {
+        "name": "立案侦查",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-stages"],
+        "note": "已建立侦查阶段及部分机关管辖入口；立案条件、侦查措施与完整程序未覆盖。"
+      },
+      {
+        "name": "审查起诉",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-prosecution"],
+        "note": "已讲法定、酌定与存疑不起诉；审查起诉其他流程、期限及救济未完整覆盖。"
+      },
+      {
+        "name": "一审二审与审判监督",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-trial-appeal"],
+        "note": "已讲简易审判组织及刑事上诉、申请抗诉主体；完整一二审及审判监督程序未覆盖。"
+      },
+      {
+        "name": "特别程序",
+        "status": "partial",
+        "lessonIds": ["criminal-procedure-juvenile"],
+        "note": "已讲未成年人程序中的年龄时点与特定保护；其他特别程序未制作。"
+      },
+      {
+        "name": "执行",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "尚无刑事执行独立课程，不能由民事执行救济或刑罚分类推定已学。"
+      },
+      {
+        "name": "监察",
+        "status": "extension",
+        "lessonIds": [],
+        "note": "阶段课程仅提示依法另查监察与刑事诉讼衔接，不将导航提示计为监察规则已制作。"
+      }
+    ]
+  }
+]

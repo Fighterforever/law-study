@@ -25,6 +25,25 @@ import {
   X,
 } from "lucide-react";
 import lessons from "./data/lessons.json";
+import diagnosticPool from "./data/diagnostic.json";
+import checkpointPool from "./data/checkpoints.json";
+import coverage from "./data/coverage.json";
+import {
+  assessmentAnswer,
+  chooseCheckup,
+  startCheckup,
+  appendAssessmentAnswer,
+  diagnosticNeedsTeaching,
+  assessmentReport,
+  recordCheckupAnswer,
+} from "./lib/assessments.js";
+import {
+  mistakeKinds,
+  repairAdvice,
+  selectReviewQuestion,
+  learningEvidence,
+  reconcileCurriculum,
+} from "./lib/learning.js";
 import { subjects, subjectById, errors } from "./data/subjects.js";
 import {
   addDays,
@@ -33,6 +52,8 @@ import {
   dueLessons,
   encodeState,
   finishSession,
+  prerequisiteReady,
+  studyPhase,
   initialState,
   isWeekend,
   localDate,
@@ -40,16 +61,21 @@ import {
   passed,
   projectPlan,
   recordAttempt,
+  reviewMinutes,
   statusOf,
   STORAGE_KEY,
 } from "./lib/study.js";
 
 const lessonById = Object.fromEntries(lessons.map((l) => [l.id, l]));
+const coverageById = Object.fromEntries(
+  coverage.map((s) => [s.subjectId, s.domains]),
+);
 const nav = [
   ["today", "今日学习", BookOpen],
   ["library", "课程地图", Layers3],
   ["review", "间隔复习", RotateCcw],
-  ["plan", "两周计划", CalendarDays],
+  ["plan", "考前计划", CalendarDays],
+  ["checkup", "综合复核", ListChecks],
   ["palace", "记忆宫殿", Sparkles],
 ];
 const go = (path) => {
@@ -70,6 +96,17 @@ const shuffle = (items) => {
   }
   return a;
 };
+function restoreChoiceOrder(labels, order) {
+  // A backup may come from an older revision with a different number of options.
+  const valid =
+    Array.isArray(order) &&
+    order.length === labels.length &&
+    new Set(order).size === labels.length &&
+    order.every((i) => Number.isInteger(i) && i >= 0 && i < labels.length);
+  return valid
+    ? order.map((i) => ({ i, v: labels[i] }))
+    : shuffle(labels.map((v, i) => ({ v, i })));
+}
 function Source({ lesson }) {
   const s = subjectById[lesson.subjectId];
   return (
@@ -85,6 +122,13 @@ function Source({ lesson }) {
           {lesson.source.pdfPages.join("、")}
         </p>
         <p>{lesson.source.reference} · 原创讲解与虚构练习</p>
+        {lesson.source.officialSources?.map((source) => (
+          <p key={source.url}>
+            <a href={source.url} target="_blank" rel="noreferrer">
+              {source.title}
+            </a>
+          </p>
+        ))}
       </div>
     </div>
   );
@@ -131,7 +175,9 @@ export default function App() {
   const [state, setState] = useState(() => {
     try {
       const value = localStorage.getItem(STORAGE_KEY);
-      return value ? decodeState(value) : initialState();
+      return value
+        ? reconcileCurriculum(lessons, decodeState(value))
+        : initialState();
     } catch {
       return initialState();
     }
@@ -147,6 +193,7 @@ export default function App() {
   });
   const [route, setRoute] = useState(window.location.hash.slice(2) || "today");
   const [menu, setMenu] = useState(false);
+  const routeBase = route.split("?")[0];
   const [notice, setNotice] = useState("");
   useEffect(() => {
     const f = () => {
@@ -213,7 +260,7 @@ export default function App() {
   };
   let page;
   if (route.startsWith("course/")) {
-    const id = route.split("/")[1];
+    const id = route.split("/")[1].split("?")[0];
     page = lessonById[id] ? (
       <Lesson key={route} lesson={lessonById[id]} {...ctx} />
     ) : (
@@ -225,7 +272,7 @@ export default function App() {
       </Empty>
     );
   } else if (route.startsWith("practice/")) {
-    const id = route.split("/")[1];
+    const id = route.split("/")[1].split("?")[0];
     page = lessonById[id] ? (
       <Practice key={route} lesson={lessonById[id]} {...ctx} />
     ) : (
@@ -241,6 +288,8 @@ export default function App() {
       today: <Today {...ctx} />,
       library: <Library {...ctx} />,
       review: <Review {...ctx} />,
+      diagnostic: <Diagnostic {...ctx} />,
+      checkup: <Checkup {...ctx} />,
       plan: <Plan {...ctx} />,
       palace: <Palace {...ctx} />,
       settings: <Settings {...ctx} />,
@@ -273,8 +322,8 @@ export default function App() {
             <a
               key={id}
               href={`#/${id}`}
-              className={route === id ? "active" : ""}
-              aria-current={route === id ? "page" : undefined}
+              className={routeBase === id ? "active" : ""}
+              aria-current={routeBase === id ? "page" : undefined}
             >
               <Icon size={19} />
               {label}
@@ -332,14 +381,16 @@ export default function App() {
           <div className="breadcrumb">
             学习空间 <ChevronRight size={14} />{" "}
             <span>
-              {nav.find((n) => n[0] === route)?.[1] ||
+              {nav.find((n) => n[0] === routeBase)?.[1] ||
                 (route.startsWith("course/")
                   ? "分步课堂"
                   : route.startsWith("practice/")
                     ? "独立练习"
-                    : route === "sources"
-                      ? "内容与来源"
-                      : "学习设置")}
+                    : route === "diagnostic"
+                      ? "民诉诊断"
+                      : route === "sources"
+                        ? "内容与来源"
+                        : "学习设置")}
             </span>
           </div>
           <div className="topbar-right">
@@ -363,7 +414,7 @@ export default function App() {
           {page}
         </main>
         <footer>
-          法习 · 两周核心复习工具
+          法习 · 考前核心复习工具
           <span>原创教学 · 教育用途 · 不替代现行法规核验</span>
         </footer>
       </div>
@@ -386,14 +437,20 @@ function Today({ state, update, day, today }) {
     (l) => !(state.reviewDays[today] || []).includes(l.id),
   );
   const resume = state.cursor && lessonById[state.cursor.id];
-  const target = resume || reviewNext || next;
+  const repairNext = day.repairs?.[0];
+  const phase = studyPhase(state.settings, today);
+  const target = resume || reviewNext || repairNext || next;
   const targetPath = resume
-    ? `course/${resume.id}`
+    ? `${state.cursor.mode === "review" ? "practice" : "course"}/${resume.id}`
     : reviewNext
       ? `practice/${reviewNext.id}`
-      : next
-        ? `course/${next.id}`
-        : "library";
+      : repairNext
+        ? `course/${repairNext.id}?repair`
+        : next
+          ? `course/${next.id}`
+          : day.checkpointTime
+            ? "checkup"
+            : "library";
   const [intro, setIntro] = useState(!state.settings.configured);
   function preset(kind) {
     update((s) => ({
@@ -416,13 +473,15 @@ function Today({ state, update, day, today }) {
   return (
     <>
       <PageTitle
-        eyebrow={`YOUR DAILY PRACTICE / ${today.replaceAll("-", ".")}`}
+        eyebrow={`今日学习 / ${today.replaceAll("-", ".")}`}
         title={
           day.day <= 0
             ? "为第一天，做好准备。"
             : day.day > 14
               ? "让学过的知识，留下来。"
-              : "今天，向理解再走一步。"
+              : phase.consolidation
+                ? "先把会的，答得更稳。"
+                : "今天，弄懂几个具体问题。"
         }
         action={
           <a className="button secondary" href="#/settings">
@@ -430,7 +489,9 @@ function Today({ state, update, day, today }) {
           </a>
         }
       >
-        每天完成一小组规则，再用新的事实检验它。
+        {state.settings.examDate
+          ? `考试日期 ${state.settings.examDate} · 距考试还有 ${Math.max(0, distance(today, state.settings.examDate))} 天。`
+          : "每天完成一小组规则，再用新的事实检验它。"}
       </PageTitle>
       {intro && (
         <div className="onboarding">
@@ -450,6 +511,22 @@ function Today({ state, update, day, today }) {
           </div>
         </div>
       )}
+      {state.settings.familiarity["civil-procedure"] > 0 &&
+        !state.diagnostic.completed &&
+        !state.diagnostic.stopped && (
+          <div className="diagnostic-banner">
+            <div>
+              <strong>民诉有基础，先用短诊断节省重读时间</strong>
+              <p>最多16题，只反馈具体考点。遇到两处没有思路就转入补讲。</p>
+            </div>
+            <a className="button secondary" href="#/diagnostic">
+              {state.diagnostic.attempts.length
+                ? "继续民诉诊断"
+                : "先做民诉诊断"}
+              <ArrowRight size={15} />
+            </a>
+          </div>
+        )}
       <div className="dashboard-grid">
         <section className="focus-card">
           <div className="focus-top">
@@ -465,30 +542,34 @@ function Today({ state, update, day, today }) {
               ? "今天没有必修安排"
               : target
                 ? target.title
-                : "今天的任务已完成"}
+                : "今天没有待学的新课"}
           </h2>
           <p>
             {day.paused
               ? "请检查开始日期或考试日期；课程地图始终可以自由访问。"
               : target
                 ? target.summary
-                : "有余力可以做闭卷复述，或者让大脑休息一下。"}
+                : "可以先做综合复核，检查学过的规则是否能换一种问法回答。"}
           </p>
           <div className="focus-bottom">
             <a className="button cream" href={`#/${targetPath}`}>
               {resume
-                ? "继续上次课堂"
+                ? "继续上次学习"
                 : reviewNext
                   ? "开始到期复习"
-                  : next
-                    ? "开始今日学习"
-                    : "浏览课程地图"}
+                  : repairNext
+                    ? "先补这一处难点"
+                    : next
+                      ? "开始今日学习"
+                      : day.checkpointTime
+                        ? "开始综合复核"
+                        : "浏览课程地图"}
               <ArrowRight size={18} />
             </a>
             <span>
               <Clock3 size={16} />{" "}
               {target
-                ? `${reviewNext && !resume ? "约4" : target.minutes}分钟`
+                ? `${reviewNext && !resume ? `约${reviewMinutes(state, target.id)}` : target.minutes}分钟`
                 : "按自己的节奏"}
               <small>
                 {resume
@@ -545,10 +626,17 @@ function Today({ state, update, day, today }) {
       </div>
       <div className="section-heading">
         <h2>
-          今天的学习清单 <span>{day.tasks.length + day.review.length} 项</span>
+          今天的学习清单{" "}
+          <span>
+            {day.tasks.length +
+              day.review.length +
+              (day.repairs?.length || 0) +
+              (day.checkpointTime ? 1 : 0)}{" "}
+            项
+          </span>
         </h2>
         <a href="#/plan">
-          查看两周安排 <ArrowRight size={15} />
+          查看考前安排 <ArrowRight size={15} />
         </a>
       </div>
       <div className="daily-layout">
@@ -567,6 +655,45 @@ function Today({ state, update, day, today }) {
               state={state}
             />
           ))}
+          {day.repairs?.length > 0 && (
+            <>
+              <div className="task-group-heading">
+                把前面的难点补上 · {day.repairTime} 分钟
+              </div>
+              {day.repairs.map((l) => (
+                <a
+                  className="task-row"
+                  href={`#/course/${l.id}?repair`}
+                  key={`repair-${l.id}`}
+                >
+                  <RotateCcw size={22} />
+                  <div>
+                    <span className="task-meta">先补概念，再增加难度</span>
+                    <h3>{l.title}</h3>
+                    <p>{repairAdvice(l, state).message}</p>
+                  </div>
+                  <span className="task-time">
+                    约10分钟
+                    <ChevronRight size={18} />
+                  </span>
+                </a>
+              ))}
+            </>
+          )}
+          {day.checkpointTime > 0 && (
+            <a className="task-row" href="#/checkup">
+              <ListChecks size={24} />
+              <div>
+                <span className="task-meta">学过的规则，换一组题检查</span>
+                <h3>综合复核与订正</h3>
+                <p>先完成整组再看解释，把高把握答错的规则留下来补。</p>
+              </div>
+              <span className="task-time">
+                {day.checkpointTime}分钟
+                <ChevronRight size={18} />
+              </span>
+            </a>
+          )}
           {day.tasks.length > 0 && (
             <div className="task-group-heading">
               {day.review.length ? "02" : "01"} / 理解与应用 ·{" "}
@@ -578,6 +705,7 @@ function Today({ state, update, day, today }) {
               key={l.id}
               lesson={l}
               done={!!state.records[l.id]?.completedDate}
+              reason={day.reasons?.[l.id]}
               state={state}
             />
           ))}
@@ -632,7 +760,7 @@ function Today({ state, update, day, today }) {
             分母是本站 {lessons.length} 个核心单元，不代表八册全部内容。
           </p>
           <div className="rule-divider" />
-          <span className="eyebrow">WHY THIS WORKS</span>
+          <span className="eyebrow">为什么要隔日再问</span>
           <h3>想起来，比再看一遍多一步。</h3>
           <p>
             先独立回答，再核对结论和理由。答错或使用提示的规则，次日再问；跨日通过后，间隔逐渐拉长。
@@ -662,7 +790,7 @@ function Today({ state, update, day, today }) {
     </>
   );
 }
-function TaskRow({ lesson: l, type = "lesson", done, state }) {
+function TaskRow({ lesson: l, type = "lesson", done, state, reason }) {
   const familiar = state.settings.familiarity[l.subjectId] || 0;
   return (
     <a
@@ -676,23 +804,49 @@ function TaskRow({ lesson: l, type = "lesson", done, state }) {
         <span className="task-meta">
           {subjectById[l.subjectId].name} ·{" "}
           {type === "review"
-            ? "到期无提示检查"
+            ? "隔日独立判断"
             : familiar
-              ? "先诊断，再定点补讲"
+              ? "先确认会多少，再补缺口"
               : "基础讲解 + 示范"}
         </span>
         <h3>{l.title}</h3>
         <p>
           {type === "review"
-            ? "换一个关键条件，检查规则能否被调用。"
-            : l.summary}
+            ? "先想出结论，再说清理由；卡住了就回到对应讲解。"
+            : reason || l.summary}
         </p>
       </div>
       <span className="task-time">
-        {type === "review" ? "约4" : l.minutes} min
+        {type === "review" ? `约${reviewMinutes(state, l.id)}` : l.minutes} min
         <ChevronRight size={18} />
       </span>
     </a>
+  );
+}
+
+function Coverage({ subjectId }) {
+  const labels = {
+    partial: "已做部分课程",
+    pending: "计划内待补",
+    extension: "后续扩展",
+  };
+  return (
+    <div className="coverage-table">
+      {coverageById[subjectId].map((d) => (
+        <section className="coverage-domain" key={d.name}>
+          <div>
+            <strong>{d.name}</strong>
+            <Pill>{labels[d.status]}</Pill>
+          </div>
+          <p>{d.note}</p>
+          {d.lessonIds.map((id) => (
+            <a href={`#/course/${id}`} key={id}>
+              {lessonById[id]?.title}
+            </a>
+          ))}
+        </section>
+      ))}
+    </div>
   );
 }
 
@@ -709,7 +863,7 @@ function Library({ state }) {
   return (
     <>
       <PageTitle
-        eyebrow="THE LEARNING ATLAS"
+        eyebrow="知道学了什么，也知道还缺什么"
         title="先看结构，再深入一条规则。"
       >
         {lessons.length} 个核心单元 ·{" "}
@@ -755,13 +909,9 @@ function Library({ state }) {
           </div>
           <details>
             <summary>查看本科学习范围索引</summary>
-            <div className="domain-list">
-              {subjectById[filter].domains.map((d) => (
-                <span key={d}>{d}</span>
-              ))}
-            </div>
+            <Coverage subjectId={filter} />
             <p>
-              范围标签用于定位；只有下方列出的单元已制作。其他领域需回到原书继续学习。
+              这里区分已有课程、计划内待补和后续扩展。一个领域有课，仍然可能只讲了其中一条规则。
             </p>
           </details>
         </div>
@@ -845,279 +995,450 @@ function Contrast({ contrast }) {
     </section>
   );
 }
+function RepairBlock({ lesson, state, onReturn }) {
+  const [kind, setKind] = useState(() => {
+    const last = state.attempts
+      .filter((a) => a.lessonId === lesson.id && !passed(a))
+      .at(-1);
+    return mistakeKinds.some(([id]) => id === last?.errorType)
+      ? last.errorType
+      : "concept";
+  });
+  const advice = repairAdvice(lesson, state, kind);
+  return (
+    <div className="repair-panel">
+      <div className="section-heading">
+        <h3>先把卡住的这一步弄清楚</h3>
+        <Pill>约 5—10 分钟</Pill>
+      </div>
+      <label>
+        这次最像哪种情况？
+        <select value={kind} onChange={(e) => setKind(e.target.value)}>
+          {mistakeKinds.map(([id, label]) => (
+            <option key={id} value={id}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p>{advice.message}</p>
+      {advice.sectionIndexes.map(
+        (i) =>
+          lesson.sections[i] && (
+            <section key={i}>
+              <h4>{lesson.sections[i].title}</h4>
+              <p>{lesson.sections[i].body}</p>
+            </section>
+          ),
+      )}
+      {lesson.prerequisites.length > 0 && (
+        <p className="small-text">
+          如果这些词本身还陌生，先看
+          {lesson.prerequisites.map((id) => (
+            <a key={id} href={`#/course/${id}`}>
+              《{lessonById[id]?.title}》
+            </a>
+          ))}
+          。
+        </p>
+      )}
+      <button onClick={onReturn}>
+        回到例子，重新走一遍 <ArrowRight size={16} />
+      </button>
+    </div>
+  );
+}
+
 function Lesson({ lesson: l, state, update, notice }) {
-  const [step, setStep] = useState(
-      state.cursor?.id === l.id ? state.cursor.step : 0,
-    ),
-    [diagnostic, setDiagnostic] = useState(false),
-    [session, setSession] = useState([]),
-    [qIndex, setQIndex] = useState(0);
+  const saved =
+    state.cursor?.id === l.id && state.cursor?.mode !== "review"
+      ? state.cursor
+      : null;
+  const [step, setStep] = useState(saved?.step || 0);
+  const [diagnostic, setDiagnostic] = useState(saved?.diagnostic || false);
+  const [session, setSession] = useState(saved?.session || []);
+  const [quizDraft, setQuizDraft] = useState(saved?.draft || null);
+  const [qIndex, setQIndex] = useState(
+    Math.min(saved?.qIndex || 0, l.questions.length - 1),
+  );
+  const [repair, setRepair] = useState(
+    window.location.hash.endsWith("?repair"),
+  );
+  const [checkDone, setCheckDone] = useState(saved?.checkDone || false);
   const familiar = state.settings.familiarity[l.subjectId] || 0;
-  const changeStep = (n) => {
-    setStep(n);
-    update((s) => ({ ...s, cursor: n === 3 ? null : { id: l.id, step: n } }));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const verified = new Set(state.records[l.id]?.diagnosticSections || []);
+  const missing = l.prerequisites.filter(
+    (id) => !prerequisiteReady(state.records[id]),
+  );
+  const questions = l.questions;
+  const current = questions[qIndex];
+  const lastAnswer = session.find((a) => a.questionId === current.id);
   useEffect(() => {
-    update((s) => ({ ...s, cursor: { id: l.id, step } }));
-  }, []);
-  const questions = diagnostic
-    ? l.questions.filter((q) => q.kind !== "variation")
-    : l.questions;
+    if (step === 3) return;
+    update((s) => ({
+      ...s,
+      cursor: {
+        id: l.id,
+        mode: "lesson",
+        step,
+        diagnostic,
+        session,
+        qIndex,
+        checkDone,
+        draft: quizDraft,
+      },
+    }));
+  }, [step, diagnostic, session, qIndex, checkDone, quizDraft]);
+  function changeStep(n) {
+    setStep(n);
+    setRepair(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
   function answered(q, result) {
     const attempt = { questionId: q.id, kind: q.kind, ...result };
-    setSession((a) => [...a, attempt]);
+    setSession((a) => [...a.filter((x) => x.questionId !== q.id), attempt]);
     update((s) => recordAttempt(s, l.id, q, result));
   }
   function finish() {
-    const ok = session.every(passed) && session.length === questions.length;
+    if (diagnostic) {
+      update((s) => finishSession(s, l, session, localDate(), "diagnostic"));
+      setDiagnostic(false);
+      setCheckDone(true);
+      changeStep(0);
+      notice("已把这次验证过的段落收起，未测和答得犹豫的部分仍然保留。");
+      return;
+    }
     update((s) =>
       finishSession(
         s,
         l,
         session,
         localDate(),
-        diagnostic ? "diagnostic" : "lesson",
+        "lesson",
+        checkDone ? Math.max(5, l.minutes - verified.size * 4) : undefined,
       ),
     );
-    if (diagnostic && !ok) {
-      setDiagnostic(false);
-      setSession([]);
-      setQIndex(0);
-      changeStep(0);
-      notice("已定位需要补讲的规则，回到讲解后再试。");
-    } else changeStep(3);
+    setStep(3);
+    update((s) => ({ ...s, cursor: null }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  const titles = ["理解规则", "看一个例子", "独立作答", "合书回忆"];
+  function nextQuestion() {
+    if (
+      session.slice(-2).length === 2 &&
+      session.slice(-2).every((a) => !passed(a))
+    ) {
+      setRepair(true);
+      return;
+    }
+    if (qIndex < questions.length - 1) setQIndex(qIndex + 1);
+    else finish();
+  }
+  function startPractice() {
+    if (checkDone && session.length === questions.length) {
+      finish();
+      return;
+    }
+    setDiagnostic(false);
+    setQIndex(0);
+    setSession([]);
+    changeStep(2);
+  }
+  const titles = ["先弄懂", "看一遍怎么用", "自己试一试", "合上再想想"];
   return (
     <>
       <div className="lesson-top">
         <a href="#/library" className="back-link">
-          <ArrowLeft size={16} /> 课程地图
+          <ArrowLeft size={16} />
+          课程地图
         </a>
         <div>
           <Pill>{subjectById[l.subjectId].name}</Pill>
           <span>
-            <Clock3 size={15} /> {l.minutes} 分钟
+            <Clock3 size={15} />
+            预计 {l.minutes} 分钟
           </span>
         </div>
       </div>
       <div className="lesson-heading">
-        <p className="eyebrow">A RULE, UNDERSTOOD.</p>
+        <p className="eyebrow">这一课，只解决一个小问题</p>
         <h1>{l.title}</h1>
-        <p>{l.summary}</p>
+        <p>{l.orientation || l.summary}</p>
       </div>
       <div className="lesson-layout">
         <article className="lesson-body">
           <div className="lesson-steps">
-            {titles.map((s, i) => (
+            {titles.map((title, i) => (
               <button
-                key={s}
+                key={title}
                 className={step === i ? "active" : step > i ? "complete" : ""}
                 disabled={i > 1 && i !== step}
                 onClick={() => changeStep(i)}
               >
                 <span>{step > i ? <Check size={14} /> : i + 1}</span>
-                {s}
+                {title}
               </button>
             ))}
           </div>
-          {step === 0 && (
+          {repair ? (
+            <RepairBlock
+              lesson={l}
+              state={state}
+              onReturn={() => {
+                setRepair(false);
+                setDiagnostic(false);
+                setCheckDone(false);
+                changeStep(1);
+              }}
+            />
+          ) : (
             <>
-              <div className="goal-box">
-                <Target size={20} />
-                <div>
-                  <strong>学完以后，你应该能</strong>
-                  <ul>
-                    {l.objectives.map((o) => (
-                      <li key={o}>{o}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              {familiar > 0 && !state.records[l.id]?.completedDate && (
-                <div className="diagnostic-banner">
-                  <div>
-                    <strong>这个模块有基础？</strong>
-                    <p>先做两道短检查。结论和理由都正确，才跳过此单元讲解。</p>
-                  </div>
-                  <button
-                    className="secondary"
-                    onClick={() => {
-                      setDiagnostic(true);
-                      setQIndex(0);
-                      setSession([]);
-                      changeStep(2);
-                    }}
-                  >
-                    先做诊断 <ArrowRight size={15} />
-                  </button>
-                </div>
-              )}
-              {l.sections.map((s, i) => (
-                <section className="prose-section" key={s.title}>
-                  <span className="section-number">{number(i + 1)}</span>
-                  <div>
-                    <h2>{s.title}</h2>
-                    <p>{s.body}</p>
-                  </div>
-                </section>
-              ))}
-              <div className="logic-box">
-                <span className="eyebrow">判断时，依次问自己</span>
-                <ol>
-                  {l.logicSteps.map((s) => (
-                    <li key={s}>{s}</li>
-                  ))}
-                </ol>
-              </div>
-              <Contrast contrast={l.contrast} />
-              <div className="lesson-actions">
-                <span>先能解释，再进入案例。</span>
-                <button onClick={() => changeStep(1)}>
-                  看分步示范 <ArrowRight size={17} />
-                </button>
-              </div>
-            </>
-          )}
-          {step === 1 && (
-            <>
-              <p className="eyebrow">WORKED EXAMPLE / 原创虚构情境</p>
-              <div className="scenario">
-                <span className="quote-mark">“</span>
-                <p>{l.example.scenario}</p>
-              </div>
-              <div className="example-steps">
-                {l.example.steps.map((s, i) => (
-                  <section key={s.title}>
-                    <span>{number(i + 1)}</span>
-                    <div>
-                      <h3>{s.title}</h3>
-                      <p>{s.body}</p>
+              {step === 0 && (
+                <>
+                  {l.bridge && <p className="lesson-bridge">{l.bridge}</p>}
+                  {missing.length > 0 && (
+                    <div className="prerequisite-notice">
+                      <strong>这课会用到前面的知识</strong>
+                      <p>
+                        如果下面的概念还没弄清，可以先花几分钟补上，后面的例子会轻松很多。
+                      </p>
+                      {missing.map((id) => (
+                        <a key={id} href={`#/course/${id}`}>
+                          {lessonById[id]?.title}
+                          <ArrowRight size={15} />
+                        </a>
+                      ))}
                     </div>
-                  </section>
-                ))}
-              </div>
-              <div className="conclusion">
-                <Check size={21} />
-                <div>
-                  <strong>把推理落到结论</strong>
-                  <p>{l.example.conclusion}</p>
-                </div>
-              </div>
-              <div className="lesson-actions">
-                <button className="secondary" onClick={() => changeStep(0)}>
-                  <ArrowLeft size={16} /> 回看规则
-                </button>
-                <button
-                  onClick={() => {
-                    setDiagnostic(false);
-                    setQIndex(0);
-                    setSession([]);
-                    changeStep(2);
-                  }}
-                >
-                  我来独立判断 <ArrowRight size={16} />
-                </button>
-              </div>
-            </>
-          )}
-          {step === 2 && (
-            <>
-              <div className="practice-heading">
-                <span className="eyebrow">
-                  {diagnostic
-                    ? "MODULE CHECK / 模块诊断"
-                    : "RETRIEVE & APPLY / 独立检查"}
-                </span>
-                <span>
-                  {qIndex + 1} / {questions.length}
-                </span>
-              </div>
-              <Quiz
-                key={`${diagnostic}-${questions[qIndex].id}`}
-                question={questions[qIndex]}
-                lesson={l}
-                onAnswer={(result) => answered(questions[qIndex], result)}
-                onNext={() => {
-                  if (qIndex < questions.length - 1) setQIndex(qIndex + 1);
-                  else finish();
-                }}
-                last={qIndex === questions.length - 1}
-              />
-            </>
-          )}
-          {step === 3 && (
-            <>
-              <div className="finish-header">
-                <div className="finish-icon">
-                  <Check size={30} />
-                </div>
-                <p className="eyebrow">MAKE IT YOURS</p>
-                <h2>
-                  {session.length
-                    ? session.every(passed)
-                      ? "这一轮，结论和理由都对上了。"
-                      : "错因已经留下，明天再试一次。"
-                    : "继续巩固这条规则。"}
-                </h2>
-                <p>现在合上解释，用一分钟说出规则和一个例外。</p>
-              </div>
-              <div className="recall-list">
-                {l.takeaways.map((t, i) => (
-                  <details key={t}>
-                    <summary>
-                      {[
-                        "这个制度解决什么问题？",
-                        "决定结论的条件是什么？",
-                        "什么变化会让我换一个结论？",
-                      ][i] || "还有什么容易漏掉？"}
-                    </summary>
-                    <p>{t}</p>
-                  </details>
-                ))}
-              </div>
-              <div className="next-review">
-                <CalendarDays size={20} />
-                <div>
-                  <strong>
-                    下次复习：
-                    {state.records[l.id]?.due
-                      ? dateLabel(state.records[l.id].due)
-                      : "完成独立练习后安排"}
-                  </strong>
-                  <p>
-                    浏览不计为掌握；需要至少两个不同日期无提示通过，并通过变化情境。
-                  </p>
-                </div>
-              </div>
-              <div className="lesson-actions">
-                <button
-                  className="secondary"
-                  onClick={() => {
-                    setSession([]);
-                    setQIndex(0);
-                    setDiagnostic(false);
-                    changeStep(2);
-                  }}
-                >
-                  再练一轮
-                </button>
-                <button
-                  onClick={() => {
-                    update((s) => ({ ...s, cursor: null }));
-                    go("today");
-                  }}
-                >
-                  回到今日学习 <ArrowRight size={17} />
-                </button>
-              </div>
+                  )}
+                  {l.warmup && (
+                    <details className="warmup">
+                      <summary>
+                        <span>先想一想，不计分</span>
+                        {l.warmup.prompt}
+                      </summary>
+                      <p>{l.warmup.answer}</p>
+                    </details>
+                  )}
+                  <div className="goal-box">
+                    <Target size={20} />
+                    <div>
+                      <strong>这一课要弄清</strong>
+                      <ul>
+                        {l.objectives.map((o) => (
+                          <li key={o}>{o}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  {familiar > 0 &&
+                    !checkDone &&
+                    !state.records[l.id]?.completedDate && (
+                      <div className="diagnostic-banner">
+                        <div>
+                          <strong>这部分你可能已经会了</strong>
+                          <p>
+                            先试 {questions.length}{" "}
+                            个小问题。只收起实际验证过的段落，没测到的内容仍然要看。
+                          </p>
+                        </div>
+                        <button
+                          className="secondary"
+                          onClick={() => {
+                            setDiagnostic(true);
+                            setSession([]);
+                            setQIndex(0);
+                            changeStep(2);
+                          }}
+                        >
+                          先看看我会多少
+                          <ArrowRight size={15} />
+                        </button>
+                      </div>
+                    )}
+                  {checkDone && (
+                    <div className="plain-note">
+                      <Check size={18} />
+                      <p>
+                        本轮已验证 {verified.size} / {l.sections.length}{" "}
+                        段。收起的部分仍可展开；下面保留的段落还需要你读一遍。
+                      </p>
+                    </div>
+                  )}
+                  {l.sections.map((section, i) =>
+                    verified.has(i) ? (
+                      <details className="verified-section" key={section.title}>
+                        <summary>
+                          <Check size={15} />
+                          {section.title}
+                          <span>已测到，可快速回看</span>
+                        </summary>
+                        <p>{section.body}</p>
+                      </details>
+                    ) : (
+                      <section className="prose-section" key={section.title}>
+                        <span className="section-number">{number(i + 1)}</span>
+                        <div>
+                          <h2>{section.title}</h2>
+                          <p>{section.body}</p>
+                        </div>
+                      </section>
+                    ),
+                  )}
+                  <div className="logic-box">
+                    <span className="eyebrow">遇到题目，按这个顺序想</span>
+                    <ol>
+                      {l.logicSteps.map((s) => (
+                        <li key={s}>{s}</li>
+                      ))}
+                    </ol>
+                  </div>
+                  <Contrast contrast={l.contrast} />
+                  <div className="lesson-actions">
+                    <span>不用逐字背，先说清它在解决什么问题。</span>
+                    <button onClick={() => changeStep(1)}>
+                      跟着例子走一遍
+                      <ArrowRight size={17} />
+                    </button>
+                  </div>
+                </>
+              )}
+              {step === 1 && (
+                <>
+                  <p className="eyebrow">看看规则怎样落到事实里 · 虚构案例</p>
+                  <div className="scenario">
+                    <span className="quote-mark">“</span>
+                    <p>{l.example.scenario}</p>
+                  </div>
+                  <div className="example-steps">
+                    {l.example.steps.map((s, i) => (
+                      <section key={s.title}>
+                        <span>{number(i + 1)}</span>
+                        <div>
+                          <h3>{s.title}</h3>
+                          <p>{s.body}</p>
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                  <div className="conclusion">
+                    <Check size={21} />
+                    <div>
+                      <strong>所以，这个例子的结论是</strong>
+                      <p>{l.example.conclusion}</p>
+                    </div>
+                  </div>
+                  <div className="lesson-actions">
+                    <button className="secondary" onClick={() => changeStep(0)}>
+                      <ArrowLeft size={16} />
+                      再看一下规则
+                    </button>
+                    <button onClick={startPractice}>
+                      {checkDone
+                        ? "整理这课要记住的东西"
+                        : "换个例子，我来判断"}
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </>
+              )}
+              {step === 2 && (
+                <>
+                  <div className="practice-heading">
+                    <span className="eyebrow">
+                      {diagnostic ? "先确认哪些已经会了" : "先自己想，再看解释"}
+                    </span>
+                    <span>
+                      {qIndex + 1} / {questions.length}
+                    </span>
+                  </div>
+                  <Quiz
+                    key={`${diagnostic}-${current.id}`}
+                    question={current}
+                    lesson={l}
+                    initialResult={lastAnswer}
+                    initialDraft={quizDraft}
+                    onDraft={setQuizDraft}
+                    onAnswer={(result) => answered(current, result)}
+                    onNext={nextQuestion}
+                    onRepair={() => setRepair(true)}
+                    last={qIndex === questions.length - 1}
+                  />
+                  <button
+                    className="text-button no-idea"
+                    onClick={() => setRepair(true)}
+                  >
+                    完全没有思路？先补讲，不用硬猜。
+                  </button>
+                </>
+              )}
+              {step === 3 && (
+                <>
+                  <div className="finish-header">
+                    <div className="finish-icon">
+                      <Check size={30} />
+                    </div>
+                    <p className="eyebrow">最后，试着不看解释</p>
+                    <h2>
+                      {session.every(passed)
+                        ? "这一轮，结论和理由都答对了。"
+                        : "这课先学到这里，难点明天再检查。"}
+                    </h2>
+                    <p>
+                      用自己的话回答下面的问题。说不完整，就展开核对少了哪一步。
+                      当前 {learningEvidence(l, state).checked} /{" "}
+                      {l.questions.length}{" "}
+                      道课堂题最近一次答对且未点提示；同日复练不增加跨日验证。
+                    </p>
+                  </div>
+                  <div className="recall-list">
+                    {l.takeaways.map((t, i) => (
+                      <details key={t}>
+                        <summary>
+                          {l.recallPrompts?.[i] ||
+                            `第 ${i + 1} 条关键规则，你能说清吗？`}
+                        </summary>
+                        <p>{t}</p>
+                      </details>
+                    ))}
+                  </div>
+                  <div className="next-review">
+                    <CalendarDays size={20} />
+                    <div>
+                      <strong>
+                        下次再看：
+                        {state.records[l.id]?.due
+                          ? dateLabel(state.records[l.id].due)
+                          : "完成练习后安排"}
+                      </strong>
+                      <p>
+                        今天看懂是第一步。隔一天还能讲清楚、换个条件还能判断，才会逐渐记牢。
+                      </p>
+                    </div>
+                  </div>
+                  <div className="lesson-actions">
+                    <button
+                      className="secondary"
+                      onClick={() => {
+                        setCheckDone(false);
+                        setSession([]);
+                        setQIndex(0);
+                        changeStep(2);
+                      }}
+                    >
+                      还想再练一遍
+                    </button>
+                    <button onClick={() => go("today")}>
+                      回到今天的任务
+                      <ArrowRight size={17} />
+                    </button>
+                  </div>
+                </>
+              )}
             </>
           )}
           <Source lesson={l} />
         </article>
         <aside className="lesson-aside" hidden={step === 2}>
-          <span className="eyebrow">本课路线</span>
+          <span className="eyebrow">把这几步连起来</span>
           <ol>
             {l.logicSteps.map((s, i) => (
               <li key={s}>
@@ -1126,24 +1447,9 @@ function Lesson({ lesson: l, state, update, notice }) {
               </li>
             ))}
           </ol>
-          {l.prerequisites.length > 0 && (
-            <>
-              <div className="rule-divider" />
-              <h4>前置知识</h4>
-              {l.prerequisites.map((id) => (
-                <a key={id} href={`#/course/${id}`} className="prereq">
-                  {lessonById[id]?.title || id}
-                  <ChevronRight size={14} />
-                </a>
-              ))}
-              <p className="muted small-text">
-                若分析时找不到入口，先补前置单元。
-              </p>
-            </>
-          )}
           <div className="rule-divider" />
           <p className="small-text muted">
-            提示只在你主动打开时出现。用了提示，本次不会计为无提示通过。
+            不用一次记住所有细节。先把关系讲明白，做题时再检查条件和例外。
           </p>
         </aside>
       </div>
@@ -1151,57 +1457,128 @@ function Lesson({ lesson: l, state, update, notice }) {
   );
 }
 
-function Quiz({ question: q, lesson, onAnswer, onNext, last = false }) {
-  const [choice, setChoice] = useState(null),
-    [reason, setReason] = useState(null),
-    [confidence, setConfidence] = useState(""),
-    [hint, setHint] = useState(false),
-    [submitted, setSubmitted] = useState(false),
-    [error, setError] = useState("");
+function Quiz({
+  question: q,
+  lesson,
+  onAnswer,
+  onNext,
+  last = false,
+  onRepair,
+  initialResult,
+  initialDraft,
+  onDraft,
+  deferFeedback = false,
+  assisted = false,
+}) {
+  const draft = initialDraft?.questionId === q.id ? initialDraft : null;
+  const [choice, setChoice] = useState(
+    initialResult?.choice ?? draft?.choice ?? null,
+  );
+  const [reason, setReason] = useState(
+    initialResult?.reason ?? draft?.reason ?? null,
+  );
+  const [confidence, setConfidence] = useState(
+    initialResult?.confidence || draft?.confidence || "",
+  );
+  const [hint, setHint] = useState(initialResult?.hint || draft?.hint || false);
+  const effectiveHint = hint || Boolean(initialResult?.hint) || assisted;
+  const [submitted, setSubmitted] = useState(Boolean(initialResult));
+  const [phase, setPhase] = useState(
+    initialResult ? "feedback" : draft?.phase || "answer",
+  );
+  const [error, setError] = useState("");
   const started = useRef(Date.now());
   const options = useMemo(
-    () => shuffle(q.options.map((v, i) => ({ v, i }))),
+    () =>
+      restoreChoiceOrder(
+        q.options,
+        initialResult?.optionOrder || draft?.optionOrder,
+      ),
     [q.id],
   );
   const reasons = useMemo(
-    () => shuffle(q.reasonOptions.map((v, i) => ({ v, i }))),
+    () =>
+      restoreChoiceOrder(
+        q.reasonOptions,
+        initialResult?.reasonOrder || draft?.reasonOrder,
+      ),
     [q.id],
   );
-  const correct = choice === q.answer,
-    reasonCorrect = reason === q.reasonAnswer;
+  const draftWriter = useRef(onDraft);
+  draftWriter.current = onDraft;
+  useEffect(() => {
+    if (!submitted)
+      draftWriter.current?.({
+        questionId: q.id,
+        phase,
+        choice,
+        reason,
+        confidence,
+        hint,
+        optionOrder: options.map((o) => o.i),
+        reasonOrder: reasons.map((o) => o.i),
+      });
+  }, [
+    q.id,
+    phase,
+    choice,
+    reason,
+    confidence,
+    hint,
+    options,
+    reasons,
+    submitted,
+  ]);
+  const correct = initialResult?.correct ?? choice === q.answer;
+  const reasonCorrect =
+    initialResult?.reasonCorrect ?? reason === q.reasonAnswer;
+  const [errorKind, setErrorKind] = useState(initialResult?.errorType || "");
+  function lockAnswer() {
+    if (choice === null || !confidence) {
+      setError("先选一个判断，再告诉我你有多大把握。");
+      return;
+    }
+    setError("");
+    setPhase("reason");
+  }
   function submit() {
-    if (choice === null || reason === null || !confidence) {
-      setError("请分别选择结论、理由和把握程度。");
+    if (reason === null) {
+      setError("再选一个最能说明你判断的理由。");
       return;
     }
     setError("");
     setSubmitted(true);
+    setPhase("feedback");
     onAnswer({
       date: localDate(),
+      choice,
+      reason,
       correct,
       reasonCorrect,
-      hint,
+      hint: effectiveHint,
       guessed: confidence === "guess",
       confidence,
       seconds: Math.max(1, Math.round((Date.now() - started.current) / 1000)),
-      errorType: "",
+      errorType: errorKind,
+      optionOrder: options.map((o) => o.i),
+      reasonOrder: reasons.map((o) => o.i),
     });
   }
   const kind = {
-    recall: "规则检索",
-    application: "近似应用",
-    variation: "关键事实变化",
+    recall: "想起规则",
+    application: "用到例子里",
+    variation: "改变一个条件",
   }[q.kind];
   return (
     <div className="quiz">
       <Pill>{kind}</Pill>
       <h2>{q.prompt}</h2>
-      <fieldset disabled={submitted}>
-        <legend>01 · 你的结论</legend>
+      <fieldset disabled={phase !== "answer"}>
+        <legend>先判断：你会选哪一个？</legend>
         {options.map(({ v, i }, j) => (
           <label
             key={i}
-            className={`answer-option ${choice === i ? "chosen" : ""} ${submitted && i === q.answer ? "right-answer" : ""}`}
+            className={`answer-option ${choice === i ? "chosen" : ""} ${submitted && !deferFeedback && i === q.answer ? "right-answer" : ""}`}
           >
             <input
               type="radio"
@@ -1211,35 +1588,19 @@ function Quiz({ question: q, lesson, onAnswer, onNext, last = false }) {
             />
             <span className="option-letter">{String.fromCharCode(65 + j)}</span>
             <span>{v}</span>
-            {submitted && i === q.answer && <Check size={18} />}
+            {submitted && !deferFeedback && i === q.answer && (
+              <Check size={18} />
+            )}
           </label>
         ))}
       </fieldset>
-      <fieldset disabled={submitted}>
-        <legend>02 · 决定你判断的理由</legend>
-        {reasons.map(({ v, i }) => (
-          <label
-            key={i}
-            className={`answer-option reason ${reason === i ? "chosen" : ""} ${submitted && i === q.reasonAnswer ? "right-answer" : ""}`}
-          >
-            <input
-              type="radio"
-              name={`reason-${q.id}`}
-              checked={reason === i}
-              onChange={() => setReason(i)}
-            />
-            <span>{v}</span>
-            {submitted && i === q.reasonAnswer && <Check size={18} />}
-          </label>
-        ))}
-      </fieldset>
-      {!submitted && (
+      {phase === "answer" && (
         <>
           <fieldset className="confidence">
-            <legend>03 · 这次有多大把握？</legend>
+            <legend>这个判断，你有多大把握？</legend>
             {[
-              ["sure", "能解释清楚"],
-              ["uncertain", "有些犹豫"],
+              ["sure", "能说清为什么"],
+              ["uncertain", "还拿不太准"],
               ["guess", "主要靠猜"],
             ].map(([v, t]) => (
               <label key={v} className={confidence === v ? "selected" : ""}>
@@ -1253,25 +1614,74 @@ function Quiz({ question: q, lesson, onAnswer, onNext, last = false }) {
               </label>
             ))}
           </fieldset>
-          <button className="text-button" onClick={() => setHint(true)}>
-            <CircleHelp size={16} /> 看一个分析提示（本次不计无提示通过）
-          </button>
+          {!deferFeedback && (
+            <button className="text-button" onClick={() => setHint(true)}>
+              <CircleHelp size={16} />
+              需要一个提示
+            </button>
+          )}
           {hint && (
             <div className="hint-box">
-              先找出主体与决定性事实。重点检查：{q.decisiveFact}
+              先找出题目改变了哪个条件。可以对照本课的分析顺序：
+              {lesson.logicSteps[0]}
+              。用了提示也没关系，明天会再给你一次独立判断的机会。
             </div>
           )}
-          {error && (
-            <p className="error-text" role="alert">
-              {error}
-            </p>
-          )}
-          <button className="full-button" onClick={submit}>
-            提交结论与理由 <ArrowRight size={17} />
+          <button className="full-button" onClick={lockAnswer}>
+            确认这个判断，再说明理由
+            <ArrowRight size={17} />
           </button>
         </>
       )}
-      {submitted && (
+      {phase === "reason" && (
+        <p className="answer-locked">
+          <Check size={16} />
+          判断已记下。先在心里说一句“因为……”，再选最贴近的理由。
+        </p>
+      )}
+      {phase !== "answer" && (
+        <fieldset disabled={submitted}>
+          <legend>为什么这样判断？</legend>
+          {reasons.map(({ v, i }) => (
+            <label
+              key={i}
+              className={`answer-option reason ${reason === i ? "chosen" : ""} ${submitted && !deferFeedback && i === q.reasonAnswer ? "right-answer" : ""}`}
+            >
+              <input
+                type="radio"
+                name={`reason-${q.id}`}
+                checked={reason === i}
+                onChange={() => setReason(i)}
+              />
+              <span>{v}</span>
+              {submitted && !deferFeedback && i === q.reasonAnswer && (
+                <Check size={18} />
+              )}
+            </label>
+          ))}
+        </fieldset>
+      )}
+      {error && (
+        <p className="error-text" role="alert">
+          {error}
+        </p>
+      )}
+      {phase === "reason" && (
+        <button className="full-button" onClick={submit}>
+          {deferFeedback ? "保存这道题的判断" : "看看我的推理对不对"}
+          <ArrowRight size={17} />
+        </button>
+      )}
+      {submitted && deferFeedback && (
+        <div className="feedback">
+          <p>判断和理由已保存，完成整组后一起核对。</p>
+          <button onClick={onNext}>
+            {last ? "完成这一组，查看结果" : "继续下一题"}
+            <ArrowRight size={17} />
+          </button>
+        </div>
+      )}
+      {submitted && !deferFeedback && (
         <div
           className={`feedback ${correct && reasonCorrect ? "success" : "needs-work"}`}
           role="status"
@@ -1284,45 +1694,63 @@ function Quiz({ question: q, lesson, onAnswer, onNext, last = false }) {
             )}
             <h3>
               {correct && reasonCorrect
-                ? hint || confidence === "guess"
-                  ? "判断正确，仍需撤去提示再检验"
-                  : "结论与理由都正确"
+                ? effectiveHint || confidence === "guess"
+                  ? "这次选对了，明天再试着独立判断。"
+                  : "判断对了，理由也说得通。"
                 : correct
-                  ? "结论正确，理由还需要校准"
-                  : "回到决定结论的事实"}
+                  ? "结论选对了，理由里还少了一步。"
+                  : "我们看看，哪一步影响了结论。"}
             </h3>
           </div>
           <p>{q.explanation}</p>
           <div className="decisive-fact">
-            <strong>关键事实</strong>
+            <strong>决定这道题的地方</strong>
             {q.decisiveFact}
           </div>
-          {(!correct || !reasonCorrect || hint || confidence === "guess") && (
-            <label className="error-select">
-              给这次困难做个标记{" "}
-              <select
-                defaultValue=""
-                onChange={(e) =>
-                  window.dispatchEvent(
-                    new CustomEvent("study-error", {
-                      detail: { questionId: q.id, errorType: e.target.value },
-                    }),
-                  )
-                }
-              >
-                <option value="">可选：选择错因</option>
-                {errors.map((e) => (
-                  <option key={e}>{e}</option>
-                ))}
-              </select>
-            </label>
+          {(!correct ||
+            !reasonCorrect ||
+            effectiveHint ||
+            confidence === "guess") && (
+            <>
+              <label className="error-select">
+                这次最像哪种情况？
+                <select
+                  value={errorKind}
+                  onChange={(e) => {
+                    setErrorKind(e.target.value);
+                    window.dispatchEvent(
+                      new CustomEvent("study-error", {
+                        detail: { questionId: q.id, errorType: e.target.value },
+                      }),
+                    );
+                  }}
+                >
+                  <option value="">可以先不选</option>
+                  {mistakeKinds.map(([id, label]) => (
+                    <option key={id} value={id}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {errorKind && (
+                <p className="repair-suggestion">
+                  {lesson.repairHints?.[errorKind]?.message}
+                </p>
+              )}
+              {onRepair && (
+                <button className="secondary" onClick={onRepair}>
+                  这一步还不明白，帮我拆开讲
+                </button>
+              )}
+            </>
           )}
-          <p className="small-text muted">
-            评分依据：预先核对的结论与理由选项；不使用实时AI阅卷。
-          </p>
-          <button onClick={onNext}>
-            {last ? "完成这轮检查" : "换一个问题"} <ArrowRight size={17} />
-          </button>
+          <div className="feedback-actions">
+            <button onClick={onNext}>
+              {last ? "整理这一轮的结果" : "再试一个问题"}
+              <ArrowRight size={17} />
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -1330,40 +1758,62 @@ function Quiz({ question: q, lesson, onAnswer, onNext, last = false }) {
 }
 
 function Practice({ lesson: l, state, update, notice }) {
-  const [done, setDone] = useState(false),
-    [attempt, setAttempt] = useState(null);
-  const [q] = useState(() => {
-    const unresolved = l.questions.find((q) =>
-      state.records[l.id]?.unresolved?.includes(q.id),
-    );
-    if (unresolved) return unresolved;
-    const recent = state.attempts.filter((a) => a.lessonId === l.id).at(-1);
-    const kind = !state.records[l.id]?.variation
-      ? "variation"
-      : recent?.kind === "variation"
-        ? "recall"
-        : "variation";
-    return l.questions.find((q) => q.kind === kind) || l.questions[0];
-  });
+  const saved =
+    state.cursor?.mode === "review" && state.cursor.id === l.id
+      ? state.cursor
+      : null;
+  const [done, setDone] = useState(false);
+  const [repair, setRepair] = useState(false);
+  const [assisted, setAssisted] = useState(saved?.assisted || false);
+  const [quizDraft, setQuizDraft] = useState(saved?.draft || null);
+  function showRepair() {
+    setAssisted(true);
+    setRepair(true);
+  }
+  const [attempt, setAttempt] = useState(saved?.result || null);
+  const [q] = useState(
+    () =>
+      l.questions.find((q) => q.id === saved?.questionId) ||
+      selectReviewQuestion(l, state),
+  );
+  useEffect(() => {
+    if (!done)
+      update((s) => ({
+        ...s,
+        cursor: {
+          id: l.id,
+          mode: "review",
+          step: 2,
+          questionId: q.id,
+          result: attempt,
+          assisted,
+          draft: quizDraft,
+        },
+      }));
+  }, [q.id, attempt, done, assisted, quizDraft]);
   return (
     <>
       <div className="lesson-top">
         <a href="#/review" className="back-link">
-          <ArrowLeft size={16} /> 间隔复习
+          <ArrowLeft size={16} />
+          间隔复习
         </a>
         <Pill>{subjectById[l.subjectId].name}</Pill>
       </div>
-      <PageTitle eyebrow="SPACED RETRIEVAL" title={l.title}>
-        先独立判断。需要补讲时，随时返回完整课堂。
+      <PageTitle eyebrow="隔一段时间，再试一次" title={l.title}>
+        先独立判断。有卡住的地方，可以随时展开补讲。
       </PageTitle>
       <div className="review-practice">
         {done ? (
           <Empty
-            title="本次复习已记录"
+            title="这次结果已经记下"
             action={
               <div className="inline-actions">
-                <a className="button secondary" href={`#/course/${l.id}`}>
-                  补看讲解
+                <a
+                  className="button secondary"
+                  href={`#/course/${l.id}?repair`}
+                >
+                  补一下刚才的难点
                 </a>
                 <a className="button" href="#/review">
                   继续复习 <ArrowRight size={16} />
@@ -1372,31 +1822,51 @@ function Practice({ lesson: l, state, update, notice }) {
             }
           >
             下次日期：{state.records[l.id]?.due}
-            。同一天重复通过不会增加跨日次数。
+            。同一天重复作答属于练习，不会多算一次跨日验证。
           </Empty>
+        ) : repair ? (
+          <RepairBlock
+            lesson={l}
+            state={state}
+            onReturn={() => go(`course/${l.id}?repair`)}
+          />
         ) : (
           <Quiz
             key={q.id}
             lesson={l}
             question={q}
             last
-            onAnswer={(result) => {
+            initialResult={attempt}
+            assisted={assisted}
+            initialDraft={quizDraft}
+            onDraft={setQuizDraft}
+            onRepair={showRepair}
+            onAnswer={(rawResult) => {
+              const result = { ...rawResult, hint: rawResult.hint || assisted };
               setAttempt({ questionId: q.id, kind: q.kind, ...result });
               update((s) => recordAttempt(s, l.id, q, result));
             }}
             onNext={() => {
-              update((s) =>
-                finishSession(s, l, [attempt], localDate(), "review"),
-              );
+              update((s) => ({
+                ...finishSession(s, l, [attempt], localDate(), "review"),
+                cursor: null,
+              }));
               setDone(true);
               notice("已保存复习结果和下次日期。");
             }}
           />
         )}
         {!done && (
-          <a className="text-button back-to-lesson" href={`#/course/${l.id}`}>
-            找不到分析入口？先回到讲解 <ArrowRight size={16} />
-          </a>
+          <button
+            className="text-button back-to-lesson"
+            onClick={() => {
+              if (repair) setRepair(false);
+              else showRepair();
+            }}
+          >
+            {repair ? "回到刚才的题目" : "找不到分析入口？先拆开讲"}
+            <ArrowRight size={16} />
+          </button>
         )}
         <Source lesson={l} />
       </div>
@@ -1422,10 +1892,11 @@ function Review({ state, day, today }) {
   return (
     <>
       <PageTitle
-        eyebrow="REMEMBER, A LITTLE LONGER"
+        eyebrow="隔日回想，比连续重看更有区分度"
         title="再想起来，记忆就往前一步。"
       >
-        按本地日期安排。今天的复习上限 {isWeekend(today) ? 40 : 20}{" "}
+        按本地日期安排。今天的复习上限{" "}
+        {isWeekend(today) ? 40 : state.settings.weekday === 120 ? 15 : 20}{" "}
         分钟，多余任务顺延，减少新增。
       </PageTitle>
       <div className="review-stats">
@@ -1468,6 +1939,28 @@ function Review({ state, day, today }) {
           </Empty>
         )}
       </section>
+      {lessons.some(
+        (l) => state.records[l.id]?.checkpointUnresolved?.length,
+      ) && (
+        <div className="checkup-intro">
+          <div>
+            <h3>综合复核里，还有需要补的规则</h3>
+            <p>
+              {lessons
+                .filter(
+                  (l) => state.records[l.id]?.checkpointUnresolved?.length,
+                )
+                .map((l) => l.title)
+                .join("；")}
+              。先回课堂弄懂，隔一天再用保留题检查。
+            </p>
+          </div>
+          <a className="button secondary" href="#/checkup">
+            复测这些问题
+            <ArrowRight size={16} />
+          </a>
+        </div>
+      )}
       <div className="section-heading">
         <h2>从错因，回到规则</h2>
         <span className="muted small-text">仅展示每个规则组最近一次困难</span>
@@ -1479,7 +1972,8 @@ function Review({ state, day, today }) {
             <div>
               <h3>{lessonById[a.lessonId].title}</h3>
               <p>
-                {a.errorType ||
+                {mistakeKinds.find(([id]) => id === a.errorType)?.[1] ||
+                  a.errorType ||
                   (a.hint
                     ? "使用了提示"
                     : a.guessed
@@ -1509,6 +2003,377 @@ function Review({ state, day, today }) {
   );
 }
 
+function AssessmentResults({ items, run, diagnostic = false }) {
+  const report = assessmentReport(items, run.attempts);
+  return (
+    <div className="assessment-results">
+      <div className="stats-pair">
+        <div>
+          <strong>
+            {report.clear.length} / {report.answered}
+          </strong>
+          <span>结论和理由都独立答对</span>
+        </div>
+        <div>
+          <strong>{report.repair.length}</strong>
+          <span>需要回到讲解的考点</span>
+        </div>
+      </div>
+      <p className="muted">
+        这里只说明本次抽到的规则。
+        {report.untouched.length > 0
+          ? `还有 ${report.untouched.length} 题未检查。`
+          : ""}
+        没有测到的知识仍需学习，不据此推算考试分数或通过率。
+      </p>
+      {report.repair.length > 0 && <h3>接下来，先补这些地方</h3>}
+      {report.repair.map((item) => {
+        const l = lessonById[item.lessonId];
+        return (
+          <div className="assessment-repair" key={item.question.id}>
+            <strong>{item.topic}</strong>
+            <p>{item.question.explanation}</p>
+            <p className="small-text">
+              重点看：
+              {(item.sectionIndexes || item.question.sectionIndexes || [])
+                .map((i) => l.sections[i]?.title)
+                .filter(Boolean)
+                .join("、") || l.title}
+            </p>
+            <a className="text-button" href={`#/course/${l.id}?repair`}>
+              回到这一课 <ArrowRight size={15} />
+            </a>
+            <Source lesson={{ ...l, source: item.source }} />
+          </div>
+        );
+      })}
+      <details className="method-details">
+        <summary>查看这次所有题目的解释与来源</summary>
+        {items
+          .filter((item) =>
+            run.attempts.some((a) => a.questionId === item.question.id),
+          )
+          .map((item) => (
+            <section className="assessment-repair" key={item.question.id}>
+              <h3>{item.topic}</h3>
+              <p>{item.question.prompt}</p>
+              <p>
+                <strong>结论：</strong>
+                {item.question.options[item.question.answer]}
+              </p>
+              <p>
+                <strong>理由：</strong>
+                {item.question.reasonOptions[item.question.reasonAnswer]}
+              </p>
+              <p>{item.question.explanation}</p>
+              <Source
+                lesson={{ ...lessonById[item.lessonId], source: item.source }}
+              />
+            </section>
+          ))}
+      </details>
+      {diagnostic && (
+        <p className="plain-note">
+          诊断只记录上面这些题。进入课堂后，仍会保留未验证的段落；不会把整门民诉标为已学。
+        </p>
+      )}
+      <div className="inline-actions">
+        <a className="button" href="#/today">
+          回到今日学习 <ArrowRight size={16} />
+        </a>
+        <a className="button secondary" href="#/library">
+          查看尚未学习的单元
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function Diagnostic({ state, update }) {
+  const run = state.diagnostic;
+  const [started, setStarted] = useState(run.attempts.length > 0);
+  const item = diagnosticPool[Math.min(run.cursor, diagnosticPool.length - 1)];
+  const result = run.attempts.find((a) => a.questionId === item.question.id);
+  const done = run.completed || run.stopped;
+  function answer(result) {
+    update((s) => ({
+      ...s,
+      diagnostic: appendAssessmentAnswer(
+        s.diagnostic,
+        assessmentAnswer(item, result),
+      ),
+    }));
+  }
+  function next() {
+    update((s) => {
+      const d = s.diagnostic;
+      const stop = diagnosticNeedsTeaching(d);
+      return {
+        ...s,
+        diagnostic: {
+          ...d,
+          cursor: Math.min(d.cursor + 1, diagnosticPool.length - 1),
+          stopped: stop,
+          completed: d.cursor === diagnosticPool.length - 1,
+        },
+      };
+    });
+  }
+  function noIdea() {
+    update((s) => {
+      const d = appendAssessmentAnswer(
+        s.diagnostic,
+        assessmentAnswer(item, {
+          correct: false,
+          reasonCorrect: false,
+          hint: false,
+          guessed: false,
+          seconds: 0,
+          noIdea: true,
+          confidence: "guess",
+        }),
+      );
+      const stop = diagnosticNeedsTeaching(d);
+      return {
+        ...s,
+        diagnostic: {
+          ...d,
+          cursor: Math.min(d.cursor + 1, diagnosticPool.length - 1),
+          stopped: stop,
+          completed: d.cursor === diagnosticPool.length - 1,
+        },
+      };
+    });
+  }
+  return (
+    <>
+      <PageTitle eyebrow="先确认起点" title="民诉熟悉到哪里，具体试一试。">
+        最多16题，约20—25分钟。按起诉、证明、程序、救济、执行、涉外与仲裁检查；两次没有思路，就停下来补讲。
+      </PageTitle>
+      {!started ? (
+        <section className="checkup-intro">
+          <h2>熟悉的规则，可以少花时间重读</h2>
+          <p>
+            先独立选结论，再选理由。这一轮结束后，给你具体补讲入口。答案解释在整轮结束后显示。
+          </p>
+          <p>
+            可以随时退出，下次从已保存的题号继续。不会凭诊断结果直接完成整课。
+          </p>
+          <button onClick={() => setStarted(true)}>
+            开始这次诊断 <ArrowRight size={16} />
+          </button>
+        </section>
+      ) : done ? (
+        <>
+          <div className="plain-note">
+            {run.stopped
+              ? "有两处还没有分析思路，先补讲会更省时间。"
+              : "本轮诊断已完成。接下来按具体困难补讲。"}
+          </div>
+          <AssessmentResults items={diagnosticPool} run={run} diagnostic />
+          {run.stopped && !run.completed && (
+            <button
+              className="secondary"
+              onClick={() =>
+                update((s) => ({
+                  ...s,
+                  diagnostic: {
+                    ...s.diagnostic,
+                    stopped: false,
+                    roundStart: s.diagnostic.attempts.length,
+                  },
+                }))
+              }
+            >
+              补过讲解后，继续剩下的诊断
+              <ArrowRight size={16} />
+            </button>
+          )}
+        </>
+      ) : (
+        <div className="review-practice">
+          <div className="practice-heading">
+            <Pill>{item.topic}</Pill>
+            <span>
+              {run.cursor + 1} / {diagnosticPool.length}
+            </span>
+          </div>
+          <Quiz
+            key={item.question.id}
+            question={item.question}
+            lesson={lessonById[item.lessonId]}
+            deferFeedback
+            initialResult={result}
+            initialDraft={run.draft}
+            onDraft={(draft) =>
+              update((s) => ({ ...s, diagnostic: { ...s.diagnostic, draft } }))
+            }
+            onAnswer={answer}
+            onNext={next}
+            last={run.cursor === diagnosticPool.length - 1}
+          />
+          {!result && (
+            <button className="text-button no-idea" onClick={noIdea}>
+              这题没有思路，记下来先跳过
+            </button>
+          )}
+          <p className="muted small-text">
+            已提交的答案会保留。只是看见题目不计为学会。
+          </p>
+        </div>
+      )}
+    </>
+  );
+}
+
+function Checkup({ state, update, day }) {
+  const run = state.checkups.at(-1);
+  const items = run
+    ? run.itemIds
+        .map((id) => checkpointPool.find((i) => i.question.id === id))
+        .filter(Boolean)
+    : [];
+  const available = chooseCheckup(
+    checkpointPool,
+    state,
+    Math.floor(
+      (day.checkpointTime ||
+        Math.min(30, Math.max(0, day.budget - day.total))) / 2,
+    ),
+  );
+  const item =
+    run && !run.completed
+      ? items[Math.min(run.cursor, items.length - 1)]
+      : null;
+  const freshCount = available.filter(
+    (i) => !state.checkups.some((r) => r.itemIds.includes(i.question.id)),
+  ).length;
+  const currentResult =
+    item && run.attempts.find((a) => a.questionId === item.question.id);
+  function begin() {
+    update((s) => ({
+      ...s,
+      checkups: [...s.checkups, startCheckup(available)],
+    }));
+  }
+  function answer(result) {
+    update((s) => recordCheckupAnswer(s, item, result));
+  }
+  function next() {
+    update((s) => {
+      const runs = [...s.checkups],
+        r = runs.at(-1);
+      runs[runs.length - 1] = {
+        ...r,
+        cursor: Math.min(r.cursor + 1, items.length - 1),
+        completed: r.cursor === items.length - 1,
+        ...(r.cursor === items.length - 1
+          ? { finishedAt: new Date().toISOString() }
+          : {}),
+      };
+      return { ...s, checkups: runs };
+    });
+  }
+  return (
+    <>
+      <PageTitle
+        eyebrow="把规则放到另一道题里"
+        title="换一种问法，还能判断吗？"
+      >
+        只抽已经学过的单元。先完成整组，再核对解释；这是一组原创规则检查，不是正式考试模拟。
+      </PageTitle>
+      {(!run || run.completed || !items.length) && (
+        <section className="checkup-intro">
+          <div>
+            <h2>{run ? "还想检查一次？" : "留一组没看过答案的问题"}</h2>
+            <p>
+              当前可检查 {available.length} 题，预计 {available.length * 2}{" "}
+              分钟。
+              {freshCount
+                ? `${freshCount} 题还没有在综合复核中出现。`
+                : available.length
+                  ? "这组题已经见过，再做属于复练。"
+                  : "先完成有保留题的课程，或在今天留出几分钟再开始。"}
+            </p>
+            <p>
+              作答时先辨认规则和例外。本站题目为单项选择；若实际考试包含多选或不定项，还需配合对应题型的合法真题材料。
+            </p>
+          </div>
+          <button disabled={!available.length} onClick={begin}>
+            {available.length ? "开始这一组" : "当前没有可安排的题组"}
+            <ArrowRight size={16} />
+          </button>
+        </section>
+      )}
+      {run && !run.completed && !items.length && (
+        <div className="alert warning">
+          这组题已不在当前题库，旧记录仍然保留。可以从现有课程重新开始一组。
+        </div>
+      )}
+      {run?.completed && (
+        <>
+          <div className="section-heading">
+            <h2>最近这轮的结果</h2>
+            <Pill>{run.date}</Pill>
+          </div>
+          <AssessmentResults items={items} run={run} />
+        </>
+      )}
+      {item && (
+        <div className="review-practice">
+          <div className="practice-heading">
+            <Pill>{subjectById[lessonById[item.lessonId].subjectId].name}</Pill>
+            <span>
+              {run.cursor + 1} / {items.length}
+            </span>
+          </div>
+          <Quiz
+            key={`${run.startedAt}-${item.question.id}`}
+            question={item.question}
+            lesson={lessonById[item.lessonId]}
+            deferFeedback
+            initialResult={currentResult}
+            initialDraft={run.draft}
+            onDraft={(draft) =>
+              update((s) => {
+                const runs = [...s.checkups];
+                runs[runs.length - 1] = { ...runs.at(-1), draft };
+                return { ...s, checkups: runs };
+              })
+            }
+            onAnswer={answer}
+            onNext={next}
+            last={run.cursor === items.length - 1}
+          />
+          <p className="muted small-text">
+            中途离开会保留已提交的答案；解释等这一组做完再看。
+          </p>
+        </div>
+      )}
+      {!available.length && !run && (
+        <div className="plain-note">
+          <div>
+            <strong>这些课有配套保留题，完成教学后可检查：</strong>
+            {[...new Set(checkpointPool.map((i) => i.lessonId))]
+              .filter((id) => !state.records[id]?.completedDate)
+              .slice(0, 3)
+              .map((id) => (
+                <p key={id}>
+                  <a href={`#/course/${id}`}>{lessonById[id].title}</a>
+                </p>
+              ))}
+          </div>
+        </div>
+      )}
+      {!available.length && !run && (
+        <a className="button secondary" href="#/today">
+          先去今日学习
+        </a>
+      )}
+    </>
+  );
+}
+
 function Plan({ state, today }) {
   const plans = projectPlan(lessons, state);
   const total = plans
@@ -1518,33 +2383,41 @@ function Plan({ state, today }) {
   return (
     <>
       <PageTitle
-        eyebrow="FOURTEEN DAYS, ONE DIRECTION"
-        title="用两周，建立可以调用的知识。"
+        eyebrow="按剩余时间安排"
+        title="把有限的时间，留给最需要学的地方。"
       >
         从 {state.settings.startDate} 开始 · 按实际星期安排 · 预算约{" "}
         {(total / 60).toFixed(1)} 小时（含复习与休息）
       </PageTitle>
       <div className="plan-intro">
         <div>
-          <span>01—04</span>
+          <span>开始几天</span>
           <h3>建立分析入口</h3>
           <p>先给陌生科目讲解和示范，熟悉模块用短诊断验证。</p>
         </div>
         <div>
-          <span>05—11</span>
+          <span>中段学习</span>
           <h3>扩展与交叉检验</h3>
           <p>逐步覆盖八科，用相邻规则和变化事实打破熟悉感。</p>
         </div>
         <div>
-          <span>12—14</span>
+          <span>临近考试</span>
           <h3>减少新增，留给复现</h3>
-          <p>最后三天最多两课，最后一天停止常规新课。</p>
+          <p>
+            按考试日期压缩安排，最后两天留给综合复核和纠错；考试当天不排学习任务。
+          </p>
         </div>
       </div>
       <div className="plan-notice">
         这是按当前记录推算的安排。未来任务会随正确率、实际学习和预算变化；漏学不会整天叠加到下一天。课程地图仍可自由选学。本次预计安排{" "}
         {selected} 个教学单元，内容库共有 {lessons.length}{" "}
         个；其余保留为选学，不计为已学。
+      </div>
+      <div className="plain-note">
+        <ListChecks size={20} />
+        <p>
+          这份安排不强行填满每分钟。若有自己的合法客观题真题材料，可用余量练多选、不定项和限时作答；优先订正有把握却做错的题，不把本站的单项选择练习当作完整考试模拟。
+        </p>
       </div>
       <div className="plan-days">
         {plans.map((p, i) => (
@@ -1578,7 +2451,7 @@ function Plan({ state, today }) {
                   {p.past
                     ? "当天没有完成教学的记录"
                     : p.paused
-                      ? "计划尚未开始，或已超过设置的考试日期。"
+                      ? "计划尚未开始，或已到设置的考试日期。"
                       : "以到期复习、跨科复述和薄弱规则补讲为主。"}
                 </p>
               )}
@@ -1587,6 +2460,10 @@ function Plan({ state, today }) {
                   <span>
                     <RotateCcw size={13} /> 预计复现 {p.reviewTime} min
                   </span>
+                  {p.repairTime > 0 && <span>补讲 {p.repairTime} min</span>}
+                  {p.checkpointTime > 0 && (
+                    <a href="#/checkup">综合复核 {p.checkpointTime} min</a>
+                  )}
                   <span>复述 {p.reflection} min</span>
                   <span>休息 {p.breakTime} min</span>
                 </div>
@@ -1880,7 +2757,10 @@ function Settings({
     if (!file) return;
     try {
       if (file.size > 15_000_000) throw new Error("备份超过15MB。");
-      const value = decodeState(await file.text());
+      const value = reconcileCurriculum(
+        lessons,
+        decodeState(await file.text()),
+      );
       setPending(value);
       setMessage("");
     } catch (err) {
@@ -1900,10 +2780,7 @@ function Settings({
   }
   return (
     <>
-      <PageTitle
-        eyebrow="MAKE SPACE FOR LEARNING"
-        title="让计划，适合你的生活。"
-      >
+      <PageTitle eyebrow="按自己的时间和基础来" title="让计划，适合你的生活。">
         基础是自述，掌握靠验证。设置不会抹掉已有学习记录。
       </PageTitle>
       <form onSubmit={save} className="settings-form">
@@ -1920,7 +2797,7 @@ function Settings({
                 type="date"
                 required
                 value={draft.startDate}
-                onChange={(e) =>
+                onInput={(e) =>
                   setDraft((s) => ({ ...s, startDate: e.target.value }))
                 }
               />
@@ -1930,7 +2807,7 @@ function Settings({
               <input
                 type="date"
                 value={draft.examDate}
-                onChange={(e) =>
+                onInput={(e) =>
                   setDraft((s) => ({ ...s, examDate: e.target.value }))
                 }
               />
@@ -2147,7 +3024,7 @@ function Sources() {
   return (
     <>
       <PageTitle
-        eyebrow="SOURCES & BOUNDARIES"
+        eyebrow="来源与实际覆盖范围"
         title="每一条规则，都应该找得到来处。"
       >
         把来源、已做的内容和未覆盖的范围一起说明。
@@ -2157,10 +3034,12 @@ function Sources() {
         <div>
           <h2>
             {lessons.length} 个核心单元，
-            {lessons.reduce((t, l) => t + l.questions.length, 0)} 道原创练习
+            {lessons.reduce((t, l) => t + l.questions.length, 0)} 道课堂练习
           </h2>
           <p>
-            依据2026众合八册背诵卷的所列页面制作。课程含原创解释、虚构案例与变化题；不提供原书扫描、下载或长篇摘录。每课列出印刷页和PDF页。全书1666页未逐页审校，内容也不等同完整考试范围。
+            另有 {diagnosticPool.length} 道民诉诊断题（部分与课堂题重合），以及{" "}
+            {checkpointPool.length}{" "}
+            道综合复核保留题。依据2026众合八册背诵卷的所列页面制作。课程含原创解释、虚构案例与变化题；不提供原书扫描、下载或长篇摘录。每课列出印刷页和PDF页。全书1666页未逐页审校，内容也不等同完整考试范围。
           </p>
         </div>
       </div>
@@ -2179,11 +3058,7 @@ function Sources() {
               <p className="muted">{s.gaps}</p>
               <details>
                 <summary>一级学习领域与本次实际引用页</summary>
-                <div className="domain-list">
-                  {s.domains.map((d) => (
-                    <span key={d}>{d}</span>
-                  ))}
-                </div>
+                <Coverage subjectId={s.id} />
                 <p>
                   实际引用PDF页：
                   {[

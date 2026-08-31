@@ -1,0 +1,682 @@
+[
+  {
+    "lessonId": "civil-procedure-entry",
+    "topic": "立案相关｜明确被告与实体责任",
+    "question": {
+      "id": "civil-diagnostic-clear-defendant",
+      "kind": "application",
+      "prompt": "普通民事起诉状写明一家依法存续公司的名称和识别信息，被诉对象能够确定，其余起诉条件也均满足。能否仅以原告尚未证明该公司最终应承担债务，认定没有明确的被告？",
+      "options": [
+        "可以，被告负有债务必须在立案时得到最终证明",
+        "不能，被告能否确定与最终是否负实体责任应区分",
+        "可以，任何被告只要否认责任都不明确",
+        "不能，因为任何请求都不需要起诉条件"
+      ],
+      "answer": 1,
+      "explanation": "明确被告是起诉门槛，不能直接改写成原告已证明被告应负实体责任。能否最终支持债务请求，属于后续实体审查。其他起诉条件仍然需要满足。",
+      "decisiveFact": "被诉对象明确，争议只在最终是否负实体责任。",
+      "reasonOptions": [
+        "起诉条件已经证明全部债务成立",
+        "被告否认即使原告丧失诉权",
+        "程序上的可识别性与实体上的责任承担是不同问题"
+      ],
+      "reasonAnswer": 2,
+      "sectionIndexes": [
+        0
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        92,
+        93
+      ],
+      "pdfPages": [
+        101,
+        102
+      ],
+      "reference": "起诉条件；明确被告与被告实体责任的区别。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      0
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-entry",
+    "topic": "立案相关｜受理后住所变化与管辖恒定",
+    "question": {
+      "id": "civil-procedure-entry-recall",
+      "kind": "recall",
+      "prompt": "有管辖权的法院已经受理案件，随后被告仅将住所迁往另一辖区，没有其他管辖事实变化。应如何理解？",
+      "options": [
+        "迁居本身不影响已确定的管辖",
+        "应自动移送到新住所地",
+        "原告必须重新起诉",
+        "应由两地法院同时审理"
+      ],
+      "answer": 0,
+      "explanation": "管辖恒定保护已经形成的程序关系，仅有受理后的住所变化不使管辖随之迁移。该结论不处理级别、专属管辖等另外的问题。",
+      "decisiveFact": "只有受理后的住所变化。",
+      "reasonOptions": [
+        "所有管辖错误均可由受理行为补正",
+        "本情形属于管辖恒定范围",
+        "被告可随时以迁居选择法院"
+      ],
+      "reasonAnswer": 1,
+      "sectionIndexes": [
+        3
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        20
+      ],
+      "pdfPages": [
+        29
+      ],
+      "reference": "管辖恒定。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      3
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-entry",
+    "topic": "立案相关｜清算法人诉讼权利能力",
+    "question": {
+      "id": "civil-procedure-entry-application",
+      "kind": "application",
+      "prompt": "明河公司正在清算但尚未注销，就公司享有的租金债权提起诉讼，应以谁的名义起诉？",
+      "options": [
+        "清算组织当然成为债权人并起诉",
+        "任一股东以个人名义起诉",
+        "明河公司",
+        "公司已不可能作为当事人"
+      ],
+      "answer": 2,
+      "explanation": "公司的诉讼权利能力尚未因注销而终止。清算事务由他人办理，不改变本题当事人的名称。",
+      "decisiveFact": "公司尚未注销。",
+      "reasonOptions": [
+        "清算期间法人仍具有诉讼权利能力",
+        "清算开始即等于法人终止",
+        "负责提交材料的人必然是原告"
+      ],
+      "reasonAnswer": 0,
+      "sectionIndexes": [
+        2
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        37,
+        38
+      ],
+      "pdfPages": [
+        46,
+        47
+      ],
+      "reference": "法人存续与诉讼权利能力。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      2
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-review",
+    "topic": "立案相关｜不予受理裁定与上诉入口",
+    "question": {
+      "id": "civil-procedure-review-application",
+      "kind": "application",
+      "prompt": "沐光公司在普通民事诉讼中收到不予受理裁定，裁定尚未生效且上诉期未满。公司认为该裁定错误，应选择哪一入口？",
+      "options": [
+        "依法提起上诉",
+        "立即申请再审",
+        "只能对法官个人另诉",
+        "没有任何法定救济"
+      ],
+      "answer": 0,
+      "explanation": "普通程序中的不予受理裁定可以依法上诉。再审针对生效裁判，不适用于题设状态。",
+      "decisiveFact": "普通程序、不予受理、未生效且仍在上诉期。",
+      "reasonOptions": [
+        "凡裁定都只能复议",
+        "该裁定属于可上诉的一审裁定",
+        "未生效裁判只能通过再审纠正"
+      ],
+      "reasonAnswer": 1,
+      "sectionIndexes": [
+        1
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        92,
+        119
+      ],
+      "pdfPages": [
+        101,
+        128
+      ],
+      "reference": "不予受理裁定的救济。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      1
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-burden",
+    "topic": "证据与证明｜诉讼自认",
+    "question": {
+      "id": "civil-diagnostic-admission",
+      "kind": "application",
+      "prompt": "普通货款诉讼中，被告在答辩状明确承认已经收到货物，该事实于其不利；没有身份关系、第三人利益等排除事由，也不与法院查明的事实冲突。原告还须就已收到货物这一事实举证吗？",
+      "options": [
+        "仍须举证，因为只有庭审口头承认才算自认",
+        "无需再证明全部合同请求，原告当然胜诉",
+        "仍须举证，因为答辩状不能形成自认",
+        "对这个已经自认的事实，无需再承担通常的举证证明任务"
+      ],
+      "answer": 3,
+      "explanation": "答辩状中的明确不利承认可构成诉讼自认，免去的是对该事实的证明任务。它既不限于口头庭审，也不等于承认全部诉讼请求；其余事实仍应分别判断。",
+      "decisiveFact": "诉讼书面材料中对不利事实明确承认，且无不适用情形。",
+      "reasonOptions": [
+        "有效自认的免证效果落在被承认的具体事实",
+        "只要有一个事实被承认，整案即无需审理",
+        "自认只能发生在开庭口头回答时"
+      ],
+      "reasonAnswer": 0,
+      "sectionIndexes": [
+        0
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        51,
+        52
+      ],
+      "pdfPages": [
+        60,
+        61
+      ],
+      "reference": "诉讼自认的场合、效果及不适用范围。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      0
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-burden",
+    "topic": "证据与证明｜污染纠纷因果关系的证明责任",
+    "question": {
+      "id": "civil-procedure-burden-application",
+      "kind": "application",
+      "prompt": "清泉农场起诉加工厂排污导致作物减产，题设确认属于环境污染责任纠纷。加工厂称减产完全由病虫害造成。就其污染行为与减产不存在因果关系，应由谁承担证明责任？",
+      "options": [
+        "加工厂",
+        "农场",
+        "法院作为当事人承担",
+        "无需判断因果关系"
+      ],
+      "answer": 0,
+      "explanation": "环境污染纠纷存在因果关系的特别分配，由行为人证明不存在因果关系。责任不以过错为前提，并不意味着因果关系也不需要。",
+      "decisiveFact": "题设是环境污染纠纷。",
+      "reasonOptions": [
+        "所有侵权一律由被告证明全部事实",
+        "无过错责任必然排除因果关系要件",
+        "该类纠纷中无因果关系由行为人证明"
+      ],
+      "reasonAnswer": 2,
+      "sectionIndexes": [
+        2
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        57,
+        58
+      ],
+      "pdfPages": [
+        66,
+        67
+      ],
+      "reference": "环境污染责任纠纷中的证明责任。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      2
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-burden",
+    "topic": "证据与证明｜赠与事实的特殊证明标准",
+    "question": {
+      "id": "civil-diagnostic-proof-standard",
+      "kind": "application",
+      "prompt": "民事案件中，一方主张赠与事实成立，并依法对该事实承担证明责任。认定这一赠与事实，应达到何种证明标准？",
+      "options": [
+        "排除合理怀疑",
+        "只要存在任何可能性",
+        "适用于普通实体事实的高度可能性一律足够",
+        "只需大于对方提出的证据数量"
+      ],
+      "answer": 0,
+      "explanation": "赠与事实属于适用排除合理怀疑标准的特定事项。先确定谁承担证明责任，再选该事实的标准，不能把普通实体事实的一般标准无差别套用。",
+      "decisiveFact": "待证对象是赠与事实，且该方负有证明责任。",
+      "reasonOptions": [
+        "民事案件所有事实一律只需较大可能性",
+        "赠与事实适用特别证明标准",
+        "证据数量决定证明标准"
+      ],
+      "reasonAnswer": 1,
+      "sectionIndexes": [
+        3
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        58,
+        59
+      ],
+      "pdfPages": [
+        67,
+        68
+      ],
+      "reference": "一般实体事实与赠与等特定事实的证明标准。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      3
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-tracks",
+    "topic": "普通简易小额｜小额的适用条件",
+    "question": {
+      "id": "civil-procedure-tracks-application",
+      "kind": "application",
+      "prompt": "虚构的青川省上年度就业人员年平均工资为8万元，基层法院审理3万元货款请求。事实清楚、权利义务明确、争议不大，且没有涉外、鉴定、反诉等排除情形。应选择何种程序？",
+      "options": [
+        "仅因存在金钱请求就必须普通程序",
+        "小额诉讼程序",
+        "无论条件如何只能由双方选择",
+        "特别程序中的财产确权程序"
+      ],
+      "answer": 1,
+      "explanation": "题设金额在所在省上年度就业人员年平均工资50%以内，且简单金钱给付及其他条件已满足，符合依职权适用小额程序的范围。",
+      "decisiveFact": "全部小额条件满足且金额在50%以内。",
+      "reasonOptions": [
+        "任何债务都属于特别程序",
+        "金额满足后无需核对其他事实",
+        "金额条件与案件类型、排除条件应一并判断"
+      ],
+      "reasonAnswer": 2,
+      "sectionIndexes": [
+        1
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        110
+      ],
+      "pdfPages": [
+        119
+      ],
+      "reference": "小额诉讼正面适用条件与省级工资基数。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      1
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-tracks",
+    "topic": "普通简易小额｜反诉引发程序转换",
+    "question": {
+      "id": "civil-procedure-tracks-variation",
+      "kind": "variation",
+      "prompt": "某3万元货款案原本符合小额诉讼全部条件，基层法院已经适用小额程序。现在改变一个事实：被告依法提出反诉。此后能否继续以小额诉讼程序审理？",
+      "options": [
+        "不能；应依条件适用简易程序其他规定或转普通程序",
+        "能，原告请求金额小就足够",
+        "能，但一律不得审理反诉",
+        "原诉自动消灭"
+      ],
+      "answer": 0,
+      "explanation": "提出反诉是相应规则列明的小额排除情形。它改变程序选择，但不意味着原诉自动消灭。",
+      "decisiveFact": "出现了反诉。",
+      "reasonOptions": [
+        "小额一经开始绝不允许变更",
+        "小额适用受负面清单限制",
+        "反诉只影响判决书字数"
+      ],
+      "reasonAnswer": 1,
+      "sectionIndexes": [
+        2
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        110,
+        111
+      ],
+      "pdfPages": [
+        119,
+        120
+      ],
+      "reference": "小额诉讼反诉排除及程序转换。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      2
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-review",
+    "topic": "二审与再审｜民事上诉的书面形式",
+    "question": {
+      "id": "civil-diagnostic-written-appeal",
+      "kind": "application",
+      "prompt": "当事人有权对一审普通民事判决上诉，仍在上诉期间内，但只口头表示不服，尚未提交书面上诉状。仅靠这次口头表示，是否已经满足民事上诉的形式要求？",
+      "options": [
+        "已经满足，任何诉讼上诉都可口头提出",
+        "已经满足，尚在期间内就不需要上诉状",
+        "没有，应依法提交书面上诉状",
+        "没有，只有对方同意才可以上诉"
+      ],
+      "answer": 2,
+      "explanation": "民事上诉应提交书面上诉状，不能因仍在期间内或已口头表达不服而省略形式要求。不要把允许口头起诉或其他诉讼制度的表达方式移用于民事上诉。",
+      "decisiveFact": "仅口头表示，没有书面上诉状。",
+      "reasonOptions": [
+        "民事上诉有书面形式要求",
+        "对方同意是所有上诉的必要条件",
+        "口头起诉规则自动适用于上诉"
+      ],
+      "reasonAnswer": 0,
+      "sectionIndexes": [
+        1
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        119,
+        120
+      ],
+      "pdfPages": [
+        128,
+        129
+      ],
+      "reference": "民事上诉的形式。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      1
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-review",
+    "topic": "二审与再审｜解除婚姻关系部分的再审边界",
+    "question": {
+      "id": "civil-diagnostic-divorce-retrial",
+      "kind": "variation",
+      "prompt": "离婚判决已经生效，当事人只请求通过再审恢复被解除的婚姻关系，不争议财产分割和子女抚养。能否就这一身份关系部分申请再审？",
+      "options": [
+        "可以，因为任何生效裁判都能由当事人申请再审",
+        "不可以，解除婚姻关系部分不得申请再审",
+        "不可以，而且离婚判决中的任何内容均永远不能再审",
+        "可以，只要将再审称为上诉即可"
+      ],
+      "answer": 1,
+      "explanation": "解除婚姻关系部分不得申请再审，限制针对这一身份内容。不能扩大为离婚裁判的财产、抚养事项全部不得申请再审，也不能因判决生效就忽略对象边界。",
+      "decisiveFact": "请求纠正的仅是已经生效的解除婚姻关系部分。",
+      "reasonOptions": [
+        "一旦生效，所有裁判内容都不能再审",
+        "只要不满结果就能启动再审",
+        "再审对象有范围限制，身份部分与其他内容应分别判断"
+      ],
+      "reasonAnswer": 2,
+      "sectionIndexes": [
+        2
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        127
+      ],
+      "pdfPages": [
+        136
+      ],
+      "reference": "离婚生效裁判解除婚姻关系部分的再审限制。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      2
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-enforcement",
+    "topic": "执行救济｜执行行为异议与复议",
+    "question": {
+      "id": "civil-procedure-enforcement-recall",
+      "kind": "recall",
+      "prompt": "申请执行人仅认为法院拍卖程序违法，执行行为异议被驳回后不服，应依哪条路径救济？",
+      "options": [
+        "当然提起执行异议之诉",
+        "向上一级法院申请复议",
+        "对原债权判决申请再审",
+        "向行政机关申请行政复议"
+      ],
+      "answer": 1,
+      "explanation": "争议只涉及执行行为，不提出标的实体权利。本课对应上级法院复议，不属于行政复议。",
+      "decisiveFact": "异议仅针对拍卖程序。",
+      "reasonOptions": [
+        "程序性执行争议适用执行行为异议及复议路径",
+        "所有出现复议的制度都找行政机关",
+        "拍卖涉及财产就必然是所有权争议"
+      ],
+      "reasonAnswer": 0,
+      "sectionIndexes": [
+        1
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        159,
+        160
+      ],
+      "pdfPages": [
+        168,
+        169
+      ],
+      "reference": "违法执行行为异议的进一步救济。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      1
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-enforcement",
+    "topic": "执行救济｜案外人权利与原裁判无关的分流",
+    "question": {
+      "id": "civil-procedure-enforcement-application",
+      "kind": "application",
+      "prompt": "原生效判决只判恒石公司付款，并未判定机器所有权。执行中机器被扣押，案外人云岚公司主张所有权，其标的异议被裁定驳回。该权利争议与原付款裁判无关，进一步应考虑哪条路径？",
+      "options": [
+        "普通上诉原付款判决",
+        "只可申请执行行为复议",
+        "原判生效后绝无救济",
+        "执行异议之诉"
+      ],
+      "answer": 3,
+      "explanation": "争议是机器的实体权利，且与原付款裁判处理的对象无关，适用执行异议之诉的分流。",
+      "decisiveFact": "原判未处理机器所有权。",
+      "reasonOptions": [
+        "凡案外人异议都属于程序异议",
+        "只要原判生效机器就当然属于债务人",
+        "新的标的权利争议应按执行异议之诉解决"
+      ],
+      "reasonAnswer": 2,
+      "sectionIndexes": [
+        2
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        160,
+        161,
+        162
+      ],
+      "pdfPages": [
+        169,
+        170,
+        171
+      ],
+      "reference": "案外人标的异议与原裁判关系。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      2
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-foreign-arbitration",
+    "topic": "涉外程序｜中国法院适用的诉讼程序法",
+    "question": {
+      "id": "civil-procedure-foreign-arbitration-recall",
+      "kind": "recall",
+      "prompt": "中国法院审理涉外民事案件，关于本课所讲程序法，哪项正确？",
+      "options": [
+        "当事人可任意选外国诉讼法替代",
+        "只要被告是外国人就适用其国籍国诉讼法",
+        "依我国民事诉讼法进行诉讼",
+        "实体法适用外国法时程序必须随之改用外国法"
+      ],
+      "answer": 2,
+      "explanation": "涉外实体关系的准据法与法院使用的诉讼程序法应分开。外国因素不自动替换我国法院的程序法。",
+      "decisiveFact": "审理者是中国法院。",
+      "reasonOptions": [
+        "诉讼程序必然跟随当事人国籍",
+        "程序法问题不能与实体法律适用混同",
+        "所有涉外案件必须仲裁"
+      ],
+      "reasonAnswer": 1,
+      "sectionIndexes": [
+        0
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        179
+      ],
+      "pdfPages": [
+        188
+      ],
+      "reference": "涉外民事诉讼基本原则。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      0
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-foreign-arbitration",
+    "topic": "仲裁｜仲裁条款独立性",
+    "question": {
+      "id": "civil-diagnostic-arbitration-independence",
+      "kind": "variation",
+      "prompt": "公司之间已经达成仲裁协议，协议自身的成立和效力条件均无问题。后来主合同被确认无效，能否仅据此认定仲裁协议也无效？",
+      "options": [
+        "能，合同内任何条款的效力都必须相同",
+        "能，主合同一有争议就不得仲裁",
+        "不能，因为仲裁协议绝不可能无效",
+        "不能，主合同无效不当然影响已达成仲裁协议的效力"
+      ],
+      "answer": 3,
+      "explanation": "仲裁协议独立安排争议解决方式，主合同无效不自动使它无效。独立性仍须与仲裁协议自身的成立、效力条件同时理解，不能扩大成一切仲裁协议都有效。",
+      "decisiveFact": "主合同无效，而仲裁协议自身条件无问题。",
+      "reasonOptions": [
+        "主合同和仲裁协议始终是一项不可分的效力判断",
+        "仲裁协议的独立性阻止主合同效力结论自动传递",
+        "双方是公司就不需要审查仲裁协议"
+      ],
+      "reasonAnswer": 1,
+      "sectionIndexes": [
+        2
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        188
+      ],
+      "pdfPages": [
+        197
+      ],
+      "reference": "仲裁条款独立性。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      2
+    ]
+  },
+  {
+    "lessonId": "civil-procedure-foreign-arbitration",
+    "topic": "仲裁｜首次开庭前的受理异议",
+    "question": {
+      "id": "civil-procedure-foreign-arbitration-variation",
+      "kind": "variation",
+      "prompt": "双方有有效且涵盖争议的仲裁协议，中国法院已受理诉讼。改变异议时点：被告在首次开庭前从未对受理提出异议，直到首次开庭后才仅以该仲裁协议反对法院审理；题设无其他例外。应如何处理？",
+      "options": [
+        "必须因协议存在而驳回起诉",
+        "原告必须重新申请仲裁",
+        "法院此前程序自动全部无效",
+        "法院继续审理"
+      ],
+      "answer": 3,
+      "explanation": "关键时点被改变。未在首次开庭前对受理提出异议，依教材视为放弃仲裁协议，不能再以该协议阻止继续审理。",
+      "decisiveFact": "首次开庭前未提出受理异议。",
+      "reasonOptions": [
+        "法律为仲裁协议的程序主张设置了时点",
+        "合同条款永远排除法院程序且无任何例外",
+        "涉外当事人不受诉讼时点限制"
+      ],
+      "reasonAnswer": 0,
+      "sectionIndexes": [
+        3
+      ]
+    },
+    "source": {
+      "bookKey": "civil-procedure",
+      "printedPages": [
+        188,
+        189
+      ],
+      "pdfPages": [
+        197,
+        198
+      ],
+      "reference": "仲裁协议与法院主管；提出受理异议的时点。",
+      "verification": "已核对所列原书相关文本及关键原页；题目为原创，不代表完整领域已经验证。"
+    },
+    "sectionIndexes": [
+      3
+    ]
+  }
+]

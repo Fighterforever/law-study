@@ -3435,3 +3435,219 @@ dialog p {
     visibility: visible;
   }
 }
+
+/* Learning support uses the same quiet paper-and-ink language as the classroom. */
+.lesson-bridge {
+  color: var(--muted);
+  padding: 0 0 1.2rem;
+  line-height: 1.85;
+}
+.warmup,
+.verified-section,
+.prerequisite-notice,
+.repair-panel,
+.checkup-intro {
+  border: 1px solid var(--line, #dedfd5);
+  border-radius: 14px;
+  background: #f6f5ed;
+  padding: 22px 26px;
+  margin: 20px 0;
+}
+.warmup summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.8;
+}
+.warmup summary span {
+  color: #687d63;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+.warmup p,
+.verified-section p,
+.repair-panel p {
+  line-height: 1.95;
+  margin-top: 16px;
+}
+.verified-section {
+  background: transparent;
+}
+.verified-section summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+.verified-section summary span {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: #717b6b;
+}
+.prerequisite-notice {
+  border-left: 3px solid #ab8c50;
+}
+.prerequisite-notice p {
+  margin: 10px 0;
+  color: #687263;
+}
+.prerequisite-notice a {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.repair-panel {
+  background: #f5f0e3;
+  border-color: #d8c9a6;
+}
+.repair-panel label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.repair-panel select {
+  max-width: 100%;
+  padding: 10px 14px;
+  background: #fffdf7;
+  border: 1px solid #d8c9a6;
+  border-radius: 8px;
+  font: inherit;
+}
+.repair-panel section {
+  padding: 18px 0;
+  border-top: 1px solid #dfd7c3;
+}
+.repair-panel a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.no-idea {
+  margin: 24px 0 10px;
+  line-height: 1.6;
+  text-align: left;
+}
+.answer-locked {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #edf1e7;
+  padding: 14px 18px;
+  border-radius: 9px;
+  color: #4c6749;
+  line-height: 1.75;
+  margin: 18px 0 26px;
+}
+.answer-locked svg {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.repair-suggestion {
+  padding: 14px 0;
+  border-top: 1px solid #ded5bf;
+}
+.feedback-actions {
+  margin-top: 22px;
+}
+.checkup-intro {
+  background: #edf1e7;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: center;
+}
+.checkup-intro > button {
+  flex-shrink: 0;
+}
+.checkup-intro p {
+  color: #616e5e;
+  line-height: 1.85;
+  margin-top: 12px;
+}
+.assessment-results {
+  max-width: 920px;
+}
+.assessment-results > p {
+  line-height: 1.85;
+  margin: 20px 0 30px;
+}
+.assessment-results .stats-pair {
+  max-width: 540px;
+  padding: 20px 0;
+}
+.assessment-repair {
+  padding: 22px 0;
+  border-bottom: 1px solid #dedfd5;
+}
+.assessment-repair p {
+  line-height: 1.9;
+  margin: 12px 0;
+}
+.assessment-results > .inline-actions {
+  margin-top: 28px;
+}
+.coverage-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.coverage-domain {
+  padding: 18px;
+  border: 1px solid #dfdfd5;
+  border-radius: 10px;
+  background: #faf9f2;
+}
+.coverage-domain > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+.coverage-domain p {
+  font-size: 13px;
+  line-height: 1.75;
+}
+.coverage-domain a {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 720px) {
+  .warmup,
+  .verified-section,
+  .prerequisite-notice,
+  .repair-panel,
+  .checkup-intro {
+    padding: 18px;
+  }
+  .checkup-intro {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .checkup-intro > button {
+    justify-content: center;
+  }
+  .verified-section summary {
+    flex-wrap: wrap;
+  }
+  .verified-section summary span {
+    width: 100%;
+    margin-left: 25px;
+  }
+  .coverage-table {
+    grid-template-columns: 1fr;
+  }
+  .assessment-results .stats-pair strong {
+    font-size: 30px;
+  }
+}
