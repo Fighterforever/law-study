@@ -1,0 +1,7 @@
+# 图像来源
+
+`public/memory-room.png`：使用内置 image_gen 工具生成的虚构书房，供记忆宫殿联想使用。没有参照真实法院内部布局。UI图标使用lucide-react，品牌图标为项目内SVG。
+
+最终生成提示：
+
+> Use case: scientific-educational. Asset type: illustrated memory palace for a Chinese law study website. Create one wide 1536x1024 editorial watercolor and fine ink illustration of a calm fictional public study room, shown as an open-front cutaway in slightly isometric perspective. Warm ivory paper background, restrained forest green, walnut brown, muted terracotta, soft sunlight. Four distinct fixed locations, easy to recognize at small size, arranged in reading order LEFT TO RIGHT across the scene: 1 at far left an open wooden entrance door beside an obviously EMPTY cabinet, a faint dotted human silhouette stepping away through the door; 2 center-left a small table with an official document and a large red rubber stamp prominently resting on the document; 3 center-right a sage-green sofa with a magnifying glass over a small evidence folder and a tiny almost-empty coin dish; 4 at far right a writing desk with a fountain pen signing a clearly visible sheet of paper. Cohesive single room, generous separation so four HTML numbered markers can overlay at approximately x=15%,38%,62%,85%. No people except the dotted silhouette. No Chinese or English text, no numbers, no labels, no courthouse logos, no real architecture. Professional beautiful restrained educational art, flat legible objects rather than photorealism, no decorative clutter. The four objects must be unmistakable.

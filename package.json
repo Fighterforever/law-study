@@ -1,0 +1,22 @@
+{
+  "name": "fa-xi",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test src/lib/*.test.js"
+  },
+  "dependencies": {
+    "lucide-react": "1.38.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.1.1",
+    "prettier": "3.9.6",
+    "vite": "8.2.2"
+  }
+}
