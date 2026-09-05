@@ -35,6 +35,9 @@ import MemoryScene, { MemoryScenePreview } from "./MemoryScene.jsx";
 import CompanyQuest, { QuestEntry } from "./quest/CompanyQuest.jsx";
 import InsuranceQuest, { InsuranceEntry } from "./quest/InsuranceQuest.jsx";
 import InsuranceClocks, { ClocksEntry } from "./quest/InsuranceClocks.jsx";
+import JurisdictionQuest, {
+  JurisdictionEntry,
+} from "./quest/JurisdictionQuest.jsx";
 import "./memory-palaces.css";
 
 const home = "#/focus/memory";
@@ -63,6 +66,8 @@ export default function MemoryPalaces({ data, state, update, today, route }) {
     return <InsuranceQuest {...{ state, update, today }} />;
   if (id === "insurance-clocks")
     return <InsuranceClocks {...{ state, update, today }} />;
+  if (id === "jurisdiction-case")
+    return <JurisdictionQuest {...{ state, update, today }} />;
   if (id && !palace)
     return (
       <div className="mp-empty">
@@ -131,6 +136,7 @@ function PalaceCatalog({ data, state, today, examDate }) {
         <InsuranceEntry state={state} />
       </div>
       <ClocksEntry {...{ state, today }} />
+      <JurisdictionEntry {...{ state, today }} />
       <section className="mp-atlas-intro">
         <div>
           <span className="mp-kicker">随时查漏 · 15 条原有记忆路线</span>
