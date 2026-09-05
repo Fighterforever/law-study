@@ -1,5 +1,6 @@
 import { dayFocus } from "../data/subjects.js";
 import checkpoints from "../data/checkpoints.json" with { type: "json" };
+import { emptyFocusState, validateFocusState } from "./focus-state.js";
 
 export const STATE_VERSION = 1;
 export const STORAGE_KEY = "fa-xi-study";
@@ -26,7 +27,7 @@ export const isWeekend = (s) =>
 export function studyPhase(settings, date = localDate()) {
   const elapsed = distance(settings.startDate, date) + 1;
   const available = settings.examDate
-    ? Math.max(0, Math.min(14, distance(settings.startDate, settings.examDate)))
+    ? Math.max(0, distance(settings.startDate, settings.examDate))
     : 14;
   const remaining = Math.max(0, available - elapsed + 1);
   return {
@@ -62,6 +63,7 @@ export function initialState(today = localDate()) {
     reviewDays: {},
     checkups: [],
     diagnostic: { attempts: [], cursor: 0 },
+    focus: emptyFocusState(),
   };
 }
 const isObject = (value) =>
@@ -285,6 +287,7 @@ export function validateState(value) {
     reviewDays: value.reviewDays || {},
     checkups: value.checkups || [],
     diagnostic: value.diagnostic || { attempts: [], cursor: 0 },
+    focus: validateFocusState(value.focus, validDate),
   };
 }
 export const encodeState = (s) => JSON.stringify(s, null, 2);
@@ -553,7 +556,12 @@ export function reviewMinutes(state, lessonId) {
       )
     : 4;
 }
-export function makeDay(lessons, state, date = localDate()) {
+export function makeDay(
+  lessons,
+  state,
+  date = localDate(),
+  reservedMinutes = 0,
+) {
   const day = distance(state.settings.startDate, date) + 1;
   const weekend = isWeekend(date),
     budget = weekend ? state.settings.weekend : state.settings.weekday;
@@ -620,7 +628,7 @@ export function makeDay(lessons, state, date = localDate()) {
   );
   const spentTime =
     courseTime + globalDiagnosticTime + reviewSpent + checkpointSpent;
-  let available = Math.max(0, budget - spentTime);
+  let available = Math.max(0, budget - spentTime - reservedMinutes);
   const breakTime = Math.min(weekend ? 30 : 15, available);
   available -= breakTime;
   const reflection = Math.min(weekend ? 20 : 10, available);
@@ -759,6 +767,7 @@ export function makeDay(lessons, state, date = localDate()) {
     ),
     total:
       spentTime +
+      reservedMinutes +
       (reviewTime - reviewSpent) +
       breakTime +
       reflection +

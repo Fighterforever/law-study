@@ -25,6 +25,10 @@ import {
   X,
 } from "lucide-react";
 import lessons from "./data/lessons.json";
+import focusData from "./data/focus.json";
+import FocusHub, { FocusHomeCard } from "./features/focus/FocusHub.jsx";
+import { makeFocusDay } from "./lib/focus.js";
+import { emptyFocusState } from "./lib/focus-state.js";
 import diagnosticPool from "./data/diagnostic.json";
 import checkpointPool from "./data/checkpoints.json";
 import coverage from "./data/coverage.json";
@@ -72,6 +76,7 @@ const coverageById = Object.fromEntries(
 );
 const nav = [
   ["today", "今日学习", BookOpen],
+  ["focus", "考前聚焦", Target],
   ["library", "课程地图", Layers3],
   ["review", "间隔复习", RotateCcw],
   ["plan", "考前计划", CalendarDays],
@@ -121,7 +126,7 @@ function Source({ lesson }) {
           印刷页 {lesson.source.printedPages.join("、")} · PDF页{" "}
           {lesson.source.pdfPages.join("、")}
         </p>
-        <p>{lesson.source.reference} · 原创讲解与虚构练习</p>
+        <p>{lesson.source.reference} · 考点讲解与原创训练题（非真题）</p>
         {lesson.source.officialSources?.map((source) => (
           <p key={source.url}>
             <a href={source.url} target="_blank" rel="noreferrer">
@@ -193,7 +198,7 @@ export default function App() {
   });
   const [route, setRoute] = useState(window.location.hash.slice(2) || "today");
   const [menu, setMenu] = useState(false);
-  const routeBase = route.split("?")[0];
+  const routeBase = route.startsWith("focus") ? "focus" : route.split("?")[0];
   const [notice, setNotice] = useState("");
   useEffect(() => {
     const f = () => {
@@ -243,13 +248,51 @@ export default function App() {
     window.addEventListener("study-error", handle);
     return () => window.removeEventListener("study-error", handle);
   }, []);
-  const today = localDate();
-  const day = makeDay(lessons, state, today);
+  const [today, setToday] = useState(localDate);
+  useEffect(() => {
+    let timer;
+    const refreshDate = () => {
+      setToday(localDate());
+      clearTimeout(timer);
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0);
+      timer = setTimeout(refreshDate, midnight.getTime() - Date.now() + 100);
+    };
+    refreshDate();
+    window.addEventListener("focus", refreshDate);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("focus", refreshDate);
+    };
+  }, []);
+  const planningState =
+    state.focus?.enabled && !state.settings.examDate
+      ? {
+          ...state,
+          settings: {
+            ...state.settings,
+            examDate: focusData.campaign.examDate,
+          },
+        }
+      : state;
+  const baseSpent = makeDay(lessons, planningState, today).spentTime;
+  const focusDay = makeFocusDay(focusData, planningState, today, baseSpent);
+  const extraBreak = focusDay.paused
+    ? 0
+    : Math.max(0, focusDay.breakMinutes - (isWeekend(today) ? 30 : 15));
+  const day = makeDay(
+    lessons,
+    planningState,
+    today,
+    focusDay.reserved + extraBreak,
+  );
+  day.breakTime += extraBreak;
   const stable = lessons.filter(
     (l) => statusOf(state.records[l.id]) === "初步稳固",
   ).length;
   const ctx = {
-    state,
+    state: planningState,
+    focusDay,
     update,
     day,
     today,
@@ -259,7 +302,9 @@ export default function App() {
     setSaveBlocked,
   };
   let page;
-  if (route.startsWith("course/")) {
+  if (route === "focus" || route.startsWith("focus/")) {
+    page = <FocusHub data={focusData} route={route} {...ctx} />;
+  } else if (route.startsWith("course/")) {
     const id = route.split("/")[1].split("?")[0];
     page = lessonById[id] ? (
       <Lesson key={route} lesson={lessonById[id]} {...ctx} />
@@ -290,7 +335,11 @@ export default function App() {
       review: <Review {...ctx} />,
       diagnostic: <Diagnostic {...ctx} />,
       checkup: <Checkup {...ctx} />,
-      plan: <Plan {...ctx} />,
+      plan: !focusDay.paused ? (
+        <FocusHub data={focusData} route="focus/plan" {...ctx} />
+      ) : (
+        <Plan {...ctx} />
+      ),
       palace: <Palace {...ctx} />,
       settings: <Settings {...ctx} />,
       sources: <Sources />,
@@ -338,11 +387,11 @@ export default function App() {
         </nav>
         <div className="sidebar-bottom">
           <div className="quiet-card">
-            <span className="eyebrow">从理解，到调用</span>
+            <span className="eyebrow">读懂法条，会做题</span>
             <p>
-              先解释，再练习。
+              先理清规则，再辨析选项。
               <br />
-              隔一天，试着想起来。
+              隔日合上讲义，再答一遍。
             </p>
             <div className="tiny-track">
               <i style={{ width: `${(stable / lessons.length) * 100}%` }} />
@@ -415,7 +464,7 @@ export default function App() {
         </main>
         <footer>
           法习 · 考前核心复习工具
-          <span>原创教学 · 教育用途 · 不替代现行法规核验</span>
+          <span>规则梳理 · 选项辨析 · 错题复盘</span>
         </footer>
       </div>
       {notice && (
@@ -428,7 +477,7 @@ export default function App() {
   );
 }
 
-function Today({ state, update, day, today }) {
+function Today({ state, update, day, today, focusDay }) {
   const completed = lessons.filter(
     (l) => state.records[l.id]?.completedDate,
   ).length;
@@ -481,7 +530,7 @@ function Today({ state, update, day, today }) {
               ? "让学过的知识，留下来。"
               : phase.consolidation
                 ? "先把会的，答得更稳。"
-                : "今天，弄懂几个具体问题。"
+                : "今日复习：把考点落实到选项。"
         }
         action={
           <a className="button secondary" href="#/settings">
@@ -491,14 +540,15 @@ function Today({ state, update, day, today }) {
       >
         {state.settings.examDate
           ? `考试日期 ${state.settings.examDate} · 距考试还有 ${Math.max(0, distance(today, state.settings.examDate))} 天。`
-          : "每天完成一小组规则，再用新的事实检验它。"}
+          : "先复习易错点，再学新考点；每题都找出决定结论的条件。"}
       </PageTitle>
+      <FocusHomeCard data={focusData} {...{ state, focusDay, today }} />
       {intro && (
         <div className="onboarding">
           <div>
             <span className="eyebrow">第一次来</span>
-            <h3>从你的真实基础开始</h3>
-            <p>“熟悉”只决定是否先做短诊断，不会直接计为掌握。</p>
+            <h3>选择适合自己的复习起点</h3>
+            <p>熟悉的科目先做题查漏，薄弱科目先看讲解。</p>
           </div>
           <div className="button-stack">
             <button onClick={() => preset("foundation")}>
@@ -531,7 +581,7 @@ function Today({ state, update, day, today }) {
         <section className="focus-card">
           <div className="focus-top">
             <span className="light-label">
-              今日学习 · DAY {number(Math.max(1, Math.min(14, day.day)))}
+              八科巩固 · 第 {Math.max(1, day.day)} 天
             </span>
             <span className="focus-date">
               {isWeekend(today) ? "周末节奏" : "工作日节奏"}
@@ -596,37 +646,47 @@ function Today({ state, update, day, today }) {
             <span>分钟</span>
           </div>
           <div className="segmented">
-            {[120, 150, 180].map((n) => (
-              <button
-                key={n}
-                className={state.settings.weekday === n ? "selected" : ""}
-                onClick={() =>
-                  update((s) => ({
-                    ...s,
-                    settings: { ...s.settings, weekday: n },
-                  }))
-                }
-              >
-                {n / 60}h
-              </button>
-            ))}
+            {(isWeekend(today) ? [180, 240, 300, 360] : [120, 150, 180]).map(
+              (n) => (
+                <button
+                  key={n}
+                  className={
+                    state.settings[isWeekend(today) ? "weekend" : "weekday"] ===
+                    n
+                      ? "selected"
+                      : ""
+                  }
+                  onClick={() =>
+                    update((s) => ({
+                      ...s,
+                      settings: {
+                        ...s.settings,
+                        [isWeekend(today) ? "weekend" : "weekday"]: n,
+                      },
+                    }))
+                  }
+                >
+                  {n / 60}小时
+                </button>
+              ),
+            )}
           </div>
           <p>
             {isWeekend(today)
-              ? `今天采用周末 ${state.settings.weekend} 分钟；上方调整工作日。`
+              ? `按周末 ${state.settings.weekend} 分钟安排，可直接在上方调整。`
               : "保留复习与休息，按可用时间减少新课。"}
           </p>
           <div className="budget-line">
-            <span>本日已排</span>
+            <span>两栏合计已排</span>
             <strong>
-              {day.total} / {day.budget} min
+              {day.total} / {day.budget} 分钟
             </strong>
           </div>
         </section>
       </div>
       <div className="section-heading">
         <h2>
-          今天的学习清单{" "}
+          八科旧课学习清单{" "}
           <span>
             {day.tasks.length +
               day.review.length +
@@ -643,7 +703,7 @@ function Today({ state, update, day, today }) {
         <section className="task-list">
           {day.review.length > 0 && (
             <div className="task-group-heading">
-              01 / 闭卷唤回 · 已安排 {day.reviewTime} 分钟
+              01 / 闭卷回忆 · 已安排 {day.reviewTime} 分钟
             </div>
           )}
           {day.review.map((l) => (
@@ -731,7 +791,7 @@ function Today({ state, update, day, today }) {
               <span>
                 <CircleHelp size={17} /> 合书复述与休息
               </span>
-              <span>{day.reflection + day.breakTime} min</span>
+              <span>{day.reflection + day.breakTime} 分钟</span>
               <p>
                 用自己的话说出今天最重要的一条规则，指出一个会改变结论的条件。余量作为缓冲，不自动塞入新课。
               </p>
@@ -753,11 +813,12 @@ function Today({ state, update, day, today }) {
                   ).length
                 }
               </strong>
-              <span>通过跨日验证</span>
+              <span>隔日复测通过</span>
             </div>
           </div>
           <p className="muted small-text">
-            分母是本站 {lessons.length} 个核心单元，不代表八册全部内容。
+            这里记录八科旧课的 {lessons.length}{" "}
+            个单元；考前聚焦进度在新栏目查看。
           </p>
           <div className="rule-divider" />
           <span className="eyebrow">为什么要隔日再问</span>
@@ -766,7 +827,7 @@ function Today({ state, update, day, today }) {
             先独立回答，再核对结论和理由。答错或使用提示的规则，次日再问；跨日通过后，间隔逐渐拉长。
           </p>
           <a href="#/sources">
-            了解方法与边界 <ArrowRight size={15} />
+            查看复习方法 <ArrowRight size={15} />
           </a>
         </aside>
       </div>
@@ -817,7 +878,7 @@ function TaskRow({ lesson: l, type = "lesson", done, state, reason }) {
         </p>
       </div>
       <span className="task-time">
-        {type === "review" ? `约${reviewMinutes(state, l.id)}` : l.minutes} min
+        {type === "review" ? `约${reviewMinutes(state, l.id)}` : l.minutes} 分钟
         <ChevronRight size={18} />
       </span>
     </a>
@@ -858,17 +919,16 @@ function Library({ state }) {
   const list = lessons.filter(
     (l) =>
       (filter === "all" || filter === l.subjectId) &&
-      `${l.title} ${l.summary} ${l.tags.join(" ")}`.includes(query),
+      `${l.title} ${l.summary} ${l.tags.join(" ")} ${l.sections.map((s) => s.body).join(" ")}`.includes(
+        query.trim(),
+      ),
   );
   return (
     <>
-      <PageTitle
-        eyebrow="知道学了什么，也知道还缺什么"
-        title="先看结构，再深入一条规则。"
-      >
+      <PageTitle eyebrow="八科考点，按需查找" title="课程地图">
         {lessons.length} 个核心单元 ·{" "}
-        {lessons.reduce((n, l) => n + l.questions.length, 0)} 道双重检查练习 ·
-        八科均保留未覆盖范围
+        {lessons.reduce((n, l) => n + l.questions.length, 0)} 道规则与案例练习 ·
+        按科目或关键词查找
       </PageTitle>
       <div className="library-toolbar">
         <div className="filter-tabs">
@@ -904,16 +964,30 @@ function Library({ state }) {
             <SubjectMark id={filter} />
             <div>
               <h3>{subjectById[filter].description}</h3>
-              <p>未完整覆盖：{subjectById[filter].gaps}</p>
+              <p>八科旧课的补充阅读：{subjectById[filter].gaps}</p>
             </div>
           </div>
           <details>
-            <summary>查看本科学习范围索引</summary>
+            <summary>查看八科旧课的本科学习索引</summary>
             <Coverage subjectId={filter} />
             <p>
-              这里区分已有课程、计划内待补和后续扩展。一个领域有课，仍然可能只讲了其中一条规则。
+              这张索引记录八科旧课；每节课的具体范围见标题与学习目标。考前聚焦的新增内容可从下方入口查找。
             </p>
           </details>
+        </div>
+      )}
+      {(filter === "all" ||
+        focusData.papers.some((p) => p.subjectId === filter)) && (
+        <div className="plain-note">
+          <strong>同科补充 · 考前聚焦</strong>
+          <p>
+            新增商经知、三国法和民诉的完整聚焦讲解，含与旧册重合点、客观题及记忆路线。
+          </p>
+          <a
+            href={`#/focus/library${filter === "all" ? "" : `?subject=${filter}`}`}
+          >
+            查看{filter === "all" ? "三科" : subjectById[filter].name}聚焦考点 →
+          </a>
         </div>
       )}
       <div className="lesson-grid">
@@ -944,8 +1018,8 @@ function Library({ state }) {
       <div className="plain-note">
         <FileText size={18} />
         <p>
-          本工具只承诺所列单元的内容。全书共1666页，未逐页审校；不会将本站课程进度显示为“八科学完”。
-          <a href="#/sources">查看全部来源与边界</a>
+          课程地图列出本站已制作的考点。想了解每科还需补充的章节，可查看来源页。
+          <a href="#/sources">查看资料来源与学习范围</a>
         </p>
       </div>
     </>
@@ -1012,7 +1086,7 @@ function RepairBlock({ lesson, state, onReturn }) {
         <Pill>约 5—10 分钟</Pill>
       </div>
       <label>
-        这次最像哪种情况？
+        标记错因
         <select value={kind} onChange={(e) => setKind(e.target.value)}>
           {mistakeKinds.map(([id, label]) => (
             <option key={id} value={id}>
@@ -1143,7 +1217,7 @@ function Lesson({ lesson: l, state, update, notice }) {
     setSession([]);
     changeStep(2);
   }
-  const titles = ["先弄懂", "看一遍怎么用", "自己试一试", "合上再想想"];
+  const titles = ["规则梳理", "例题分析", "独立作答", "闭卷复述"];
   return (
     <>
       <div className="lesson-top">
@@ -1160,7 +1234,7 @@ function Lesson({ lesson: l, state, update, notice }) {
         </div>
       </div>
       <div className="lesson-heading">
-        <p className="eyebrow">这一课，只解决一个小问题</p>
+        <p className="eyebrow">考点精讲</p>
         <h1>{l.title}</h1>
         <p>{l.orientation || l.summary}</p>
       </div>
@@ -1249,7 +1323,7 @@ function Lesson({ lesson: l, state, update, notice }) {
                             changeStep(2);
                           }}
                         >
-                          先看看我会多少
+                          先做题查漏
                           <ArrowRight size={15} />
                         </button>
                       </div>
@@ -1293,9 +1367,9 @@ function Lesson({ lesson: l, state, update, notice }) {
                   </div>
                   <Contrast contrast={l.contrast} />
                   <div className="lesson-actions">
-                    <span>不用逐字背，先说清它在解决什么问题。</span>
+                    <span>先记判断顺序，再记主体、期间和例外。</span>
                     <button onClick={() => changeStep(1)}>
-                      跟着例子走一遍
+                      进入例题分析
                       <ArrowRight size={17} />
                     </button>
                   </div>
@@ -1303,7 +1377,7 @@ function Lesson({ lesson: l, state, update, notice }) {
               )}
               {step === 1 && (
                 <>
-                  <p className="eyebrow">看看规则怎样落到事实里 · 虚构案例</p>
+                  <p className="eyebrow">例题分析 · 原创练习</p>
                   <div className="scenario">
                     <span className="quote-mark">“</span>
                     <p>{l.example.scenario}</p>
@@ -1322,7 +1396,7 @@ function Lesson({ lesson: l, state, update, notice }) {
                   <div className="conclusion">
                     <Check size={21} />
                     <div>
-                      <strong>所以，这个例子的结论是</strong>
+                      <strong>本题结论</strong>
                       <p>{l.example.conclusion}</p>
                     </div>
                   </div>
@@ -1332,9 +1406,7 @@ function Lesson({ lesson: l, state, update, notice }) {
                       再看一下规则
                     </button>
                     <button onClick={startPractice}>
-                      {checkDone
-                        ? "整理这课要记住的东西"
-                        : "换个例子，我来判断"}
+                      {checkDone ? "整理这课要记住的东西" : "开始独立作答"}
                       <ArrowRight size={16} />
                     </button>
                   </div>
@@ -1344,7 +1416,7 @@ function Lesson({ lesson: l, state, update, notice }) {
                 <>
                   <div className="practice-heading">
                     <span className="eyebrow">
-                      {diagnostic ? "先确认哪些已经会了" : "先自己想，再看解释"}
+                      {diagnostic ? "先确认哪些已经会了" : "先作答，再看解析"}
                     </span>
                     <span>
                       {qIndex + 1} / {questions.length}
@@ -1380,7 +1452,7 @@ function Lesson({ lesson: l, state, update, notice }) {
                     <h2>
                       {session.every(passed)
                         ? "这一轮，结论和理由都答对了。"
-                        : "这课先学到这里，难点明天再检查。"}
+                        : "本轮已完成，错题明日复测。"}
                     </h2>
                     <p>
                       用自己的话回答下面的问题。说不完整，就展开核对少了哪一步。
@@ -1535,7 +1607,7 @@ function Quiz({
   const [errorKind, setErrorKind] = useState(initialResult?.errorType || "");
   function lockAnswer() {
     if (choice === null || !confidence) {
-      setError("先选一个判断，再告诉我你有多大把握。");
+      setError("请选择答案及把握程度。");
       return;
     }
     setError("");
@@ -1543,7 +1615,7 @@ function Quiz({
   }
   function submit() {
     if (reason === null) {
-      setError("再选一个最能说明你判断的理由。");
+      setError("请选择支持该结论的理由。");
       return;
     }
     setError("");
@@ -1565,8 +1637,8 @@ function Quiz({
     });
   }
   const kind = {
-    recall: "想起规则",
-    application: "用到例子里",
+    recall: "规则辨析",
+    application: "案例分析",
     variation: "改变一个条件",
   }[q.kind];
   return (
@@ -1574,7 +1646,7 @@ function Quiz({
       <Pill>{kind}</Pill>
       <h2>{q.prompt}</h2>
       <fieldset disabled={phase !== "answer"}>
-        <legend>先判断：你会选哪一个？</legend>
+        <legend>请选择正确选项</legend>
         {options.map(({ v, i }, j) => (
           <label
             key={i}
@@ -1597,11 +1669,11 @@ function Quiz({
       {phase === "answer" && (
         <>
           <fieldset className="confidence">
-            <legend>这个判断，你有多大把握？</legend>
+            <legend>作答把握</legend>
             {[
-              ["sure", "能说清为什么"],
-              ["uncertain", "还拿不太准"],
-              ["guess", "主要靠猜"],
+              ["sure", "有把握"],
+              ["uncertain", "不确定"],
+              ["guess", "猜测"],
             ].map(([v, t]) => (
               <label key={v} className={confidence === v ? "selected" : ""}>
                 <input
@@ -1617,7 +1689,7 @@ function Quiz({
           {!deferFeedback && (
             <button className="text-button" onClick={() => setHint(true)}>
               <CircleHelp size={16} />
-              需要一个提示
+              查看解题提示
             </button>
           )}
           {hint && (
@@ -1628,7 +1700,7 @@ function Quiz({
             </div>
           )}
           <button className="full-button" onClick={lockAnswer}>
-            确认这个判断，再说明理由
+            锁定答案，选择理由
             <ArrowRight size={17} />
           </button>
         </>
@@ -1668,7 +1740,7 @@ function Quiz({
       )}
       {phase === "reason" && (
         <button className="full-button" onClick={submit}>
-          {deferFeedback ? "保存这道题的判断" : "看看我的推理对不对"}
+          {deferFeedback ? "保存这道题的判断" : "提交并查看解析"}
           <ArrowRight size={17} />
         </button>
       )}
@@ -1695,16 +1767,16 @@ function Quiz({
             <h3>
               {correct && reasonCorrect
                 ? effectiveHint || confidence === "guess"
-                  ? "这次选对了，明天再试着独立判断。"
-                  : "判断对了，理由也说得通。"
+                  ? "本题选对，明天无提示复测。"
+                  : "答案和理由均正确。"
                 : correct
-                  ? "结论选对了，理由里还少了一步。"
-                  : "我们看看，哪一步影响了结论。"}
+                  ? "选项正确，理由需要订正。"
+                  : "请核对关键条件与适用规则。"}
             </h3>
           </div>
           <p>{q.explanation}</p>
           <div className="decisive-fact">
-            <strong>决定这道题的地方</strong>
+            <strong>解题关键</strong>
             {q.decisiveFact}
           </div>
           {(!correct ||
@@ -1713,7 +1785,7 @@ function Quiz({
             confidence === "guess") && (
             <>
               <label className="error-select">
-                这次最像哪种情况？
+                标记错因
                 <select
                   value={errorKind}
                   onChange={(e) => {
@@ -1740,14 +1812,14 @@ function Quiz({
               )}
               {onRepair && (
                 <button className="secondary" onClick={onRepair}>
-                  这一步还不明白，帮我拆开讲
+                  返回对应考点
                 </button>
               )}
             </>
           )}
           <div className="feedback-actions">
             <button onClick={onNext}>
-              {last ? "整理这一轮的结果" : "再试一个问题"}
+              {last ? "整理这一轮的结果" : "下一题"}
               <ArrowRight size={17} />
             </button>
           </div>
@@ -1822,7 +1894,7 @@ function Practice({ lesson: l, state, update, notice }) {
             }
           >
             下次日期：{state.records[l.id]?.due}
-            。同一天重复作答属于练习，不会多算一次跨日验证。
+            。今天可继续订正，明天再独立复测。
           </Empty>
         ) : repair ? (
           <RepairBlock
@@ -1864,7 +1936,7 @@ function Practice({ lesson: l, state, update, notice }) {
               else showRepair();
             }}
           >
-            {repair ? "回到刚才的题目" : "找不到分析入口？先拆开讲"}
+            {repair ? "回到刚才的题目" : "没有解题思路？分步看讲解"}
             <ArrowRight size={16} />
           </button>
         )}
@@ -1952,7 +2024,7 @@ function Review({ state, day, today }) {
                 )
                 .map((l) => l.title)
                 .join("；")}
-              。先回课堂弄懂，隔一天再用保留题检查。
+              。先回课堂弄懂，隔一天再用综合复测题检查。
             </p>
           </div>
           <a className="button secondary" href="#/checkup">
@@ -1963,7 +2035,9 @@ function Review({ state, day, today }) {
       )}
       <div className="section-heading">
         <h2>从错因，回到规则</h2>
-        <span className="muted small-text">仅展示每个规则组最近一次困难</span>
+        <span className="muted small-text">
+          每组规则显示最近一次错因，点开即可返回对应讲解。
+        </span>
       </div>
       <div className="error-list">
         {unique.slice(0, 12).map((a) => (
@@ -1996,7 +2070,7 @@ function Review({ state, day, today }) {
       <details className="method-details">
         <summary>怎样才算“初步稳固”？</summary>
         <p>
-          至少两个不同日期结论与理由都正确，未使用提示、未标记猜测，并至少通过一次关键事实变化题。第一次通过后次日检查，之后约隔3天、7天；答错或借助提示后回到次日。这是可解释的首版规则，不是经过法考验证的最优算法。
+          至少两个不同日期结论与理由都正确，未使用提示、未标记猜测，并至少通过一次关键事实变化题。第一次通过后次日检查，之后约隔3天、7天；答错或借助提示后回到次日。考前按剩余时间收紧间隔，优先再测错项。
         </p>
       </details>
     </>
@@ -2154,7 +2228,7 @@ function Diagnostic({ state, update }) {
         <section className="checkup-intro">
           <h2>熟悉的规则，可以少花时间重读</h2>
           <p>
-            先独立选结论，再选理由。这一轮结束后，给你具体补讲入口。答案解释在整轮结束后显示。
+            先独立选结论，再选理由。这一轮结束后，列出需要重看的具体考点。答案解释在整轮结束后显示。
           </p>
           <p>
             可以随时退出，下次从已保存的题号继续。不会凭诊断结果直接完成整课。
@@ -2218,7 +2292,7 @@ function Diagnostic({ state, update }) {
             </button>
           )}
           <p className="muted small-text">
-            已提交的答案会保留。只是看见题目不计为学会。
+            已提交的答案会保留，下次可以接着完成未答题目。
           </p>
         </div>
       )}
@@ -2280,7 +2354,7 @@ function Checkup({ state, update, day }) {
         eyebrow="把规则放到另一道题里"
         title="换一种问法，还能判断吗？"
       >
-        只抽已经学过的单元。先完成整组，再核对解释；这是一组原创规则检查，不是正式考试模拟。
+        只抽已经学过的单元。先完成整组，再核对解释；每道题都要同时说清结论和依据。
       </PageTitle>
       {(!run || run.completed || !items.length) && (
         <section className="checkup-intro">
@@ -2293,7 +2367,7 @@ function Checkup({ state, update, day }) {
                 ? `${freshCount} 题还没有在综合复核中出现。`
                 : available.length
                   ? "这组题已经见过，再做属于复练。"
-                  : "先完成有保留题的课程，或在今天留出几分钟再开始。"}
+                  : "先完成有综合复测题的课程，或在今天留出几分钟再开始。"}
             </p>
             <p>
               作答时先辨认规则和例外。本站题目为单项选择；若实际考试包含多选或不定项，还需配合对应题型的合法真题材料。
@@ -2353,7 +2427,7 @@ function Checkup({ state, update, day }) {
       {!available.length && !run && (
         <div className="plain-note">
           <div>
-            <strong>这些课有配套保留题，完成教学后可检查：</strong>
+            <strong>这些课有配套综合复测题，完成教学后可检查：</strong>
             {[...new Set(checkpointPool.map((i) => i.lessonId))]
               .filter((id) => !state.records[id]?.completedDate)
               .slice(0, 3)
@@ -2382,17 +2456,14 @@ function Plan({ state, today }) {
   const selected = new Set(plans.flatMap((p) => p.tasks.map((l) => l.id))).size;
   return (
     <>
-      <PageTitle
-        eyebrow="按剩余时间安排"
-        title="把有限的时间，留给最需要学的地方。"
-      >
+      <PageTitle eyebrow="按剩余时间安排" title="考前复习安排">
         从 {state.settings.startDate} 开始 · 按实际星期安排 · 预算约{" "}
         {(total / 60).toFixed(1)} 小时（含复习与休息）
       </PageTitle>
       <div className="plan-intro">
         <div>
           <span>开始几天</span>
-          <h3>建立分析入口</h3>
+          <h3>理清基本法律关系</h3>
           <p>先给陌生科目讲解和示范，熟悉模块用短诊断验证。</p>
         </div>
         <div>
@@ -2409,14 +2480,13 @@ function Plan({ state, today }) {
         </div>
       </div>
       <div className="plan-notice">
-        这是按当前记录推算的安排。未来任务会随正确率、实际学习和预算变化；漏学不会整天叠加到下一天。课程地图仍可自由选学。本次预计安排{" "}
-        {selected} 个教学单元，内容库共有 {lessons.length}{" "}
-        个；其余保留为选学，不计为已学。
+        计划会根据正确率、实际完成量和每日时间调整。未完成单元将重新择日安排，也可随时从课程地图选学。当前计划纳入{" "}
+        {selected} 个单元，内容库另有 {lessons.length - selected} 个单元可选。
       </div>
       <div className="plain-note">
         <ListChecks size={20} />
         <p>
-          这份安排不强行填满每分钟。若有自己的合法客观题真题材料，可用余量练多选、不定项和限时作答；优先订正有把握却做错的题，不把本站的单项选择练习当作完整考试模拟。
+          余下时间优先订正“有把握却做错”的题。多选与不定项要逐项判断，尤其留意主体、期间、否定词和例外。
         </p>
       </div>
       <div className="plan-days">
@@ -2432,7 +2502,7 @@ function Plan({ state, today }) {
               <small>
                 {p.paused
                   ? "不排必修"
-                  : `${p.budget} min · ${isWeekend(p.date) ? "周末" : "工作日"}`}
+                  : `${p.budget} 分钟 · ${isWeekend(p.date) ? "周末" : "工作日"}`}
               </small>
             </div>
             <div className="day-detail">
@@ -2458,14 +2528,14 @@ function Plan({ state, today }) {
               {!p.past && !p.paused && (
                 <div className="day-meta">
                   <span>
-                    <RotateCcw size={13} /> 预计复现 {p.reviewTime} min
+                    <RotateCcw size={13} /> 预计复现 {p.reviewTime} 分钟
                   </span>
-                  {p.repairTime > 0 && <span>补讲 {p.repairTime} min</span>}
+                  {p.repairTime > 0 && <span>补讲 {p.repairTime} 分钟</span>}
                   {p.checkpointTime > 0 && (
-                    <a href="#/checkup">综合复核 {p.checkpointTime} min</a>
+                    <a href="#/checkup">综合复核 {p.checkpointTime} 分钟</a>
                   )}
-                  <span>复述 {p.reflection} min</span>
-                  <span>休息 {p.breakTime} min</span>
+                  <span>复述 {p.reflection} 分钟</span>
+                  <span>休息 {p.breakTime} 分钟</span>
                 </div>
               )}
             </div>
@@ -2510,7 +2580,7 @@ const palacePlaces = [
     answer: "不属于。必须是保证人书面表示放弃先诉抗辩权。",
   },
 ];
-function Palace({ state }) {
+function Palace({ state, update, today }) {
   const [index, setIndex] = useState(0),
     [hideScene, setHideScene] = useState(false),
     [hideText, setHideText] = useState(false),
@@ -2519,6 +2589,26 @@ function Palace({ state }) {
     [position, setPosition] = useState(0),
     [revealed, setRevealed] = useState(false),
     [self, setSelf] = useState({});
+  function saveRecall(label) {
+    setSelf((s) => ({ ...s, [current]: label }));
+    update((s) => {
+      const f = s.focus || emptyFocusState();
+      return {
+        ...s,
+        focus: {
+          ...f,
+          palace: {
+            ...f.palace,
+            [`legacy-guarantee-${current}`]: {
+              date: today,
+              quality: label === "能独立说明" ? "exact" : "partial",
+              assisted: !hideScene || !hideText,
+            },
+          },
+        },
+      };
+    });
+  }
   const place = palacePlaces[mode === "learn" ? index : order[position]];
   const guarantee = lessons.find(
     (l) => l.subjectId === "civil" && /保证/.test(l.title),
@@ -2536,7 +2626,7 @@ function Palace({ state }) {
   return (
     <>
       <PageTitle
-        eyebrow="THE MEMORY ROOM / OPTIONAL"
+        eyebrow="记忆宫殿 · 一般保证"
         title="给容易漏掉的条件，一个位置。"
       >
         一般保证 · 先诉抗辩权的四种例外 · 一间固定的虚构书房
@@ -2544,7 +2634,7 @@ function Palace({ state }) {
       <div className="palace-intro">
         <Sparkles size={23} />
         <p>
-          先理解“一般保证先找债务人”的基本结构，再用场景记住例外。图片只辅助回忆，不替代条件判断。不使用宫殿，也不会损失课程进度。
+          先理解“一般保证先找债务人”的基本结构，再用场景记住例外。记住场景后，遮住画面，检查自己能否把例外的条件说完整。
         </p>
         {guarantee && (
           <a className="button secondary" href={`#/course/${guarantee.id}`}>
@@ -2642,7 +2732,7 @@ function Palace({ state }) {
       <div className="palace-detail">
         <div>
           <span className="eyebrow">
-            LOCATION {number(current + 1)}
+            位置 {number(current + 1)}
             {mode === "recall" ? ` · 第 ${position + 1}/4 站` : ""}
           </span>
           <h2>{place.title}</h2>
@@ -2665,23 +2755,17 @@ function Palace({ state }) {
               <div className="inline-actions">
                 <button
                   className="secondary"
-                  onClick={() =>
-                    setSelf((s) => ({ ...s, [current]: "还需复习" }))
-                  }
+                  onClick={() => saveRecall("还需复习")}
                 >
                   还需复习
                 </button>
-                <button
-                  onClick={() =>
-                    setSelf((s) => ({ ...s, [current]: "能独立说明" }))
-                  }
-                >
+                <button onClick={() => saveRecall("能独立说明")}>
                   能独立说明
                 </button>
               </div>
               {self[current] && (
                 <p className="muted small-text">
-                  已自评：{self[current]}。这是本轮自评，不计入客观掌握状态。
+                  已保存：{self[current]}。明天再试一次闭卷复述。
                 </p>
               )}
             </>
@@ -2780,9 +2864,28 @@ function Settings({
   }
   return (
     <>
-      <PageTitle eyebrow="按自己的时间和基础来" title="让计划，适合你的生活。">
-        基础是自述，掌握靠验证。设置不会抹掉已有学习记录。
+      <PageTitle eyebrow="按自己的时间和基础来" title="学习设置与备份">
+        按实际基础和每天可用时间安排，修改设置后保留已有学习记录。
       </PageTitle>
+      <div className="plain-note">
+        <label>
+          <input
+            type="checkbox"
+            checked={state.focus?.enabled ?? true}
+            onChange={(e) => {
+              const enabled = e.target.checked;
+              update((s) => ({
+                ...s,
+                focus: { ...(s.focus || emptyFocusState()), enabled },
+              }));
+            }}
+          />{" "}
+          启用考前聚焦冲刺安排
+        </label>
+        <p>
+          开启时两栏共用每天的时间，默认按9月12日考试安排；你可以在下方修改考试日期。关闭后恢复八科课程安排，考前聚焦的内容和记录继续保留。
+        </p>
+      </div>
       <form onSubmit={save} className="settings-form">
         <section className="settings-section">
           <div>
@@ -2946,8 +3049,9 @@ function Settings({
         >
           <p>
             包含 {pending.attempts.length} 次作答、
-            {Object.keys(pending.records).length}{" "}
-            个规则组。当前记录不会自动合并。
+            {Object.keys(pending.records).length} 个原课程规则组，以及{" "}
+            {pending.focus?.attempts.length || 0}{" "}
+            次考前聚焦作答。当前记录不会自动合并。
           </p>
           <div className="inline-actions">
             <button className="secondary" onClick={backup}>
@@ -3027,7 +3131,7 @@ function Sources() {
         eyebrow="来源与实际覆盖范围"
         title="每一条规则，都应该找得到来处。"
       >
-        把来源、已做的内容和未覆盖的范围一起说明。
+        各科讲义、引用页码及学习方法集中在这里。
       </PageTitle>
       <div className="source-summary">
         <BookOpen size={30} />
@@ -3039,9 +3143,24 @@ function Sources() {
           <p>
             另有 {diagnosticPool.length} 道民诉诊断题（部分与课堂题重合），以及{" "}
             {checkpointPool.length}{" "}
-            道综合复核保留题。依据2026众合八册背诵卷的所列页面制作。课程含原创解释、虚构案例与变化题；不提供原书扫描、下载或长篇摘录。每课列出印刷页和PDF页。全书1666页未逐页审校，内容也不等同完整考试范围。
+            道综合复测题。八科旧课按2026众合背诵卷选编，每课标注印刷页与PDF页；“考前聚焦”按新讲义逐页整理，重合考点同时提供新旧页码。
           </p>
         </div>
+      </div>
+      <div className="plain-note">
+        <h2>新增 · 考前聚焦</h2>
+        <p>
+          {focusData.papers
+            .map((p) => `${p.title}（${p.pageCount}页）`)
+            .join("、")}
+          ，共 {focusData.units.length} 个考点单元、
+          {focusData.units.reduce((n, u) => n + u.questions.length, 0)}{" "}
+          道原创客观题、{focusData.palaces.length} 条记忆路线。
+        </p>
+        <p>
+          在全部考点底部可按67页原讲义逐页定位；重合重点列出旧册同一规则的出处。
+        </p>
+        <a href="#/focus/library">打开讲义页码索引 →</a>
       </div>
       <div className="source-books">
         {subjects.map((s) => (
@@ -3072,7 +3191,7 @@ function Sources() {
                     .join("、")}
                 </p>
                 <p>
-                  目录之外没有隐藏的已完成课程；其余范围仍需原书学习。课程页码为来源索引，不表示公开复制这些页。
+                  可按这些页码回到原书复习；未列出的章节请结合原书目录安排。
                 </p>
               </details>
             </div>
@@ -3083,7 +3202,7 @@ function Sources() {
         <section>
           <h2>为什么这样复习</h2>
           <p>
-            陌生内容先解释并给示范，再要求独立提取；复习时不先显示答案。结论与理由分开检查，用变化事实测试是否理解适用条件。间隔检索的研究支持将练习分散到不同日期，但没有证据保证本站的1、3、7天间隔对每个人或法考都最优。
+            陌生内容先解释并给示范，再要求独立提取；复习时不先显示答案。结论与理由分开检查，用变化事实测试是否理解适用条件。间隔检索的研究支持将练习分散到不同日期，本站据此安排隔日与间隔复习，并根据错题调整。
           </p>
           <p>
             <a
@@ -3104,15 +3223,15 @@ function Sources() {
           </p>
         </section>
         <section>
-          <h2>内容与技术边界</h2>
+          <h2>资料范围与记录保存</h2>
           <p>
-            本站是教育用途的核心复习工具，不能作为实际案件的法律意见。未独立完成所有法规截至今日的沿革比对；涉及更新、争议或书内冲突时，不将未解决结论编为确定评分题。具体适用请查现行法律、司法解释及官方说明。个别作者的体系表述仍须结合来源理解。
+            本站服务于2026年法考复习。“考前聚焦”逐页整理三份讲义共67页；八科旧课按专题选编，原有八册1666页未逐页审校。规则修正与新法变化写在对应单元，并附法源链接；办理实际案件时请另行核对现行法和司法解释。
           </p>
           <p>
-            没有实时AI阅卷、后台账号、自动跨设备同步或第三方分析追踪。选择题由预先制作的标准核对，口头复述和宫殿回忆只作自评。学习记录只存在浏览器，清缓存或更换域名可能导致不可访问，应定期导出。
+            选择题按预设答案核对，口头复述和宫殿回忆请依参考答案自评。学习记录保存在当前浏览器；清除缓存或更换域名可能丢失记录，请定期导出备份。本站无需登录，暂不提供跨设备同步。
           </p>
           <p>
-            记忆宫殿为AI生成的虚构场景。错误反馈与建议可通过{" "}
+            记忆宫殿使用虚构空间联想：先理解、再遮提示，最后乱序抽问。错误反馈与建议可通过{" "}
             <a
               href="https://github.com/Fighterforever/law-study/issues"
               target="_blank"

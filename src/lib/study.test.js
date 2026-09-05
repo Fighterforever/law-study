@@ -339,6 +339,13 @@ test("9月12日考试：10日11日不新增，考试日暂停，预测止于11�
   assert.equal(p.length, 11);
   assert.equal(p.at(-1).date, "2026-09-11");
 });
+test("较早开始的复习计划仍按真实考试日进入冲刺", () => {
+  const s = initialState("2026-08-15");
+  s.settings.examDate = "2026-09-12";
+  assert.equal(studyPhase(s.settings, "2026-09-05").remaining, 7);
+  assert.equal(studyPhase(s.settings, "2026-09-05").consolidation, false);
+  assert.equal(studyPhase(s.settings, "2026-09-10").consolidation, true);
+});
 test("预算扣实际诊断、重复补讲和复习，旧课不再按新课原时长扣款", () => {
   const s = initialState("2026-09-01");
   s.records[lesson.id] = record("2026-08-31");
