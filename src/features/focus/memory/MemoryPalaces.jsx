@@ -33,6 +33,7 @@ import {
 } from "../../../lib/memory-session.js";
 import MemoryScene, { MemoryScenePreview } from "./MemoryScene.jsx";
 import CompanyQuest, { QuestEntry } from "./quest/CompanyQuest.jsx";
+import InsuranceQuest, { InsuranceEntry } from "./quest/InsuranceQuest.jsx";
 import "./memory-palaces.css";
 
 const home = "#/focus/memory";
@@ -57,6 +58,8 @@ export default function MemoryPalaces({ data, state, update, today, route }) {
   const examDate = focusExamDate(data, state);
   if (id === "company-case")
     return <CompanyQuest {...{ data, state, update, today }} />;
+  if (id === "insurance-case")
+    return <InsuranceQuest {...{ state, update, today }} />;
   if (id && !palace)
     return (
       <div className="mp-empty">
@@ -120,7 +123,10 @@ function PalaceCatalog({ data, state, today, examDate }) {
   })[0];
   return (
     <div className="mp-atlas">
-      <QuestEntry {...{ state, today }} />
+      <div className="mp-case-entries">
+        <QuestEntry {...{ state, today }} />
+        <InsuranceEntry state={state} />
+      </div>
       <section className="mp-atlas-intro">
         <div>
           <span className="mp-kicker">随时查漏 · 15 条原有记忆路线</span>
@@ -356,6 +362,11 @@ function PalaceStudy({
       </div>
       {p.id === "focus-commercial-palace-loss-chain" && (
         <QuestEntry {...{ state, today }} compact />
+      )}
+      {p.id === "focus-commercial-palace-insurance-events" && (
+        <div className="iq-route-entry">
+          <InsuranceEntry state={state} />
+        </div>
       )}
       <header className="mp-study-heading">
         <div>

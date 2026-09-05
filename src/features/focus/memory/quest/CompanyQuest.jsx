@@ -28,6 +28,7 @@ import {
   questReviewDue,
 } from "../../../../lib/company-quest.js";
 import "./company-quest.css";
+import ObjectiveQuestion from "./ObjectiveQuestion.jsx";
 
 const art = `${import.meta.env.BASE_URL}quests/commercial-study.png`;
 const stageNames = {
@@ -212,6 +213,12 @@ export default function CompanyQuest({ state, update, today, data }) {
           记忆宫殿
         </a>
         <span>{q ? "当前进度自动保存在本机" : "原创学习案件 · 不限时"}</span>
+        {q && !closed && (
+          <button className="cq-link-button" onClick={() => next("quiz")}>
+            <EyeOff size={15} />
+            直接闭卷
+          </button>
+        )}
       </nav>
       {!q ? (
         <>
@@ -865,7 +872,9 @@ export default function CompanyQuest({ state, update, today, data }) {
         </>
       )}
       <footer className="cq-source">
-        <span>本任务专练催缴与失权；本单元的其他出资规则，继续按讲义要点复习。</span>
+        <span>
+          本任务专练催缴与失权；本单元的其他出资规则，继续按讲义要点复习。
+        </span>
         <span>
           对应考点：{unit.title} · 考前聚焦 PDF 第 {unit.pages.join("、")} 页 ·
           旧背诵卷 PDF 第 {unit.overlap.pdfPages[0]}–
@@ -888,95 +897,33 @@ export default function CompanyQuest({ state, update, today, data }) {
 }
 
 function Quiz({ q, save, today }) {
-  const item = questionsFor(q)[q.quizIndex];
-  const result = q.quizResults[q.quizIndex];
-  const order = q.quizOrder[q.quizIndex];
   return (
-    <div className="cq-quiz">
-      <div className="cq-quiz-meta">
-        <span>{q.mode === "delayed" ? "隔日变式" : "即时闭卷"} · 多项选择</span>
-        <strong>{q.quizIndex + 1} / 3</strong>
-      </div>
-      <h3>{item.stem}</h3>
-      <p className="cq-quiz-instruction">
-        请选择所有正确选项。先独立提交，再看逐项解析。
-      </p>
-      <fieldset className="cq-exam-options" disabled={!!result}>
-        <legend className="mp-sr-only">本题选项</legend>
-        {order.map((index, position) => (
-          <label
-            className={`cq-exam-option ${q.quizSelected.includes(index) ? "selected" : ""} ${result && item.answers.includes(index) ? "correct" : ""}`}
-            key={index}
-          >
-            <input
-              type="checkbox"
-              checked={q.quizSelected.includes(index)}
-              onChange={() =>
-                save((old) => ({
-                  ...old,
-                  quizSelected: old.quizSelected.includes(index)
-                    ? old.quizSelected.filter((i) => i !== index)
-                    : [...old.quizSelected, index],
-                }))
-              }
-            />
-            <b>{String.fromCharCode(65 + position)}</b>
-            <span>{item.options[index]}</span>
-            {result && item.answers.includes(index) && <Check size={18} />}
-          </label>
-        ))}
-      </fieldset>
-      {result && (
-        <div
-          className={`cq-explanation ${result.correct ? "is-correct" : "needs-work"}`}
-          role="status"
-        >
-          <strong>
-            {result.correct ? "本题答对" : "本题待复习"} · {item.label}
-          </strong>
-          <p>
-            正确选项：
-            {order
-              .map((index, position) =>
-                item.answers.includes(index)
-                  ? String.fromCharCode(65 + position)
-                  : "",
-              )
-              .filter(Boolean)
-              .join("、")}
-          </p>
-          {order.map((index, position) => (
-            <p key={index}>
-              <b>{String.fromCharCode(65 + position)}.</b>{" "}
-              {item.explanations[index]}
-            </p>
-          ))}
-        </div>
-      )}
-      <div className="cq-actions">
-        {!result ? (
-          <button
-            disabled={!q.quizSelected.length}
-            onClick={() => save(submitQuestQuiz)}
-          >
-            提交本题
-          </button>
-        ) : (
-          <button
-            onClick={() =>
-              save((old) =>
-                old.quizIndex === 2
-                  ? finishQuest(old, today)
-                  : { ...old, quizIndex: old.quizIndex + 1, quizSelected: [] },
-              )
-            }
-          >
-            {q.quizIndex === 2 ? "查看本案复盘" : "下一题"}
-            <ArrowRight size={17} />
-          </button>
-        )}
-      </div>
-    </div>
+    <ObjectiveQuestion
+      item={questionsFor(q)[q.quizIndex]}
+      order={q.quizOrder[q.quizIndex]}
+      selected={q.quizSelected}
+      result={q.quizResults[q.quizIndex]}
+      caption={q.mode === "delayed" ? "隔日变式" : "即时闭卷"}
+      index={q.quizIndex}
+      total={3}
+      nextLabel={q.quizIndex === 2 ? "查看本案复盘" : "下一题"}
+      onSelect={(index) =>
+        save((old) => ({
+          ...old,
+          quizSelected: old.quizSelected.includes(index)
+            ? old.quizSelected.filter((i) => i !== index)
+            : [...old.quizSelected, index],
+        }))
+      }
+      onSubmit={() => save(submitQuestQuiz)}
+      onNext={() =>
+        save((old) =>
+          old.quizIndex === 2
+            ? finishQuest(old, today)
+            : { ...old, quizIndex: old.quizIndex + 1, quizSelected: [] },
+        )
+      }
+    />
   );
 }
 
@@ -1009,7 +956,7 @@ function QuestSummary({ q, today, start }) {
         <span>场景任务</span>
         <strong>
           {last.total
-            ? `${last.hinted ? "示范或提示后完成" : "自主处理"} · ${last.first}/${last.total} 项首次判断正确`
+            ? `${last.hinted ? "用过示范或提示" : "自主处理"} · 已判断 ${last.total}/6 项，其中 ${last.first} 项首次正确`
             : "本轮直接做题"}
         </strong>
       </div>
