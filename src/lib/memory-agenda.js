@@ -8,7 +8,8 @@ import {
 import {
   newInsuranceQuest,
   startInsuranceQuiz,
-  insuranceQuestions,
+  insuranceQuestionsFor,
+  insuranceReviewDue,
 } from "./insurance-quest.js";
 import {
   newInsuranceClocks,
@@ -86,7 +87,7 @@ function taskRecord(task, state, today) {
         ? clocksReviewDue(q, today)
         : task.id === "jurisdiction"
           ? jurisdictionReviewDue(q, today)
-          : history.some((r) => r.date < today) && !firstToday;
+          : insuranceReviewDue(q, today);
   const results = task.id === "company" ? q?.quizResults : q?.results;
   const kind =
     q?.mode === "delayed" || q?.quizKind === "delayed"
@@ -98,14 +99,13 @@ function taskRecord(task, state, today) {
         ? delayedQuestions
         : immediateQuestions
       : task.id === "insurance"
-        ? insuranceQuestions
+        ? insuranceQuestionsFor(q || { quizKind: "immediate" })
         : task.id === "clocks"
           ? clockQuestions[kind]
           : jurisdictionQuestions[kind];
   const errors = (results || []).flatMap((r, i) =>
     r.correct ? [] : [bank[i].label],
   );
-  const reviewLabel = task.id === "insurance" ? "原题复核" : "隔日变式";
   let status, action, reason, rank;
   if (phase === "quiz") {
     status = "闭卷题尚未完成";
@@ -113,13 +113,10 @@ function taskRecord(task, state, today) {
     rank = 0;
     reason = `继续第 ${q.quizIndex + 1}/3 题，保留已提交的答案。`;
   } else if (due) {
-    status = reviewLabel;
+    status = "隔日变式";
     action = "review";
     rank = 1;
-    reason =
-      task.id === "insurance"
-        ? "今天收起场景再判断；本任务复核仍使用原三题。"
-        : "先离开场景做另一组变式，再决定哪里需要补讲。";
+    reason = "先离开场景做另一组变式，再决定哪里需要补讲。";
   } else if (last?.date === today && last.correct < 3) {
     status = "先补本轮错点";
     action = "repair";
@@ -192,7 +189,11 @@ export function agendaQuiz(task, q, review = false) {
     return newCompanyQuest("quiz", q?.history || []);
   }
   if (task.id === "insurance")
-    return startInsuranceQuiz(q || newInsuranceQuest());
+    return startInsuranceQuiz(
+      q || newInsuranceQuest(),
+      Math.random,
+      review ? "delayed" : "immediate",
+    );
   if (task.id === "clocks")
     return startClocksQuiz(
       q || newInsuranceClocks(),

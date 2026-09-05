@@ -50,13 +50,23 @@ test("未完成闭卷优先于到期复测，到期任务优先于尚未开始�
   assert.equal(agenda.next.action, "resume");
   assert.equal(agenda.due, 1);
 });
-test("原题复核与隔日变式分别标识，同日完成原题不重复推送", () => {
+test("保险隔日任务使用变式；当天只重做即时题仍保留变式入口", () => {
   const s = initialState(today);
   s.focus.insuranceQuest = summary("insurance", "2026-09-04");
   const task = memoryAgenda(s, today, exam).tasks[1];
-  assert.equal(task.status, "原题复核");
-  assert.match(task.reason, /原三题/);
-  s.focus.insuranceQuest.history.push({ date: today, correct: 3 });
+  assert.equal(task.status, "隔日变式");
+  assert.match(task.reason, /另一组变式/);
+  s.focus.insuranceQuest.history.push({
+    date: today,
+    kind: "immediate",
+    correct: 3,
+  });
+  assert.equal(memoryAgenda(s, today, exam).tasks[1].due, true);
+  s.focus.insuranceQuest.history.push({
+    date: today,
+    kind: "delayed",
+    correct: 2,
+  });
   assert.equal(memoryAgenda(s, today, exam).tasks[1].due, false);
 });
 test("保留今日首次成绩，不把同日重做覆盖为首次全对", () => {
@@ -106,6 +116,7 @@ test("四个入口复用各自测验流程，衔接后备份仍可恢复", () =>
   const restored = decodeState(encodeState(s));
   assert.deepEqual(restored.focus, s.focus);
   assert.equal(restored.focus.companyQuest.mode, "delayed");
+  assert.equal(restored.focus.insuranceQuest.quizKind, "delayed");
   assert.equal(restored.focus.insuranceClocks.quizKind, "delayed");
   assert.equal(restored.focus.jurisdictionQuest.quizKind, "delayed");
 });

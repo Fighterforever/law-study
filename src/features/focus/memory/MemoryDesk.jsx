@@ -7,7 +7,7 @@ const art = (name) => `${import.meta.env.BASE_URL}quests/${name}`;
 const actionLabel = (task) =>
   ({
     resume: "继续上次进度",
-    review: task.id === "insurance" ? "开始原题复核" : "开始隔日变式",
+    review: "开始隔日变式",
     repair: "查看本轮错点",
     learn: task.id === "jurisdiction" ? "先用三题查漏" : "进入案件任务",
     summary: "查看学习复盘",

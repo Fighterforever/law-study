@@ -164,6 +164,7 @@ export function newInsuranceQuest(history = []) {
     revealed: false,
     hint: false,
     attempts: [],
+    quizKind: "immediate",
     quizIndex: 0,
     selected: [],
     results: [],
@@ -259,7 +260,70 @@ export const insuranceQuestions = [
     ],
   },
 ];
-export function startInsuranceQuiz(q, random = Math.random) {
+export const insuranceDelayedQuestions = [
+  {
+    label: "同样不影响事故，主观状态改变后果",
+    stem: "甲故意、乙因重大过失，分别未如实告知保险人询问的重要事实，均足以影响承保，均对后来事故的发生没有严重影响。两案保险人均在法定期间内依法解除合同，事故均发生在解除前且属于承保范围，无其他免责事由。下列哪些判断正确？",
+    options: [
+      "甲案保险人不承担保险责任，且不退还保险费",
+      "乙案保险人仍应对本次事故承担保险责任",
+      "两案均未严重影响事故发生，所以保险人均不能解除合同",
+      "把乙改为故意未告知，仍应按重大过失的事故影响条件判断拒赔",
+    ],
+    answers: [0, 1],
+    explanations: [
+      "故意未告知的拒赔规则不附加‘对事故发生有严重影响’这一要求。",
+      "重大过失据此拒赔，还须对事故发生有严重影响；本案欠缺该条件。",
+      "能否解除看是否足以影响承保等条件，不能用重大过失拒赔的事故影响要求替代。",
+      "主观状态改变，应切换到故意未告知的规则。",
+    ],
+  },
+  {
+    label: "任一期间限制都能挡住解除",
+    stem: "丙案合同成立已两年三个月，保险人三日前才知道解除事由；丁案合同成立八个月，保险人知道解除事由后已三十一日未行使。两案均为故意未告知且足以影响承保，保险人订约时均不知情。关于第16条的解除权，下列哪些判断正确？",
+    options: [
+      "丙案刚发现事由，可以从发现日起重新获得完整三十日解除期间",
+      "丙案合同成立已经超过二年，不能据此解除",
+      "丁案虽未超过合同成立后二年，解除权仍因超过三十日未行使而消灭",
+      "只有三十日与二年均已超过，才会失去解除权",
+    ],
+    answers: [1, 2],
+    explanations: [
+      "发现时间较晚不能绕过成立后二年的限制。",
+      "成立后二年限制独立适用。",
+      "知道解除事由后三十日的限制也独立适用。",
+      "任何一个期间挡住解除，就不能再按本条行使解除权。",
+    ],
+  },
+  {
+    label: "先看解除前提，再区分返还对象",
+    stem: "关于未履行如实告知义务，下列哪些说法正确？",
+    options: [
+      "保险人订约时已知未告知情况的，不能据此解除；发生承保范围内的事故，应承担保险责任",
+      "只要投保人故意漏答，漏答事项是否影响承保或费率都不影响解除权成立",
+      "重大过失未告知符合第16条拒赔条件、保险人依法解除的，应退还保险费",
+      "上述应退还保险费，可以直接改写为只退保单现金价值",
+    ],
+    answers: [0, 2],
+    explanations: [
+      "订约时已知属于本条明确规定的解除限制。",
+      "还须足以影响是否承保或者提高保险费率。",
+      "重大过失的相应后果是不赔但退保险费。",
+      "第16条规定的保险费返还不能替换成现金价值返还。",
+    ],
+  },
+];
+export const insuranceQuestionsFor = (q) =>
+  q.quizKind === "delayed" ? insuranceDelayedQuestions : insuranceQuestions;
+export const insuranceReviewDue = (q, today) =>
+  !!q?.history.some((r) => r.date < today) &&
+  !q.history.some((r) => r.date === today && r.kind === "delayed");
+
+export function startInsuranceQuiz(
+  q,
+  random = Math.random,
+  kind = "immediate",
+) {
   const order = [0, 1, 2, 3];
   for (let i = 3; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
@@ -268,6 +332,7 @@ export function startInsuranceQuiz(q, random = Math.random) {
   return {
     ...q,
     phase: "quiz",
+    quizKind: kind,
     quizIndex: 0,
     selected: [],
     results: [],
@@ -276,7 +341,7 @@ export function startInsuranceQuiz(q, random = Math.random) {
 }
 export function submitInsuranceQuiz(q) {
   if (q.results[q.quizIndex]) return q;
-  const answers = insuranceQuestions[q.quizIndex].answers;
+  const answers = insuranceQuestionsFor(q)[q.quizIndex].answers;
   return {
     ...q,
     results: [
@@ -300,7 +365,11 @@ export function nextInsuranceQuiz(q, date) {
     phase: "summary",
     history: [
       ...q.history,
-      { date, correct: q.results.filter((r) => r.correct).length },
+      {
+        date,
+        kind: q.quizKind,
+        correct: q.results.filter((r) => r.correct).length,
+      },
     ].slice(-100),
   };
 }
@@ -320,6 +389,8 @@ export function validInsuranceQuest(q, validDate) {
   return (
     obj(q) &&
     ["compare", "quiz", "summary"].includes(q.phase) &&
+    (q.quizKind === undefined ||
+      ["immediate", "delayed"].includes(q.quizKind)) &&
     index(q.comparison, 5) &&
     facts(q.facts) &&
     ["", ...Object.keys(insuranceOutcomes)].includes(q.prediction) &&
@@ -350,8 +421,23 @@ export function validInsuranceQuest(q, validDate) {
     list(
       q.history,
       100,
-      (r) => obj(r) && validDate(r.date) && index(r.correct, 3),
+      (r) =>
+        obj(r) &&
+        validDate(r.date) &&
+        index(r.correct, 3) &&
+        (r.kind === undefined || ["immediate", "delayed"].includes(r.kind)),
     ) &&
     (q.phase !== "summary" || (q.results.length === 3 && q.history.length > 0))
   );
+}
+
+// v1 旧记录只有原题；在读取备份的边界明确归入即时题，保留原有答案与成绩。
+export function normalizeInsuranceQuest(q) {
+  return q == null
+    ? null
+    : {
+        ...q,
+        quizKind: q.quizKind ?? "immediate",
+        history: q.history.map((r) => ({ ...r, kind: r.kind ?? "immediate" })),
+      };
 }

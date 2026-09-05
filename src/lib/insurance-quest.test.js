@@ -12,6 +12,9 @@ import {
   submitInsuranceQuiz,
   nextInsuranceQuiz,
   insuranceQuestions,
+  insuranceQuestionsFor,
+  insuranceDelayedQuestions,
+  insuranceReviewDue,
   validInsuranceQuest,
 } from "./insurance-quest.js";
 import { initialState, validDate, encodeState, decodeState } from "./study.js";
@@ -104,6 +107,53 @@ test("旧备份补齐保险草稿，新边界拒绝重复选项、非法事实�
     { ...q, facts: { ...q.facts, knownDays: "31" } },
     { ...q, phase: "summary" },
     { ...q, revealed: true },
+    { ...q, quizKind: "unknown" },
   ])
     assert.equal(validInsuranceQuest(bad, validDate), false);
+});
+
+test("隔日使用独立题组评分，原题成绩不能清除当日变式任务", () => {
+  let q = newInsuranceQuest([
+    { date: "2026-09-05", kind: "immediate", correct: 3 },
+  ]);
+  assert.equal(insuranceReviewDue(q, "2026-09-05"), false);
+  assert.equal(insuranceReviewDue(q, "2026-09-06"), true);
+  q.history.push({ date: "2026-09-06", kind: "immediate", correct: 3 });
+  assert.equal(insuranceReviewDue(q, "2026-09-06"), true);
+  q = startInsuranceQuiz(q, () => 0.4, "delayed");
+  assert.equal(insuranceQuestionsFor(q), insuranceDelayedQuestions);
+  assert.ok(
+    insuranceDelayedQuestions.every(
+      (x) => !insuranceQuestions.some((y) => x.stem === y.stem),
+    ),
+  );
+  for (let i = 0; i < 3; i++) {
+    q = submitInsuranceQuiz({
+      ...q,
+      selected: insuranceDelayedQuestions[i].answers,
+    });
+    q = nextInsuranceQuiz(q, "2026-09-06");
+  }
+  assert.equal(q.history.at(-1).kind, "delayed");
+  assert.equal(q.history.at(-1).correct, 3);
+  assert.equal(insuranceReviewDue(q, "2026-09-06"), false);
+  const state = initialState("2026-09-06");
+  state.focus.insuranceQuest = q;
+  assert.deepEqual(decodeState(encodeState(state)).focus.insuranceQuest, q);
+});
+
+test("旧版正在作答的原题与历史在读取边界归一化，保留选项和分数", () => {
+  const state = initialState("2026-09-06");
+  const q = startInsuranceQuiz(newInsuranceQuest());
+  delete q.quizKind;
+  q.selected = [0, 2];
+  q.history = [{ date: "2026-09-05", correct: 1 }];
+  state.focus.insuranceQuest = q;
+  const restored = decodeState(encodeState(state)).focus.insuranceQuest;
+  assert.equal(restored.quizKind, "immediate");
+  assert.deepEqual(restored.selected, [0, 2]);
+  assert.deepEqual(restored.history, [
+    { date: "2026-09-05", kind: "immediate", correct: 1 },
+  ]);
+  assert.equal(insuranceQuestionsFor(restored), insuranceQuestions);
 });

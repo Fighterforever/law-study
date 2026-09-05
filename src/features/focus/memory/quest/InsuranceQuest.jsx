@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Clock3,
   EyeOff,
   Files,
   Lightbulb,
@@ -21,7 +22,8 @@ import {
   changeInsuranceFacts,
   selectInsurancePair,
   revealInsurance,
-  insuranceQuestions,
+  insuranceQuestionsFor,
+  insuranceReviewDue,
   startInsuranceQuiz,
   submitInsuranceQuiz,
   nextInsuranceQuiz,
@@ -169,11 +171,15 @@ export default function InsuranceQuest({ state, update, today }) {
             </div>
             {q.phase === "quiz" ? (
               <ObjectiveQuestion
-                item={insuranceQuestions[q.quizIndex]}
+                item={insuranceQuestionsFor(q)[q.quizIndex]}
                 order={q.order}
                 selected={q.selected}
                 result={q.results[q.quizIndex]}
-                caption="保险辨析 · 闭卷作答"
+                caption={
+                  q.quizKind === "delayed"
+                    ? "保险辨析 · 隔日变式"
+                    : "保险辨析 · 即时闭卷"
+                }
                 index={q.quizIndex}
                 total={3}
                 nextLabel={q.quizIndex === 2 ? "查看本轮复盘" : "下一题"}
@@ -191,7 +197,9 @@ export default function InsuranceQuest({ state, update, today }) {
             ) : (
               <>
                 <div className="cq-summary-score">
-                  <span>本轮闭卷作答</span>
+                  <span>
+                    {q.quizKind === "delayed" ? "隔日变式" : "即时闭卷"}
+                  </span>
                   <strong>
                     {q.results.filter((r) => r.correct).length}
                     <small> / 3</small>
@@ -204,7 +212,7 @@ export default function InsuranceQuest({ state, update, today }) {
                 </div>
                 <div className="iq-repair">
                   <h3>下一轮复习顺序</h3>
-                  {insuranceQuestions.map(
+                  {insuranceQuestionsFor(q).map(
                     (item, i) =>
                       !q.results[i].correct && (
                         <p key={item.label}>
@@ -215,7 +223,7 @@ export default function InsuranceQuest({ state, update, today }) {
                   )}
                   {q.results.every((r) => r.correct) && (
                     <p>
-                      本轮三题均答对。明天先合上规则，再把这几组条件复述一次。
+                      本轮三题均答对。隔一天，先离开对照台，用变化后的题面再判断。
                     </p>
                   )}
                 </div>
@@ -277,6 +285,31 @@ export default function InsuranceQuest({ state, update, today }) {
                     </p>
                   </div>
                 </details>
+                <div className="cq-next-day">
+                  <Clock3 size={22} />
+                  <div>
+                    <h3>
+                      {insuranceReviewDue(q, today)
+                        ? "今天先做隔日变式"
+                        : "隔一天，换个案情再判断"}
+                    </h3>
+                    <p>
+                      隔日变式另有三题；以后再次复测仍使用这组变式。即时题与隔日题分别记录。
+                    </p>
+                    {insuranceReviewDue(q, today) && (
+                      <button
+                        onClick={() =>
+                          save((old) =>
+                            startInsuranceQuiz(old, Math.random, "delayed"),
+                          )
+                        }
+                      >
+                        开始隔日变式
+                        <ArrowRight size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
                 <div className="cq-summary-actions">
                   <a href="#/focus/memory" className="button">
                     返回记忆宫殿
@@ -295,7 +328,7 @@ export default function InsuranceQuest({ state, update, today }) {
                     className="cq-link-button"
                     onClick={() => save(startInsuranceQuiz)}
                   >
-                    再做这组三题
+                    重做即时闭卷题
                   </button>
                 </div>
                 <details className="cq-history">
@@ -305,7 +338,9 @@ export default function InsuranceQuest({ state, update, today }) {
                     .reverse()
                     .map((r, i) => (
                       <p key={i}>
-                        {r.date} · {r.correct}/3 题
+                        {r.date} ·{" "}
+                        {r.kind === "delayed" ? "隔日变式" : "即时闭卷"} ·{" "}
+                        {r.correct}/3 题
                       </p>
                     ))}
                 </details>

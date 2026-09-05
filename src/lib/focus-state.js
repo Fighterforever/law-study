@@ -1,6 +1,9 @@
 import { validMemorySession } from "./memory-session.js";
 import { validCompanyQuest } from "./company-quest.js";
-import { validInsuranceQuest } from "./insurance-quest.js";
+import {
+  validInsuranceQuest,
+  normalizeInsuranceQuest,
+} from "./insurance-quest.js";
 import { validInsuranceClocks } from "./insurance-clocks.js";
 import { validJurisdictionQuest } from "./jurisdiction-quest.js";
 
@@ -126,7 +129,7 @@ export function validateFocusState(value, validDate) {
     ...value,
     memorySession: value.memorySession ?? null,
     companyQuest: value.companyQuest ?? null,
-    insuranceQuest: value.insuranceQuest ?? null,
+    insuranceQuest: normalizeInsuranceQuest(value.insuranceQuest),
     insuranceClocks: value.insuranceClocks ?? null,
     jurisdictionQuest: value.jurisdictionQuest ?? null,
   };
