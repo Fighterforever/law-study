@@ -1,403 +1,280 @@
 .memory-scene {
-  --scene-ink: #244c3d;
-  --scene-paper: #f6f0dc;
-  --scene-red: #a96348;
+  --scene-accent: #557666;
   margin: 0;
   overflow: hidden;
-  border: 1px solid #cfd4bb;
-  border-radius: 15px;
-  background: var(--scene-paper);
+  border: 1px solid #dcd5c5;
+  border-radius: 16px;
+  background: #fcfaf3;
+  box-shadow: 0 12px 36px #342c1c0b;
 }
-
 .memory-scene-preview {
   display: block;
   width: 100%;
-  aspect-ratio: 890 / 460;
-  overflow: hidden;
+  height: 100%;
+  object-fit: cover;
   pointer-events: none;
-  border-radius: 8px;
-  background: #f6f0dc;
 }
-
-.memory-scene-preview .ms-floor-number {
-  fill: #8b9678;
-  font:
-    700 25px Georgia,
-    serif;
-  text-anchor: end;
-}
-
 .memory-scene-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 19px 23px 15px;
-  border-bottom: 1px solid #b8c2a93d;
+  gap: 16px;
+  padding: 20px 24px;
 }
-
-.memory-scene-heading > div:first-child {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
+.memory-scene-heading > div {
+  min-width: 0;
 }
-
 .memory-scene-eyebrow {
-  font-size: 10px;
-  color: #7e8569;
-  letter-spacing: 0.18em;
-  white-space: nowrap;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--scene-accent);
 }
-
 .memory-scene-heading strong {
-  color: var(--scene-ink);
-  font-family: var(--serif, "Songti SC", "STSong", serif);
-  font-size: 21px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-family: var(--serif, "Songti SC", serif);
+  color: #373f37;
+  font-size: clamp(19px, 2.1vw, 27px);
+  font-weight: 600;
 }
-
-.memory-scene-view {
-  display: flex;
+.memory-scene-original {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
-  gap: 3px;
-  padding: 3px;
-  border: 1px solid #ccd0b9;
-  border-radius: 7px;
-  background: #efead5;
+  font-size: 12px;
+  color: var(--scene-accent);
+  padding: 10px 0 10px 8px;
 }
-
-.memory-scene-view button {
+.memory-illustration {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  aspect-ratio: 3 / 2;
+  background: #e8e3d8;
+}
+.memory-illustration-image {
+  position: absolute;
+  max-width: none;
+  object-fit: fill;
+  user-select: none;
+}
+.memory-map-marker {
+  position: absolute;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 2px solid #fff6df;
+  border-radius: 50%;
+  background: #253a37e8;
+  box-shadow:
+    0 3px 12px #1119,
+    0 0 0 4px #ffffff24;
+  color: #fff7e4;
+  font:
+    600 15px Georgia,
+    serif;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+}
+.memory-map-marker.active {
+  background: var(--scene-accent);
+  border-color: #fffbe9;
+  box-shadow:
+    0 3px 18px #17150c88,
+    0 0 0 6px #fff6df8c;
+}
+.memory-map-marker:hover {
+  background: var(--scene-accent);
+}
+.memory-map-static {
+  pointer-events: none;
+}
+.memory-scene-toolbar {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 22px;
+  background: #f2eee3;
+  border-bottom: 1px solid #ddd7c9;
+}
+.memory-scene-toolbar button {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 36px;
-  padding: 6px 11px;
-  border: 0;
-  border-radius: 4px;
+  gap: 7px;
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 7px 12px;
   background: transparent;
-  color: #66725b;
+  color: #5e6258;
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
-
-.memory-scene-view button.active {
-  color: #fff8e5;
-  background: #3a654f;
-  box-shadow: 0 1px 3px #3a493422;
+.memory-scene-toolbar button.active {
+  background: #fffdf6;
+  color: var(--scene-accent);
+  border-color: #d8d1c0;
 }
-
-.memory-scene-view svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
-  stroke-linecap: round;
+.memory-scene-toolbar button:last-child {
+  margin-left: auto;
 }
-
-.memory-scene-canvas {
-  position: relative;
-  isolation: isolate;
+.memory-scene figcaption {
+  padding: 22px 24px 24px;
 }
-
-.memory-scene-art {
-  display: block;
-  width: 100%;
-  aspect-ratio: 960 / 550;
-  background: var(--scene-paper);
-  overflow: hidden;
-}
-
-.memory-scene-canvas.is-zoomed .memory-scene-art {
-  aspect-ratio: 560 / 350;
-}
-
-.memory-scene .ms-floor-number {
-  fill: #8b9678;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 25px;
-  font-weight: 700;
-  text-anchor: end;
-}
-
-.memory-scene .ms-entry {
-  fill: #956f4f;
-  font-size: 12px;
-  font-family: var(--serif, "Songti SC", serif);
-}
-
-.memory-scene .ms-prop {
-  pointer-events: none;
-}
-
-.memory-scene .ms-object-text {
-  stroke: none;
-  fill: #365640;
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 700;
-}
-
-.memory-scene .ms-place {
-  fill: #43573d;
-  font-family: var(--serif, "Songti SC", "STSong", serif);
-  font-size: 12px;
-  font-weight: 600;
-  paint-order: stroke;
-  stroke: #f8f1df;
-  stroke-width: 5px;
-  stroke-linejoin: round;
-  pointer-events: none;
-}
-
-.memory-scene .ms-station-index {
-  font-size: 14px;
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 700;
-  pointer-events: none;
-}
-
-.memory-scene .ms-station {
-  cursor: pointer;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.memory-scene .ms-station .ms-selection {
-  opacity: 0;
-  transition: opacity 150ms ease;
-}
-
-.memory-scene .ms-station .ms-station-ground {
-  opacity: 0.6;
-  transition: opacity 150ms ease;
-}
-
-.memory-scene .ms-station.is-active .ms-selection {
-  opacity: 0.88;
-}
-
-.memory-scene .ms-station:hover .ms-selection {
-  opacity: 0.7;
-}
-
-.memory-scene .ms-station:focus-visible .ms-selection {
-  opacity: 1;
-  stroke: #a96348;
-  stroke-width: 4px;
-}
-
-.memory-scene .ms-station.is-active .ms-place {
-  fill: #8f573e;
-}
-
-.memory-scene--static .ms-station {
-  cursor: default;
-  pointer-events: none;
-}
-
 .memory-scene-caption {
   display: flex;
   align-items: center;
-  gap: 12px;
-  position: relative;
-  width: fit-content;
-  max-width: calc(100% - 32px);
-  margin: -13px auto 17px;
-  padding: 9px 16px 9px 10px;
-  background: #fff9e9;
-  border: 1px solid #c6cbb2;
-  border-radius: 7px;
-  box-shadow: 0 3px 9px #394d3020;
-  color: #345641;
-  font-family: var(--serif, "Songti SC", serif);
-  font-size: 15px;
-  font-weight: 600;
+  gap: 14px;
 }
-
 .memory-scene-current {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 27px;
-  height: 27px;
-  color: #fff4dc;
-  background: var(--scene-red);
-  border-radius: 4px;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 16px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 43px;
+  height: 47px;
+  border-radius: 8px 8px 16px 8px;
+  background: var(--scene-accent);
+  color: #fff9eb;
+  font:
+    22px Georgia,
+    serif;
 }
-
+.memory-scene-caption small {
+  display: block;
+  font-size: 12px;
+  color: #74766a;
+  margin-bottom: 5px;
+}
+.memory-scene-caption strong {
+  display: block;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #394b3d;
+}
 .memory-scene-total {
-  color: #8a8d73;
-  font-size: 11px;
-  white-space: nowrap;
-  font-family: inherit;
-  font-weight: 400;
-}
-
-.memory-scene figcaption {
-  padding: 0 22px 21px;
-}
-
-.memory-scene figcaption > p {
-  margin: 0 0 13px;
-  color: #657356;
+  margin-left: auto;
+  flex-shrink: 0;
   font-size: 12px;
-  line-height: 1.7;
+  color: #7e8274;
 }
-
-.memory-scene figcaption > p > span {
-  margin-left: 7px;
-  color: #8a8e76;
+.memory-scene-instruction {
+  margin: 16px 0;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #72786a;
 }
-
 .memory-scene-stops {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
-
 .memory-scene-stops button {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 7px;
-  min-height: 37px;
-  padding: 7px 10px;
-  border: 1px solid #cbd0b7;
-  border-radius: 5px;
-  background: #fbf5e3;
-  color: #536549;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #ddd9ca;
+  border-radius: 7px;
+  background: #f8f6ed;
+  color: #536052;
   font: inherit;
-  font-size: 12px;
-  line-height: 1.35;
-  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.6;
   text-align: left;
-  transition:
-    background 120ms ease,
-    border-color 120ms ease;
+  cursor: pointer;
 }
-
 .memory-scene-stops button > span {
-  color: #93957a;
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  font:
+    12px Georgia,
+    serif;
 }
-
-.memory-scene-stops button:hover {
-  border-color: #83967a;
-  background: #ecebd6;
-}
-
 .memory-scene-stops button.active {
-  border-color: #496f53;
-  background: #3a644d;
-  color: #fff6df;
+  background: var(--scene-accent);
+  border-color: var(--scene-accent);
+  color: #fff9ef;
 }
-
-.memory-scene-stops button.active > span {
-  color: #d6dab8;
+.memory-scene button:focus-visible,
+.memory-scene a:focus-visible {
+  outline: 3px solid #df8a40;
+  outline-offset: 4px;
 }
-
-.memory-scene-view button:focus-visible,
-.memory-scene-stops button:focus-visible {
-  outline: 3px solid #a96348;
-  outline-offset: 3px;
-}
-
 @media (max-width: 620px) {
   .memory-scene {
     border-radius: 11px;
   }
-
   .memory-scene-heading {
-    gap: 10px;
-    padding: 15px 13px 12px;
+    padding: 16px 14px;
+    gap: 8px;
   }
-
-  .memory-scene-heading > div:first-child {
-    display: block;
-  }
-
-  .memory-scene-eyebrow {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 9px;
-  }
-
   .memory-scene-heading strong {
-    display: block;
-    font-size: 17px;
+    font-size: 18px;
   }
-
-  .memory-scene-view button {
-    min-height: 39px;
-    padding: 5px 9px;
-    font-size: 11px;
-  }
-
-  .memory-scene-view svg {
-    display: none;
-  }
-
-  .memory-scene-art {
-    aspect-ratio: 960 / 630;
-  }
-
-  .memory-scene-canvas.is-zoomed .memory-scene-art {
-    aspect-ratio: 560 / 405;
-  }
-
-  .memory-scene-caption {
-    gap: 9px;
-    max-width: calc(100% - 24px);
-    margin: -2px auto 16px;
-    padding: 8px 10px 8px 8px;
-    font-size: 13px;
-  }
-
-  .memory-scene-current {
-    flex-basis: 25px;
-    height: 25px;
-    font-size: 14px;
-  }
-
-  .memory-scene-total {
+  .memory-scene-eyebrow {
     font-size: 10px;
   }
-
-  .memory-scene figcaption {
-    padding: 0 13px 16px;
-  }
-
-  .memory-scene figcaption > p {
+  .memory-scene-original {
     font-size: 11px;
   }
-
-  .memory-scene figcaption > p > span {
-    display: block;
-    margin: 3px 0 0;
+  .memory-scene-original svg {
+    display: none;
   }
-
+  .memory-map-marker {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    font-size: 13px;
+    border-width: 1.5px;
+  }
+  .memory-map-marker.active {
+    box-shadow:
+      0 2px 10px #1118,
+      0 0 0 3px #fff6df8c;
+  }
+  .memory-scene-toolbar {
+    padding: 8px;
+    gap: 2px;
+  }
+  .memory-scene-toolbar button {
+    font-size: 11px;
+    padding: 6px 8px;
+    gap: 5px;
+  }
+  .memory-scene-toolbar button:last-child {
+    margin-left: 0;
+  }
+  .memory-scene figcaption {
+    padding: 16px 14px;
+  }
   .memory-scene-stops {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 6px;
   }
-
   .memory-scene-stops button {
-    min-height: 44px;
+    font-size: 12px;
     padding: 8px;
-    font-size: 11px;
   }
-
-  .memory-scene-stops button > span {
-    flex-shrink: 0;
+  .memory-scene-caption {
+    gap: 10px;
+  }
+  .memory-scene-caption strong {
+    font-size: 15px;
+  }
+  .memory-scene-instruction {
+    font-size: 12px;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .memory-scene *,
   .memory-scene *::before,
@@ -405,18 +282,27 @@
     transition: none !important;
   }
 }
-
 @media print {
   .memory-scene {
     break-inside: avoid;
+    box-shadow: none;
   }
-
-  .memory-scene-view {
+  .memory-scene-toolbar,
+  .memory-scene-original {
     display: none;
   }
-
-  .memory-scene-stops button {
-    background: #fff !important;
-    color: #244c3d !important;
-  }
+}
+.memory-scene-read {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: 12px 0 0;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--scene-accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }

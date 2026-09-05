@@ -424,7 +424,16 @@ function PalaceStudy({
           </div>
           <div className="mp-learning-layout">
             <div className="mp-scene-column">
-              <MemoryScene palace={p} activeIndex={index} onSelect={select} />
+              <MemoryScene
+                palace={p}
+                activeIndex={index}
+                onSelect={(i) => select(i, false)}
+                onRead={() =>
+                  document
+                    .getElementById("mp-station")
+                    ?.scrollIntoView({ block: "start", behavior: "instant" })
+                }
+              />
               <div className="mp-route-ribbon" aria-label="固定行走顺序">
                 {p.stations.map((s, i) => {
                   const r = stationProgress(

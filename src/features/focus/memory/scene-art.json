@@ -1,0 +1,259 @@
+{
+  "focus-commercial-palace-loss-chain": {
+    "file": "company-corridor.webp",
+    "title": "金色回廊 · 公司事务所",
+    "accent": "#81552f",
+    "alt": "秋日阳光照进木质公司回廊。入口账本、寄信窗口和日历墙通向董事会议室，旁边有通知牌与两个出口。",
+    "points": [
+      [20, 72],
+      [28, 42],
+      [43, 37],
+      [65, 38],
+      [90, 52],
+      [74, 77]
+    ],
+    "landmarks": [
+      "账本",
+      "寄信窗口",
+      "日历墙",
+      "董事会议室",
+      "通知牌",
+      "双出口"
+    ]
+  },
+  "focus-commercial-palace-antitrust-numbers": {
+    "file": "market.webp",
+    "title": "珊瑚集市 · 市场秩序",
+    "accent": "#a74d3d",
+    "alt": "珊瑚色海滨集市。三组摊位沿后墙排列，经过小门转向未开张窗口、双抽屉收银台、红色总闸和协会侧门。",
+    "points": [
+      [24, 35],
+      [42, 32],
+      [67, 33],
+      [89, 35],
+      [86, 63],
+      [62, 76],
+      [32, 76],
+      [11, 71]
+    ],
+    "landmarks": [
+      "单人摊",
+      "双人摊",
+      "三人摊",
+      "小门",
+      "未开张",
+      "收银台",
+      "总闸",
+      "协会侧门"
+    ]
+  },
+  "focus-commercial-palace-insurance-events": {
+    "file": "insurance-house.webp",
+    "title": "月光宅邸 · 保险之约",
+    "accent": "#66517f",
+    "alt": "月光下的紫色宅邸。玄关分开放着黑色和灰色告知书，中间有沙漏，里面的两间房分别放保险柜和时钟。",
+    "points": [
+      [30, 65],
+      [41, 51],
+      [53, 28],
+      [75, 23],
+      [70, 60]
+    ],
+    "landmarks": ["黑色告知书", "灰色告知书", "期间", "致害房", "期间与例外"]
+  },
+  "focus-commercial-palace-labor-dismissal": {
+    "file": "labor-station.webp",
+    "title": "琥珀车站 · 劳动换乘",
+    "accent": "#98642d",
+    "alt": "琥珀色玻璃穹顶车站。橙色快车与奶油色慢车停在不同站台，旁边是闸门广场、回程窗口和换乘岔道。",
+    "points": [
+      [17, 24],
+      [50, 27],
+      [83, 30],
+      [85, 75],
+      [15, 72]
+    ],
+    "landmarks": ["过错快线", "预告慢线", "裁员广场", "留用与回程", "派遣换乘"]
+  },
+  "focus-commercial-palace-ip-matrix": {
+    "file": "ip-gallery.webp",
+    "title": "星辉展馆 · 作品与发明",
+    "accent": "#59549c",
+    "alt": "星光穹顶下的蓝紫色展馆。画作、放映屏和机械装置在楼上，三把钥匙、地面天文钟和来源柜台在楼下。",
+    "points": [
+      [24, 30],
+      [54, 32],
+      [82, 31],
+      [84, 62],
+      [49, 80],
+      [16, 73]
+    ],
+    "landmarks": [
+      "合作作品",
+      "视听作品",
+      "专利机器",
+      "许可",
+      "优先权",
+      "合法来源"
+    ]
+  },
+  "focus-international-palace-countermeasures": {
+    "file": "blocking-tower.webp",
+    "title": "赤砂高楼 · 四层阻断",
+    "accent": "#9a523d",
+    "alt": "落日中的四层赤砂高楼。由下往上依次是盖章登记台、安全门、蓝色控制室和司法服务窗口。",
+    "points": [
+      [37, 79],
+      [53, 59],
+      [37, 39],
+      [56, 21]
+    ],
+    "landmarks": ["登记台", "安全门", "控制室", "法院窗口"]
+  },
+  "focus-international-palace-no-political-offence": {
+    "file": "extradition-airfield.webp",
+    "title": "晴空机场 · 引渡四关",
+    "accent": "#326b82",
+    "alt": "晴空与海岛环绕的机场。飞机停在左侧停机坪，到达大厅接着长廊桥，右侧有带盾形标志的贵宾入口。",
+    "points": [
+      [18, 66],
+      [32, 34],
+      [65, 47],
+      [87, 72]
+    ],
+    "landmarks": ["停机坪", "到达大厅", "登机廊桥", "贵宾通道"]
+  },
+  "focus-international-palace-diplomatic-lists": {
+    "file": "embassy-garden.webp",
+    "title": "蔷薇使馆 · 前庭与后院",
+    "accent": "#956077",
+    "alt": "蔷薇使馆以院墙分隔两组位置。前庭有双岗大门、警卫室、会议亭和护照台；后院有私人别墅、遗嘱室、店铺和听审席。",
+    "points": [
+      [22, 23],
+      [39, 20],
+      [61, 23],
+      [86, 32],
+      [87, 66],
+      [67, 77],
+      [35, 87],
+      [11, 75]
+    ],
+    "landmarks": [
+      "双岗大门",
+      "警卫室",
+      "临时会议",
+      "护照台",
+      "私人别墅",
+      "遗嘱室",
+      "营业店铺",
+      "原告席"
+    ]
+  },
+  "focus-international-palace-direct-application": {
+    "file": "industrial-checkpoints.webp",
+    "title": "青碧园区 · 强制规范",
+    "accent": "#2c706b",
+    "alt": "青碧色河道边的产业园。沿路可见安全帽入口、食品检验温室、处理池、外汇金库、两道竞争门和进口货物台。",
+    "points": [
+      [18, 23],
+      [47, 27],
+      [82, 28],
+      [84, 68],
+      [53, 78],
+      [14, 69]
+    ],
+    "landmarks": [
+      "劳动保护",
+      "食品安全",
+      "环境",
+      "外汇",
+      "竞争秩序",
+      "进口价格"
+    ]
+  },
+  "focus-international-palace-miga-risks": {
+    "file": "overseas-power.webp",
+    "title": "风暴电站 · 海外四险",
+    "accent": "#3b687e",
+    "alt": "风暴海岸的电站。左侧兑换窗通向铜色发电机房，下方是防空地下室和被锁住的救济入口。",
+    "points": [
+      [25, 43],
+      [70, 37],
+      [75, 77],
+      [25, 74]
+    ],
+    "landmarks": ["兑换窗", "发电机房", "地下室", "救济门"]
+  },
+  "focus-international-palace-wto-procedure": {
+    "file": "trade-assembly.webp",
+    "title": "海上会馆 · 争端程序",
+    "accent": "#437982",
+    "alt": "海面上的白色会馆。磋商室、专家圆桌和上诉阶梯在后方，前方是半圆表决厅与分层桥。",
+    "points": [
+      [18, 33],
+      [46, 35],
+      [79, 24],
+      [76, 64],
+      [26, 73]
+    ],
+    "landmarks": ["磋商", "专家组", "上诉", "表决", "暂停减让"]
+  },
+  "focus-civil-procedure-palace-marriage": {
+    "file": "marriage-registry.webp",
+    "title": "花庭登记处 · 婚姻效力",
+    "accent": "#a35f70",
+    "alt": "桃花掩映的登记处。门口有婚龄尺，后方是亲属关系窗与戒指柜台，右侧大厅两桌分开，左侧有档案柜。",
+    "points": [
+      [26, 46],
+      [46, 30],
+      [76, 35],
+      [70, 70],
+      [40, 68]
+    ],
+    "landmarks": ["婚龄", "亲属关系", "重婚", "效力与财产", "死亡档案"]
+  },
+  "focus-civil-procedure-palace-foreign": {
+    "file": "foreign-terminal.webp",
+    "title": "暮蓝航站 · 涉外程序",
+    "accent": "#3d648b",
+    "alt": "暮蓝航站楼。专属安检通道面向并行跑道，中止申请台旁是五锁出口，前方有送达转盘和带钟的复议登机口。",
+    "points": [
+      [24, 36],
+      [53, 21],
+      [77, 41],
+      [94, 75],
+      [50, 83],
+      [13, 64]
+    ],
+    "landmarks": ["专属安检", "并行跑道", "中止", "非方便法院", "送达", "复议"]
+  },
+  "focus-civil-procedure-palace-arbitration": {
+    "file": "arbitration-observatory.webp",
+    "title": "白金穹厅 · 新仲裁",
+    "accent": "#52678f",
+    "alt": "白金穹顶仲裁厅。组庭圆桌、三把首席候选椅和在线屏幕在后方，前方是送达柜、证据检验台和出口时钟。",
+    "points": [
+      [26, 46],
+      [52, 41],
+      [81, 34],
+      [87, 74],
+      [54, 79],
+      [15, 72]
+    ],
+    "landmarks": ["组庭", "首席", "在线", "送达", "证据", "期限"]
+  },
+  "focus-civil-procedure-palace-enforcement": {
+    "file": "execution-courtyard.webp",
+    "title": "水岸院落 · 执行边界",
+    "accent": "#477659",
+    "alt": "柳树与竹林环绕的水岸院落。第三人窗口通向担保柜和和解岔路，共有物分割室旁边是停靠交付船的码头。",
+    "points": [
+      [18, 40],
+      [47, 25],
+      [76, 29],
+      [83, 73],
+      [34, 75]
+    ],
+    "landmarks": ["第三人", "担保", "和解", "共有财产", "特定物"]
+  }
+}

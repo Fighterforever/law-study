@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import {
   createMemorySession,
   advanceMemorySession,
@@ -91,8 +91,39 @@ test("每个现有记忆位置都有对应动作、条件清单和变式，不�
     Object.keys(guides).sort(),
     data.palaces.map((p) => p.id).sort(),
   );
+  const scenes = JSON.parse(
+    readFileSync(
+      new URL("../features/focus/memory/scene-art.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  assert.deepEqual(
+    Object.keys(scenes).sort(),
+    data.palaces.map((p) => p.id).sort(),
+  );
+  assert.equal(
+    new Set(Object.values(scenes).map((s) => s.file)).size,
+    data.palaces.length,
+  );
   for (const palace of data.palaces) {
     const guide = guides[palace.id];
+    const scene = scenes[palace.id];
+    assert.ok(
+      existsSync(
+        new URL(`../../public/memory-scenes/${scene.file}`, import.meta.url),
+      ),
+    );
+    assert.equal(scene.points.length, palace.stations.length);
+    assert.equal(scene.landmarks.length, palace.stations.length);
+    assert.ok(
+      scene.points.every(
+        (point) =>
+          point.length === 2 &&
+          point.every(
+            (value) => Number.isFinite(value) && value > 0 && value < 100,
+          ),
+      ),
+    );
     assert.deepEqual(
       Object.keys(guide.stations).sort(),
       palace.stations.map((s) => s.id).sort(),
