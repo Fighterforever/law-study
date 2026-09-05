@@ -8812,7 +8812,7 @@
         "focus-commercial-contribution-loss"
       ],
       "question": "股东到期不缴资后，公司怎样依法完成失权？",
-      "why": "六个动作与三个期间必须按顺序出现。",
+      "why": "先按法定前置条件推进催缴与失权；失权后的股权处置和股东异议分成两条并行线，各自核对期间与起算点。",
       "stations": [
         {
           "id": "ledger",

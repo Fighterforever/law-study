@@ -32,6 +32,7 @@ import {
   advanceMemorySession,
 } from "../../../lib/memory-session.js";
 import MemoryScene, { MemoryScenePreview } from "./MemoryScene.jsx";
+import CompanyQuest, { QuestEntry } from "./quest/CompanyQuest.jsx";
 import "./memory-palaces.css";
 
 const home = "#/focus/memory";
@@ -54,6 +55,8 @@ export default function MemoryPalaces({ data, state, update, today, route }) {
   const id = route.split("/")[2]?.split("?")[0];
   const palace = data.palaces.find((p) => p.id === id);
   const examDate = focusExamDate(data, state);
+  if (id === "company-case")
+    return <CompanyQuest {...{ data, state, update, today }} />;
   if (id && !palace)
     return (
       <div className="mp-empty">
@@ -117,16 +120,17 @@ function PalaceCatalog({ data, state, today, examDate }) {
   })[0];
   return (
     <div className="mp-atlas">
+      <QuestEntry {...{ state, today }} />
       <section className="mp-atlas-intro">
         <div>
-          <span className="mp-kicker">记忆宫殿 · 场景与规则</span>
+          <span className="mp-kicker">随时查漏 · 15 条原有记忆路线</span>
           <h2>
-            走进一个场景，
+            记清条件，
             <br />
-            带走一组考点。
+            换个案情也会判断。
           </h2>
           <p>
-            先把法律条件放到具体物件上，再关掉画面回忆。每次练一条路线，把容易漏的那几项练熟。
+            上方案件任务适合把陌生规则学懂；下方短路线适合迅速补漏。已经熟悉的考点，直接关图抽问。
           </p>
         </div>
         <div className="mp-atlas-numbers">
@@ -284,10 +288,10 @@ function PalaceStudy({
   const progress = palaceProgress(p, state, today, examDate);
   const station = p.stations[index];
   const detail = g.stations[station.id];
-  const select = (i) => {
+  const select = (i, scroll = true) => {
     setIndex(i);
     window.history.replaceState(null, "", path(p, p.stations[i]));
-    if (window.matchMedia("(max-width: 1200px)").matches)
+    if (scroll && window.matchMedia("(max-width: 1200px)").matches)
       requestAnimationFrame(() =>
         document
           .getElementById("mp-station")
@@ -350,6 +354,9 @@ function PalaceStudy({
           </select>
         </label>
       </div>
+      {p.id === "focus-commercial-palace-loss-chain" && (
+        <QuestEntry {...{ state, today }} compact />
+      )}
       <header className="mp-study-heading">
         <div>
           <span className="mp-kicker">
@@ -414,12 +421,7 @@ function PalaceStudy({
           </div>
           <div className="mp-learning-layout">
             <div className="mp-scene-column">
-              <MemoryScene
-                palace={p}
-                activeIndex={index}
-                onSelect={select}
-                showNavigation={false}
-              />
+              <MemoryScene palace={p} activeIndex={index} onSelect={select} />
               <div className="mp-route-ribbon" aria-label="固定行走顺序">
                 {p.stations.map((s, i) => {
                   const r = stationProgress(

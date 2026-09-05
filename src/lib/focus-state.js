@@ -1,4 +1,5 @@
 import { validMemorySession } from "./memory-session.js";
+import { validCompanyQuest } from "./company-quest.js";
 
 export const emptyFocusState = () => ({
   enabled: true,
@@ -9,6 +10,7 @@ export const emptyFocusState = () => ({
   draft: null,
   palace: {},
   memorySession: null,
+  companyQuest: null,
 });
 
 export function validateFocusState(value, validDate) {
@@ -98,5 +100,12 @@ export function validateFocusState(value, validDate) {
   if (!validMemorySession(value.memorySession)) {
     throw new Error("记忆宫殿的练习记录不完整，未导入。请使用本站导出的备份。");
   }
-  return { ...value, memorySession: value.memorySession ?? null };
+  if (!validCompanyQuest(value.companyQuest, validDate)) {
+    throw new Error("案件任务的学习记录不完整，未导入。请使用本站导出的备份。");
+  }
+  return {
+    ...value,
+    memorySession: value.memorySession ?? null,
+    companyQuest: value.companyQuest ?? null,
+  };
 }

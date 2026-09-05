@@ -1,0 +1,7 @@
+# 学院事务所场景
+
+资产：`public/quests/commercial-study.png`。由内置 imagegen 工具生成，原创场景。文字与所有法律交互均由网页绘制，图片不承载规则。
+
+生成提示词：
+
+Use case: stylized-concept. Asset type: original illustrated background for an interactive Chinese law exam learning game, widescreen 16:9. Create an exquisitely polished anime fantasy academy's commercial affairs study room, the inviting level of environmental detail and painterly 3D lighting of a high-budget anime open-world game. Elegant ivory stone arches, jade teal and restrained brushed-gold ornament, warm honey oak desk in foreground, tall arched windows showing a luminous green courtyard and distant city, bookshelves and climbing flowers at edges. A tasteful unmarked cream envelope with dark red wax seal and an open ledger sit on the far right end of the desk, clearly visible memorable practical objects, no other clutter. Composition: camera at seated desk eye level, believable dimensional room, broad calm empty left-middle area with subtle dark teal shadow for later real HTML Chinese text, right half carries visual interest; bottom foreground is a broad clear desk surface on which interactive papers will appear. Soft morning sun shafts, delicate leaf shadows, air and depth, rich carefully painted textures, inviting and scholarly, luminous balanced colors, crisp detail without visual noise. No people, no character likenesses, no text, no UI, no numbers, no logo, no watermark, no floating pedestals, no grid of objects. Original environment, landscape 16:9.
