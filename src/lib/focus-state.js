@@ -1,3 +1,5 @@
+import { validMemorySession } from "./memory-session.js";
+
 export const emptyFocusState = () => ({
   enabled: true,
   learned: {},
@@ -6,6 +8,7 @@ export const emptyFocusState = () => ({
   bookmarks: [],
   draft: null,
   palace: {},
+  memorySession: null,
 });
 
 export function validateFocusState(value, validDate) {
@@ -92,5 +95,8 @@ export function validateFocusState(value, validDate) {
   ) {
     throw new Error("考前聚焦的答题草稿不完整，未导入。");
   }
-  return value;
+  if (!validMemorySession(value.memorySession)) {
+    throw new Error("记忆宫殿的练习记录不完整，未导入。请使用本站导出的备份。");
+  }
+  return { ...value, memorySession: value.memorySession ?? null };
 }

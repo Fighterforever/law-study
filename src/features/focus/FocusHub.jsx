@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -11,7 +11,6 @@ import {
   FileText,
   RotateCcw,
   Search,
-  Sparkles,
   Star,
 } from "lucide-react";
 import oldLessons from "../../data/lessons.json";
@@ -27,6 +26,8 @@ import {
   sameAnswers,
 } from "../../lib/focus.js";
 import "./focus.css";
+
+const MemoryPalaces = lazy(() => import("./memory/MemoryPalaces.jsx"));
 
 const link = (id, review = false) =>
   `#/focus/unit/${id}${review ? "?review" : ""}`;
@@ -157,7 +158,11 @@ export default function FocusHub({
         ))}
       </nav>
       {current === "memory" ? (
-        <MemoryRoutes {...{ data, state, update, today }} />
+        <Suspense
+          fallback={<p className="memory-loading">正在打开记忆宫殿……</p>}
+        >
+          <MemoryPalaces {...{ data, state, update, today, route }} />
+        </Suspense>
       ) : current === "plan" ? (
         <FocusPlan {...{ data, state, today }} baseSpent={day.spentTime} />
       ) : current === "library" || current === "overlap" ? (
@@ -1139,324 +1144,6 @@ function FocusPlan({ data, state, today, baseSpent = 0 }) {
           若今天只有两小时，先到设置调整。优先保留到期复测，未完成的新考点重新排序；最后两天不追加整章。
         </p>
         <a href="#/settings">调整每天时间 →</a>
-      </div>
-    </>
-  );
-}
-
-function MemoryRoutes({ data, state, update, today }) {
-  const [palaceId, setPalaceId] = useState(data.palaces[0]?.id);
-  const [mode, setMode] = useState("learn");
-  const [index, setIndex] = useState(0);
-  const [order, setOrder] = useState([]);
-  const [position, setPosition] = useState(0);
-  const [showScene, setShowScene] = useState(true);
-  const [revealed, setRevealed] = useState(false);
-  const [assisted, setAssisted] = useState(false);
-  const [finished, setFinished] = useState(false);
-  const [rated, setRated] = useState(false);
-  const p = data.palaces.find((p) => p.id === palaceId);
-  if (!p) return <p>暂无记忆路线。</p>;
-  const current = mode === "learn" ? index : (order[position] ?? 0);
-  const station = p.stations[current];
-  const id = `${p.id}-${station.id}`;
-  const record = state.focus?.palace[id];
-  const coords = [
-    [80, 70],
-    [250, 70],
-    [420, 70],
-    [590, 70],
-    [590, 245],
-    [420, 245],
-    [250, 245],
-    [80, 245],
-  ].slice(0, p.stations.length);
-  function start(random) {
-    setOrder(
-      random
-        ? shuffled(p.stations.map((_, i) => i))
-        : p.stations.map((_, i) => i),
-    );
-    setPosition(0);
-    setMode("recall");
-    setShowScene(false);
-    setRevealed(false);
-    setAssisted(false);
-    setRated(false);
-    setFinished(false);
-  }
-  function rate(quality) {
-    changeFocus(update, (f) => ({
-      ...f,
-      palace: {
-        ...f.palace,
-        [id]: { date: today, quality, assisted: assisted || showScene },
-      },
-    }));
-    setRated(true);
-  }
-  return (
-    <>
-      <div className="focus-library-intro">
-        <h2>给易漏的条件安排固定位置。</h2>
-        <p>
-          先理解规则，再沿路线记忆。练熟后隐藏画面、打乱顺序，最后回到客观题中检验。
-        </p>
-      </div>
-      <div className="plain-note">
-        <strong>
-          {
-            data.palaces
-              .flatMap((p) =>
-                p.stations.map((s) => state.focus?.palace[`${p.id}-${s.id}`]),
-              )
-              .filter((r) => r?.quality === "exact" && !r.assisted).length
-          }{" "}
-          / {data.palaces.reduce((n, p) => n + p.stations.length, 0)}{" "}
-          个位置已能闭卷说全
-        </strong>
-        <p>
-          每次复述结果会保存。先练当前错项涉及的路线，已经能直接想起的规则不必反复看图。
-        </p>
-      </div>
-      <div className="focus-memory-picker">
-        {data.palaces.map((item) => (
-          <button
-            key={item.id}
-            className={p.id === item.id ? "selected" : "secondary"}
-            onClick={() => {
-              setPalaceId(item.id);
-              setMode("learn");
-              setIndex(0);
-              setShowScene(true);
-              setRevealed(false);
-              setFinished(false);
-            }}
-          >
-            {item.title}
-          </button>
-        ))}
-      </div>
-      <section className="focus-memory">
-        <div className="focus-memory-title">
-          <div>
-            <span className="pill">
-              {subjectById[p.subjectId].name} · {p.stations.length}个位置
-            </span>
-            <h2>{p.title}</h2>
-            <p>{p.why}</p>
-          </div>
-          <Sparkles size={30} />
-        </div>
-        <h3 className="focus-memory-question">{p.question}</h3>
-        <div className="focus-memory-controls">
-          <button
-            className="secondary"
-            onClick={() => {
-              setMode("learn");
-              setShowScene(true);
-              setRevealed(false);
-              setFinished(false);
-            }}
-          >
-            看路线理解
-          </button>
-          <button onClick={() => start(false)}>顺序回忆</button>
-          <button onClick={() => start(true)}>乱序抽问</button>
-          <button
-            className="text-button"
-            onClick={() => {
-              setShowScene(!showScene);
-              if (!showScene && mode === "recall") setAssisted(true);
-            }}
-          >
-            {showScene ? <EyeOff size={16} /> : <Eye size={16} />}{" "}
-            {showScene ? "隐藏路线" : "显示路线提示"}
-          </button>
-        </div>
-        {showScene ? (
-          <svg
-            className="focus-memory-map"
-            viewBox="0 0 670 315"
-            role="img"
-            aria-label={`${p.title}的${p.stations.length}个固定记忆位置`}
-          >
-            <rect
-              x="10"
-              y="12"
-              width="650"
-              height="290"
-              rx="16"
-              fill="#edeade"
-              stroke="#bcbca9"
-            />
-            <path
-              d={coords
-                .map(([x, y], i) => `${i ? "L" : "M"}${x},${y}`)
-                .join(" ")}
-              fill="none"
-              stroke="#a4b9a0"
-              strokeWidth="5"
-              strokeDasharray="7 6"
-            />
-            {coords.map(([x, y], i) => (
-              <g key={i}>
-                <rect
-                  x={x - 61}
-                  y={y - 40}
-                  width="122"
-                  height="91"
-                  rx="8"
-                  fill={current === i ? "#244d43" : "#fffef7"}
-                  stroke="#c1c8b7"
-                />
-                <circle
-                  cx={x}
-                  cy={y - 15}
-                  r="16"
-                  fill={current === i ? "#e5d09c" : "#e9ebdf"}
-                />
-                <text
-                  x={x}
-                  y={y - 9}
-                  textAnchor="middle"
-                  fill="#244d43"
-                  fontSize="17"
-                  fontWeight="700"
-                >
-                  {i + 1}
-                </text>
-                <text
-                  x={x}
-                  y={y + 27}
-                  textAnchor="middle"
-                  fill={current === i ? "#fffef7" : "#314e40"}
-                  fontSize="13"
-                >
-                  {p.stations[i].place.slice(0, 8)}
-                </text>
-              </g>
-            ))}
-          </svg>
-        ) : (
-          <div className="focus-hidden-route">
-            <EyeOff size={25} />
-            <p>
-              在脑海中走一遍路线。
-              {mode === "recall"
-                ? `本轮第${position + 1} / ${p.stations.length}站。`
-                : "先回忆各位置，再看对应规则。"}
-            </p>
-          </div>
-        )}
-        {mode === "learn" && (
-          <div className="focus-station-tabs">
-            {p.stations.map((s, i) => (
-              <button
-                key={s.id}
-                className={i === index ? "selected" : "secondary"}
-                onClick={() => {
-                  setIndex(i);
-                  setRevealed(false);
-                }}
-              >
-                {i + 1} · {s.place}
-              </button>
-            ))}
-          </div>
-        )}
-        {finished ? (
-          <div className="focus-finish">
-            <Check size={28} />
-            <h2>本轮路线已完成。</h2>
-            <p>所有位置的复述结果已经保存。明天再用乱序抽问检查漏项。</p>
-            <button onClick={() => start(true)}>再来一轮乱序抽问</button>
-          </div>
-        ) : (
-          <div className="focus-station-detail">
-            <span className="eyebrow">
-              位置 {current + 1} · {station.place}
-            </span>
-            {mode === "learn" ? (
-              <>
-                <h3>{station.scene}</h3>
-                <p className="focus-memory-decode">{station.decode}</p>
-                <button className="secondary" onClick={() => start(false)}>
-                  隐藏讲解，沿路线复述
-                </button>
-              </>
-            ) : (
-              <>
-                <h3>{station.prompt}</h3>
-                {!revealed ? (
-                  <button onClick={() => setRevealed(true)}>
-                    已口头回答，核对要点
-                    <Eye size={16} />
-                  </button>
-                ) : (
-                  <>
-                    <p className="focus-memory-decode">{station.answer}</p>
-                    <div className="focus-memory-rating">
-                      {[
-                        ["forgot", "没想起"],
-                        ["partial", "有漏项"],
-                        ["exact", "完整说出"],
-                      ].map(([v, t]) => (
-                        <button
-                          key={v}
-                          className={
-                            rated &&
-                            record?.date === today &&
-                            record.quality === v
-                              ? "selected"
-                              : "secondary"
-                          }
-                          onClick={() => rate(v)}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                    {rated && record?.date === today && (
-                      <p className="small-text">
-                        本次复述已保存{record.assisted ? "，用过路线提示" : ""}
-                        。
-                      </p>
-                    )}
-                    <button
-                      disabled={!rated}
-                      onClick={() => {
-                        if (position < p.stations.length - 1) {
-                          setPosition(position + 1);
-                          setRevealed(false);
-                          setAssisted(false);
-                          setRated(false);
-                        } else setFinished(true);
-                      }}
-                    >
-                      {position < p.stations.length - 1 ? "下一站" : "完成本轮"}
-                      <ArrowRight size={16} />
-                    </button>
-                  </>
-                )}
-              </>
-            )}
-          </div>
-        )}
-        <div className="focus-memory-links">
-          <strong>记住以后，回到题里用：</strong>
-          {p.unitIds.map((id) => {
-            const u = data.units.find((u) => u.id === id);
-            return u ? (
-              <a key={id} href={link(id, true)}>
-                {u.title} →
-              </a>
-            ) : null;
-          })}
-        </div>
-      </section>
-      <div className="plain-note">
-        <a href="#/palace">原有路线：一般保证先诉抗辩权的四种例外 →</a>
       </div>
     </>
   );
