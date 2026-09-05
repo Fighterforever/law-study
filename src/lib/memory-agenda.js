@@ -27,6 +27,7 @@ import {
 export const memoryTasks = [
   {
     id: "company",
+    palaceId: "focus-commercial-palace-loss-chain",
     key: "companyQuest",
     path: "#/focus/memory/company-case",
     place: "商事事务所",
@@ -38,6 +39,7 @@ export const memoryTasks = [
   },
   {
     id: "insurance",
+    palaceId: "focus-commercial-palace-insurance-events",
     key: "insuranceQuest",
     path: "#/focus/memory/insurance-case",
     place: "保险档案室 · 对照台",
@@ -49,6 +51,7 @@ export const memoryTasks = [
   },
   {
     id: "clocks",
+    palaceId: "focus-commercial-palace-insurance-events",
     key: "insuranceClocks",
     path: "#/focus/memory/insurance-clocks",
     place: "保险档案室 · 时间线",
@@ -60,6 +63,7 @@ export const memoryTasks = [
   },
   {
     id: "jurisdiction",
+    palaceId: "focus-civil-procedure-palace-foreign",
     key: "jurisdictionQuest",
     path: "#/focus/memory/jurisdiction-case",
     place: "港城书院",

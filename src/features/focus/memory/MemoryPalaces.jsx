@@ -31,11 +31,16 @@ import {
   advanceMemorySession,
 } from "../../../lib/memory-session.js";
 import MemoryScene, { MemoryScenePreview } from "./MemoryScene.jsx";
-import CompanyQuest, { QuestEntry } from "./quest/CompanyQuest.jsx";
-import InsuranceQuest, { InsuranceEntry } from "./quest/InsuranceQuest.jsx";
+import CompanyQuest from "./quest/CompanyQuest.jsx";
+import InsuranceQuest from "./quest/InsuranceQuest.jsx";
 import InsuranceClocks from "./quest/InsuranceClocks.jsx";
 import JurisdictionQuest from "./quest/JurisdictionQuest.jsx";
-import MemoryDesk from "./MemoryDesk.jsx";
+import MemoryDesk, { TaskAction } from "./MemoryDesk.jsx";
+import {
+  memoryAgenda,
+  memoryTasks,
+  agendaQuiz,
+} from "../../../lib/memory-agenda.js";
 import "./memory-palaces.css";
 
 const home = "#/focus/memory";
@@ -96,15 +101,31 @@ function PalaceCatalog({ data, state, update, today, examDate }) {
     g: guides[p.id],
     progress: palaceProgress(p, state, today, examDate),
   }));
-  const total = cards.reduce(
-    (a, c) => ({
-      independent: a.independent + c.progress.independent,
-      repair: a.repair + c.progress.repair,
-      due: a.due + c.progress.due,
-      total: a.total + c.progress.total,
-    }),
-    { independent: 0, repair: 0, due: 0, total: 0 },
-  );
+  const agenda = memoryAgenda(state, today, examDate);
+  const startQuiz = (task, review = false) => {
+    update((s) => ({
+      ...s,
+      focus: {
+        ...(s.focus || emptyFocusState()),
+        [task.key]: agendaQuiz(task, s.focus?.[task.key], review),
+      },
+    }));
+    window.location.hash = task.path.slice(1);
+  };
+  const startRecall = (palace) => {
+    const current = state.focus?.memorySession;
+    if (current?.palaceId !== palace.id || current.phase === "summary") {
+      setSession(
+        update,
+        createMemorySession(
+          palace.id,
+          makeMemoryQueue(palace, state, today, examDate, "random"),
+          "random",
+        ),
+      );
+    }
+    window.location.hash = path(palace).slice(1);
+  };
   const session = state.focus?.memorySession;
   const resume =
     session?.phase !== "summary" &&
@@ -132,13 +153,13 @@ function PalaceCatalog({ data, state, update, today, examDate }) {
   const shortReview = resume
     ? {
         href: path(resume),
-        title: `继续短路线 · ${guides[resume.id].shortTitle}`,
+        title: `${guides[resume.id].shortTitle} · 继续回忆`,
         reason: `第 ${session.index + 1}/${session.order.length} 站，草稿与结果已保存。`,
       }
     : recommended
       ? {
           href: path(recommended.p),
-          title: `短路线查漏 · ${recommended.g.shortTitle}`,
+          title: `${recommended.g.shortTitle} · 补全条件`,
           reason: recommended.progress.repair
             ? `${recommended.progress.repair} 个位置还有漏项，先回忆，再核对。`
             : `${recommended.progress.due} 个位置今天到期，撤掉提示再说一遍。`,
@@ -146,52 +167,26 @@ function PalaceCatalog({ data, state, update, today, examDate }) {
       : null;
   return (
     <div className="mp-atlas">
-      <MemoryDesk {...{ state, update, today, examDate, shortReview }} />
-      <section className="mp-atlas-intro">
+      <header className="mp-library-heading">
         <div>
-          <span className="mp-kicker">随时查漏 · 15 条原有记忆路线</span>
-          <h2>
-            记清条件，
-            <br />
-            换个案情也会判断。
-          </h2>
+          <h2>记忆宫殿</h2>
           <p>
-            下方保留全部短路线。已熟悉的考点直接关图抽问；漏掉哪项，就回到对应位置补全。
+            先选主题。看图记条件，闭卷检验；容易混淆的地方，再用案情练一遍。
           </p>
         </div>
-        <div className="mp-atlas-numbers">
-          <div>
-            <strong>
-              {total.independent}
-              <small> / {total.total}</small>
-            </strong>
-            <span>最近一次闭卷说全的位置</span>
-          </div>
-          <div className="mp-small-numbers">
-            <span>
-              <b>{total.repair}</b>处待补全
-            </span>
-            <span>
-              <b>{total.due}</b>处到期复测
-            </span>
-          </div>
-        </div>
-      </section>
-      <div className="mp-method-strip">
-        <span>
-          <b>01</b> 看地点、做动作
-        </span>
-        <ChevronRight size={16} />
-        <span>
-          <b>02</b> 关图说出条件
-        </span>
-        <ChevronRight size={16} />
-        <span>
-          <b>03</b> 换个问法再判断
-        </span>
-      </div>
+        <a href="#/focus/plan">
+          复习计划 <ArrowRight size={15} />
+        </a>
+      </header>
+      <MemoryDesk
+        agenda={agenda}
+        shortReview={shortReview}
+        onStartQuiz={startQuiz}
+      />
       <div className="mp-catalog-heading">
-        <h3>选择你的记忆空间</h3>
+        <h3>
+          按主题学习 <small>{cards.length} 个主题</small>
+        </h3>
         <div
           className="mp-subject-filter"
           role="group"
@@ -204,7 +199,7 @@ function PalaceCatalog({ data, state, update, today, examDate }) {
               className={s === subject ? "active" : ""}
               onClick={() => setSubject(s)}
             >
-              {s === "all" ? "全部路线" : subjectById[s].name}
+              {s === "all" ? "全部主题" : subjectById[s].name}
             </button>
           ))}
         </div>
@@ -212,49 +207,88 @@ function PalaceCatalog({ data, state, update, today, examDate }) {
       <div className="mp-palace-grid">
         {cards
           .filter((c) => subject === "all" || c.p.subjectId === subject)
-          .map(({ p, g, progress }, i) => (
-            <a
-              href={path(p)}
-              className="mp-palace-card"
-              key={p.id}
-              style={{ "--mp-card-delay": `${Math.min(i, 5) * 45}ms` }}
-            >
-              <div className="mp-card-art" aria-hidden="true">
-                <MemoryScenePreview palace={p} />
-                <span>{subjectById[p.subjectId].name}</span>
-              </div>
-              <div className="mp-card-body">
-                <div className="mp-card-meta">
-                  <span>{p.stations.length}个固定地点</span>
-                  <span>
-                    <Clock3 size={13} />
-                    {g.estimatedMinutes}分钟 / 轮
-                  </span>
-                </div>
-                <h4>{g.shortTitle}</h4>
-                <p>{g.anchor}</p>
-                <div className="mp-card-bottom">
-                  <span>
+          .map(({ p, g, progress }, i) => {
+            const tasks = agenda.tasks.filter((task) => task.palaceId === p.id);
+            const unfinished =
+              session?.palaceId === p.id && session.phase !== "summary";
+            return (
+              <article
+                className="mp-palace-card mp-topic-card"
+                key={p.id}
+                style={{ "--mp-card-delay": `${Math.min(i, 5) * 45}ms` }}
+              >
+                <a
+                  className="mp-card-art"
+                  href={path(p)}
+                  aria-label={`进入主题：${g.shortTitle}`}
+                >
+                  <MemoryScenePreview palace={p} />
+                  <span>{subjectById[p.subjectId].name}</span>
+                </a>
+                <div className="mp-card-body">
+                  <div className="mp-card-meta">
+                    <span>{p.stations.length} 个记忆位置</span>
+                    <span>
+                      <Clock3 size={13} />约 {g.estimatedMinutes} 分钟
+                    </span>
+                  </div>
+                  <h4>{g.shortTitle}</h4>
+                  <p>{g.anchor}</p>
+                  <div className="mp-topic-actions">
+                    <a href={path(p)}>
+                      {unfinished ? "继续学习" : "看图记忆"}{" "}
+                      <ArrowRight size={15} />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => startRecall(p)}
+                      aria-label={`${unfinished ? "继续" : "开始"}闭卷回忆：${g.shortTitle}`}
+                    >
+                      <EyeOff size={15} />
+                      {unfinished ? "继续回忆" : "闭卷回忆"}
+                    </button>
+                  </div>
+                  <div className="mp-topic-status">
                     {progress.repair
-                      ? `${progress.repair}处待补全`
+                      ? `${progress.repair} 处待补全`
                       : progress.due
-                        ? `${progress.due}处今天复测`
+                        ? `${progress.due} 处今天复测`
                         : progress.practiced
-                          ? `已练${progress.practiced}/${progress.total}处`
-                          : "从第一站开始"}
-                  </span>
-                  <ArrowRight size={18} />
+                          ? `已练 ${progress.practiced}/${progress.total} 处`
+                          : "尚未开始"}
+                  </div>
+                  {tasks.length > 0 && (
+                    <div className="mp-topic-cases">
+                      <span>案情练习 · 分清易混规则</span>
+                      {tasks.map((task) => (
+                        <TaskAction
+                          key={task.id}
+                          task={task}
+                          onStartQuiz={startQuiz}
+                          className="mp-topic-case"
+                        >
+                          <div>
+                            <strong>{task.short}</strong>
+                            <small>
+                              {task.status}
+                              {task.firstToday !== undefined
+                                ? ` · 今日首次 ${task.firstToday}/3`
+                                : ""}
+                            </small>
+                          </div>
+                          <ArrowRight size={16} />
+                        </TaskAction>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="mp-card-progress">
-                  <i style={{ width: `${progress.progress}%` }} />
-                </div>
-              </div>
-            </a>
-          ))}
+              </article>
+            );
+          })}
       </div>
       <p className="mp-bottom-note">
-        每次自评和未完成练习都会保存。完整条件以核对清单为准；客观题还能从路线底部直接进入。
-        <a href="#/palace">原有的一般保证路线 →</a>
+        看图回忆与案情练习分别记录，进度保存在当前浏览器。
+        <a href="#/palace">补充主题：一般保证 →</a>
       </p>
     </div>
   );
@@ -331,7 +365,7 @@ function PalaceStudy({
       <div className="mp-route-nav">
         <a href={home}>
           <ArrowLeft size={16} />
-          全部记忆路线
+          返回主题目录
         </a>
         <label>
           <span className="mp-sr-only">切换记忆路线</span>
@@ -352,14 +386,6 @@ function PalaceStudy({
           </select>
         </label>
       </div>
-      {p.id === "focus-commercial-palace-loss-chain" && (
-        <QuestEntry {...{ state, today }} compact />
-      )}
-      {p.id === "focus-commercial-palace-insurance-events" && (
-        <div className="iq-route-entry">
-          <InsuranceEntry state={state} />
-        </div>
-      )}
       <header className="mp-study-heading">
         <div>
           <span className="mp-kicker">
@@ -399,6 +425,19 @@ function PalaceStudy({
             : "闭卷练习"}
         </button>
       </div>
+      {view === "guide" &&
+        memoryTasks.some((task) => task.palaceId === p.id) && (
+          <div className="mp-related-cases">
+            <span>本主题案情练习</span>
+            {memoryTasks
+              .filter((task) => task.palaceId === p.id)
+              .map((task) => (
+                <a key={task.id} href={task.path}>
+                  {task.short} <ArrowRight size={14} />
+                </a>
+              ))}
+          </div>
+        )}
       {message && (
         <p className="mp-message" role="status">
           {message}

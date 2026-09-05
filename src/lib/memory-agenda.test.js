@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { memoryAgenda, memoryTasks, agendaQuiz } from "./memory-agenda.js";
 import { initialState, encodeState, decodeState } from "./study.js";
 import { newCompanyQuest, finishQuest } from "./company-quest.js";
@@ -12,6 +13,32 @@ import {
 
 const today = "2026-09-05",
   exam = "2026-09-12";
+
+test("四个案件练习归入对应主题，保险两项同组且不遗漏入口", () => {
+  const data = JSON.parse(
+    readFileSync(new URL("../data/focus.json", import.meta.url), "utf8"),
+  );
+  const groups = data.palaces.map((palace) =>
+    memoryTasks.filter((task) => task.palaceId === palace.id),
+  );
+  assert.equal(groups.flat().length, memoryTasks.length);
+  assert.equal(groups.filter((group) => group.length).length, 3);
+  const insurance = groups.find((group) =>
+    group.some((task) => task.id === "insurance"),
+  );
+  assert.deepEqual(
+    insurance.map((task) => task.id),
+    ["insurance", "clocks"],
+  );
+  assert.equal(
+    memoryTasks.find((task) => task.id === "company").palaceId,
+    "focus-commercial-palace-loss-chain",
+  );
+  assert.equal(
+    memoryTasks.find((task) => task.id === "jurisdiction").palaceId,
+    "focus-civil-procedure-palace-foreign",
+  );
+});
 function summary(id, date, correct = 3) {
   const task = memoryTasks.find((t) => t.id === id);
   const base = {

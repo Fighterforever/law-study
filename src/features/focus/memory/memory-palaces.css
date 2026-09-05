@@ -1463,3 +1463,184 @@
     color: black;
   }
 }
+
+/* One catalogue: each topic owns its scene and any related case exercises. */
+.mp-library-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 12px 0 0;
+}
+.mp-library-heading h2 {
+  margin: 0 0 10px;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1.5;
+}
+.mp-library-heading p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.9;
+  color: #697763;
+}
+.mp-library-heading > a {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 7px;
+  padding: 12px 0;
+  color: #61765c;
+  font-size: 13px;
+}
+.mp-catalog-heading h3 small {
+  display: inline-block;
+  margin-left: 10px;
+  font:
+    400 12px/1.6 "PingFang SC",
+    sans-serif;
+  color: #7a8474;
+}
+.mp-topic-card:hover {
+  transform: none;
+}
+.mp-topic-card .mp-card-art {
+  display: block;
+  height: auto;
+  aspect-ratio: 3 / 2;
+}
+.mp-topic-card .mp-card-body {
+  padding: 20px;
+}
+.mp-topic-card h4 {
+  font-size: 23px;
+}
+.mp-topic-card p {
+  font-size: 13px;
+  line-height: 1.9;
+}
+.mp-topic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+.mp-topic-actions a,
+.mp-topic-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid #d5ddcc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.7;
+  cursor: pointer;
+}
+.mp-topic-actions a {
+  color: #fffbee;
+  background: #395e49;
+  border-color: #395e49;
+}
+.mp-topic-actions button {
+  color: #50634a;
+  background: #f3f5ec;
+}
+.mp-topic-status {
+  margin-top: 12px;
+  color: #75806d;
+  font-size: 12px;
+}
+.mp-topic-cases {
+  border-top: 1px solid #e2e4d8;
+  margin-top: 18px;
+  padding-top: 15px;
+}
+.mp-topic-cases > span {
+  font-size: 11px;
+  color: #8a7759;
+}
+.mp-topic-case {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+  color: #415f48;
+  font-family: inherit;
+  cursor: pointer;
+}
+.mp-topic-case strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.7;
+}
+.mp-topic-case small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #7b806b;
+  line-height: 1.7;
+}
+.mp-topic-case > svg {
+  flex-shrink: 0;
+}
+.mp-topic-case:hover {
+  color: #7e6034;
+  background: transparent;
+}
+.mp-topic-card a:focus-visible,
+.mp-topic-card button:focus-visible,
+.mp-related-cases a:focus-visible {
+  outline: 3px solid #ad8b50;
+  outline-offset: 3px;
+}
+.mp-related-cases {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin: 14px 0 22px;
+  padding: 12px 0;
+  border-bottom: 1px solid #dce1d2;
+}
+.mp-related-cases > span {
+  font-size: 12px;
+  color: #7a806e;
+}
+.mp-related-cases a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  color: #51694c;
+  font-size: 13px;
+}
+@media (max-width: 620px) {
+  .mp-library-heading {
+    gap: 14px;
+  }
+  .mp-library-heading > a {
+    font-size: 11px;
+    padding-top: 9px;
+  }
+  .mp-library-heading p {
+    font-size: 13px;
+  }
+  .mp-catalog-heading h3 {
+    font-size: 21px;
+  }
+  .mp-topic-card .mp-card-body {
+    padding: 19px;
+  }
+}
