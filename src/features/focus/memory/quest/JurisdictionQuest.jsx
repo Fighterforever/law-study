@@ -125,6 +125,7 @@ export default function JurisdictionQuest({ state, update, today }) {
       },
     }));
   const panel = useRef(null);
+  const agreementFact = useRef(null);
   const feedback = useRef(null);
   useEffect(() => {
     panel.current?.focus({ preventScroll: true });
@@ -243,6 +244,11 @@ export default function JurisdictionQuest({ state, update, today }) {
                       <div>
                         <small>{f.title}</small>
                         <button
+                          ref={
+                            f.id === "chinaAgreement"
+                              ? agreementFact
+                              : undefined
+                          }
                           className={q.facts[f.id] !== f.base ? "changed" : ""}
                           onClick={() =>
                             save((old) =>
@@ -317,11 +323,16 @@ export default function JurisdictionQuest({ state, update, today }) {
                     {result !== "unavailable" && (
                       <button
                         className="cq-outline"
-                        onClick={() =>
+                        onClick={() => {
                           save((old) =>
                             editJurisdiction(old, "chinaAgreement", true),
-                          )
-                        }
+                          );
+                          agreementFact.current?.focus({ preventScroll: true });
+                          agreementFact.current?.scrollIntoView({
+                            block: "center",
+                            behavior: "instant",
+                          });
+                        }}
                       >
                         只改为协议选择中国法院
                         <ArrowRight size={16} />
@@ -345,7 +356,7 @@ export default function JurisdictionQuest({ state, update, today }) {
             </details>
             <div className="jq-return-path">
               <div>
-                <span>裁定之后，再问一句</span>
+                <span>若已依法作出相应裁定，再问一句</span>
                 <h3>外国法院长期没有审结，怎么回来？</h3>
               </div>
               <p>

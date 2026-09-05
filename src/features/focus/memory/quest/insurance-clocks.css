@@ -321,7 +321,7 @@
   font-weight: 550;
 }
 .tc-calendar > p {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.9;
   padding: 14px 0 0;
   margin: 0;
@@ -335,7 +335,7 @@
   background: #f0f3e5;
 }
 .tc-fact-controls > label {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.9;
   display: flex;
   align-items: center;
@@ -393,7 +393,7 @@
   min-width: 0;
 }
 .tc-answer legend {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #58674c;
   margin-bottom: 12px;
@@ -411,7 +411,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.8;
   cursor: pointer;
 }
@@ -551,7 +551,7 @@
     padding: 20px;
   }
   .tc-answer label {
-    font-size: 11px;
+    font-size: 14px;
   }
   .tc-receipts {
     gap: 9px;
@@ -616,7 +616,7 @@
     padding: 18px;
   }
   .tc-answer label {
-    font-size: 12px;
+    font-size: 14px;
   }
   .tc-result {
     margin: 0 20px 23px;
@@ -655,7 +655,7 @@
     font-size: 9px;
   }
   .tc-calendar > p {
-    font-size: 11px;
+    font-size: 13px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

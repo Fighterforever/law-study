@@ -152,12 +152,17 @@ export default function InsuranceClocks({ state, update, today }) {
     }));
   const edit = (patch) => save((old) => editInsuranceClocks(old, patch));
   const panel = useRef(null);
+  const feedback = useRef(null);
   useEffect(() => {
     if (q) {
       panel.current?.focus({ preventScroll: true });
       panel.current?.scrollIntoView({ block: "start", behavior: "instant" });
     }
   }, [q?.view, q?.mode, q?.quizIndex]);
+  useEffect(() => {
+    if (q?.revealed)
+      feedback.current?.scrollIntoView({ block: "start", behavior: "instant" });
+  }, [q?.revealed]);
   const closed = q && q.view !== "learn";
   const result = q ? clockDecision(q) : null;
   const last = q?.attempts.at(-1);
@@ -465,6 +470,7 @@ export default function InsuranceClocks({ state, update, today }) {
                         </span>
                         <input
                           aria-label="事故发生在所述起点后几年"
+                          aria-valuetext={`${q.restored ? "复效" : "成立"}${q.elapsedYears}年后`}
                           type="range"
                           min="0"
                           max="1"
@@ -536,6 +542,7 @@ export default function InsuranceClocks({ state, update, today }) {
               <div
                 className={`tc-result ${last.correct ? "correct" : ""}`}
                 role="status"
+                ref={feedback}
               >
                 <ShieldCheck size={24} />
                 <div>
@@ -578,7 +585,14 @@ export default function InsuranceClocks({ state, update, today }) {
                   </dl>
                   <button
                     className="cq-outline tc-contrast"
-                    onClick={() => edit(contrast.patch)}
+                    onClick={() => {
+                      edit(contrast.patch);
+                      panel.current?.focus({ preventScroll: true });
+                      panel.current?.scrollIntoView({
+                        block: "start",
+                        behavior: "instant",
+                      });
+                    }}
                   >
                     {contrast.label}
                     <ArrowRight size={16} />
