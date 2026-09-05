@@ -27,6 +27,7 @@ import {
   nextInsuranceQuiz,
 } from "../../../../lib/insurance-quest.js";
 import ObjectiveQuestion from "./ObjectiveQuestion.jsx";
+import { ClocksEntry } from "./InsuranceClocks.jsx";
 import "./company-quest.css";
 import "./insurance-quest.css";
 
@@ -199,9 +200,7 @@ export default function InsuranceQuest({ state, update, today }) {
                 </div>
                 <div className="cq-report-row">
                   <span>对照练习</span>
-                  <strong>
-                    已核对 {practiced}/6 组，闭卷成绩单独记录。
-                  </strong>
+                  <strong>已核对 {practiced}/6 组，闭卷成绩单独记录。</strong>
                 </div>
                 <div className="iq-repair">
                   <h3>下一轮复习顺序</h3>
@@ -548,6 +547,7 @@ export default function InsuranceQuest({ state, update, today }) {
           </div>
         </>
       )}
+      {q?.phase !== "quiz" && <ClocksEntry {...{ state, today }} />}
       <footer className="cq-source">
         <span>
           本任务专练不如实告知的解除、拒赔与退费。对应考前聚焦 PDF 第 20

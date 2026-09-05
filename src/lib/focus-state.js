@@ -1,6 +1,7 @@
 import { validMemorySession } from "./memory-session.js";
 import { validCompanyQuest } from "./company-quest.js";
 import { validInsuranceQuest } from "./insurance-quest.js";
+import { validInsuranceClocks } from "./insurance-clocks.js";
 
 export const emptyFocusState = () => ({
   enabled: true,
@@ -13,6 +14,7 @@ export const emptyFocusState = () => ({
   memorySession: null,
   companyQuest: null,
   insuranceQuest: null,
+  insuranceClocks: null,
 });
 
 export function validateFocusState(value, validDate) {
@@ -110,10 +112,16 @@ export function validateFocusState(value, validDate) {
       "保险对照任务的学习记录不完整，未导入。请使用本站导出的备份。",
     );
   }
+  if (!validInsuranceClocks(value.insuranceClocks, validDate)) {
+    throw new Error(
+      "保险时间线的学习记录不完整，未导入。请使用本站导出的备份。",
+    );
+  }
   return {
     ...value,
     memorySession: value.memorySession ?? null,
     companyQuest: value.companyQuest ?? null,
     insuranceQuest: value.insuranceQuest ?? null,
+    insuranceClocks: value.insuranceClocks ?? null,
   };
 }
