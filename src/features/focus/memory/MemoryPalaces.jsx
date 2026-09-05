@@ -11,7 +11,6 @@ import {
   Footprints,
   Lightbulb,
   MapPinned,
-  RotateCcw,
   Shuffle,
   Target,
   X,
@@ -34,10 +33,9 @@ import {
 import MemoryScene, { MemoryScenePreview } from "./MemoryScene.jsx";
 import CompanyQuest, { QuestEntry } from "./quest/CompanyQuest.jsx";
 import InsuranceQuest, { InsuranceEntry } from "./quest/InsuranceQuest.jsx";
-import InsuranceClocks, { ClocksEntry } from "./quest/InsuranceClocks.jsx";
-import JurisdictionQuest, {
-  JurisdictionEntry,
-} from "./quest/JurisdictionQuest.jsx";
+import InsuranceClocks from "./quest/InsuranceClocks.jsx";
+import JurisdictionQuest from "./quest/JurisdictionQuest.jsx";
+import MemoryDesk from "./MemoryDesk.jsx";
 import "./memory-palaces.css";
 
 const home = "#/focus/memory";
@@ -88,10 +86,10 @@ export default function MemoryPalaces({ data, state, update, today, route }) {
       />
     );
   }
-  return <PalaceCatalog {...{ data, state, today, examDate }} />;
+  return <PalaceCatalog {...{ data, state, update, today, examDate }} />;
 }
 
-function PalaceCatalog({ data, state, today, examDate }) {
+function PalaceCatalog({ data, state, update, today, examDate }) {
   const [subject, setSubject] = useState("all");
   const cards = data.palaces.map((p) => ({
     p,
@@ -111,32 +109,44 @@ function PalaceCatalog({ data, state, today, examDate }) {
   const resume =
     session?.phase !== "summary" &&
     data.palaces.find((p) => p.id === session?.palaceId);
-  const recommended = [...cards].sort((a, b) => {
-    const score = (c) =>
-      c.progress.repair * 6 +
-      c.progress.due * 3 +
-      c.p.unitIds.reduce(
-        (n, id) =>
-          n +
-          (focusProgress(
-            data.units.find((u) => u.id === id),
-            state,
-            today,
-          ).needsRepair
-            ? 10
-            : 0),
-        0,
-      );
-    return score(b) - score(a);
-  })[0];
+  const recommended = cards
+    .filter((c) => c.progress.repair || c.progress.due)
+    .sort((a, b) => {
+      const score = (c) =>
+        c.progress.repair * 6 +
+        c.progress.due * 3 +
+        c.p.unitIds.reduce(
+          (n, id) =>
+            n +
+            (focusProgress(
+              data.units.find((u) => u.id === id),
+              state,
+              today,
+            ).needsRepair
+              ? 10
+              : 0),
+          0,
+        );
+      return score(b) - score(a);
+    })[0];
+  const shortReview = resume
+    ? {
+        href: path(resume),
+        title: `继续短路线 · ${guides[resume.id].shortTitle}`,
+        reason: `第 ${session.index + 1}/${session.order.length} 站，草稿与结果已保存。`,
+      }
+    : recommended
+      ? {
+          href: path(recommended.p),
+          title: `短路线查漏 · ${recommended.g.shortTitle}`,
+          reason: recommended.progress.repair
+            ? `${recommended.progress.repair} 个位置还有漏项，先回忆，再核对。`
+            : `${recommended.progress.due} 个位置今天到期，撤掉提示再说一遍。`,
+        }
+      : null;
   return (
     <div className="mp-atlas">
-      <div className="mp-case-entries">
-        <QuestEntry {...{ state, today }} />
-        <InsuranceEntry state={state} />
-      </div>
-      <ClocksEntry {...{ state, today }} />
-      <JurisdictionEntry {...{ state, today }} />
+      <MemoryDesk {...{ state, update, today, examDate, shortReview }} />
       <section className="mp-atlas-intro">
         <div>
           <span className="mp-kicker">随时查漏 · 15 条原有记忆路线</span>
@@ -146,7 +156,7 @@ function PalaceCatalog({ data, state, today, examDate }) {
             换个案情也会判断。
           </h2>
           <p>
-            上方案件任务适合把陌生规则学懂；下方短路线适合迅速补漏。已经熟悉的考点，直接关图抽问。
+            下方保留全部短路线。已熟悉的考点直接关图抽问；漏掉哪项，就回到对应位置补全。
           </p>
         </div>
         <div className="mp-atlas-numbers">
@@ -180,34 +190,6 @@ function PalaceCatalog({ data, state, today, examDate }) {
           <b>03</b> 换个问法再判断
         </span>
       </div>
-      {resume ? (
-        <a className="mp-resume" href={path(resume)}>
-          <RotateCcw size={22} />
-          <div>
-            <strong>继续上次练习 · {guides[resume.id].shortTitle}</strong>
-            <span>
-              第{session.index + 1} / {session.order.length}
-              站，草稿和本轮结果已保存。
-            </span>
-          </div>
-          <ArrowRight size={20} />
-        </a>
-      ) : (
-        <a className="mp-recommend" href={path(recommended.p)}>
-          <Target size={22} />
-          <div>
-            <strong>先练这一条 · {recommended.g.shortTitle}</strong>
-            <span>
-              {recommended.progress.repair
-                ? `${recommended.progress.repair}个位置还有漏项，先补这里。`
-                : recommended.progress.due
-                  ? "今天撤掉提示，再检查一次。"
-                  : recommended.g.anchor}
-            </span>
-          </div>
-          <ArrowRight size={20} />
-        </a>
-      )}
       <div className="mp-catalog-heading">
         <h3>选择你的记忆空间</h3>
         <div
