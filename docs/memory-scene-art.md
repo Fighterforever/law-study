@@ -105,3 +105,7 @@ Edit this existing game environment image. Preserve the complete image compositi
 Make one small precise edit to this image. The door in the bottom-right has SIX horizontal brass locking bars. REMOVE ONLY THE LOWEST (SIXTH) BAR, located near 88 percent of the full image height. Fill its place with the dark door surface. Keep the other five existing bars at their exact positions. Do not add or move any bar. Preserve the entire rest of the image exactly.
 
 The lower-right door currently has FOUR horizontal gold bars, at image y coordinates about 670, 714, 758 and 802 pixels. Add ONE additional identical horizontal gold locking bar at y=846 pixels, immediately below the fourth existing bar. Retain all four existing bars, so there are FIVE total. Add only this one gold bar and its central lock. Do not remove or reposition anything. Preserve the rest of the entire 1536x1024 image.
+
+## 记忆锚点更新
+
+上述提示保留初次制作记录。本轮六幅场景的局部补画、执行和解分支修正及法典长河六灯四门修图见[锚点修订记录](memory-anchor-art.md)。当前物件名称和坐标以 `scene-art.json` 为准。

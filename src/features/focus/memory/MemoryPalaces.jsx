@@ -12,12 +12,13 @@ import {
   Lightbulb,
   MapPinned,
   Shuffle,
+  Search,
   Target,
   X,
 } from "lucide-react";
 import guides from "../../../data/memory-guides.json";
 import { subjectById } from "../../../data/subjects.js";
-import { focusExamDate, focusProgress } from "../../../lib/focus.js";
+import { focusExamDate } from "../../../lib/focus.js";
 import { emptyFocusState } from "../../../lib/focus-state.js";
 import {
   memoryKey,
@@ -25,6 +26,7 @@ import {
   palaceProgress,
   makeMemoryQueue,
   saveMemoryRating,
+  memoryStudySuggestion,
 } from "../../../lib/memory.js";
 import {
   createMemorySession,
@@ -46,7 +48,6 @@ import "./memory-palaces.css";
 const home = "#/focus/memory";
 const path = (palace, station) =>
   `${home}/${palace.id}${station ? `?station=${station.id}` : ""}`;
-const subjects = ["all", "commercial", "international", "civil-procedure"];
 const setSession = (update, next) =>
   update((s) => ({
     ...s,
@@ -59,7 +60,14 @@ const setSession = (update, next) =>
 const shortDate = (date) =>
   date ? `${Number(date.slice(5, 7))}月${Number(date.slice(8))}日` : "";
 
-export default function MemoryPalaces({ data, state, update, today, route }) {
+export default function MemoryPalaces({
+  data,
+  state,
+  update,
+  today,
+  route,
+  focusDay,
+}) {
   const id = route.split("/")[2]?.split("?")[0];
   const palace = data.palaces.find((p) => p.id === id);
   const examDate = focusExamDate(data, state);
@@ -87,15 +95,33 @@ export default function MemoryPalaces({ data, state, update, today, route }) {
     return (
       <PalaceStudy
         key={palace.id}
+        explicitStation={Boolean(wanted)}
         {...{ palace, index, data, state, update, today, examDate }}
       />
     );
   }
-  return <PalaceCatalog {...{ data, state, update, today, examDate }} />;
+  return (
+    <PalaceCatalog
+      key={route}
+      {...{ data, state, update, today, examDate, focusDay, route }}
+    />
+  );
 }
 
-function PalaceCatalog({ data, state, update, today, examDate }) {
-  const [subject, setSubject] = useState("all");
+function PalaceCatalog({
+  data,
+  state,
+  update,
+  today,
+  examDate,
+  focusDay,
+  route,
+}) {
+  const params = new URLSearchParams(route.split("?")[1]);
+  const [subject, setSubject] = useState(params.get("subject") || "all");
+  const [paper, setPaper] = useState(params.get("paper") || "all");
+  const [query, setQuery] = useState("");
+  const subjects = ["all", ...new Set(data.palaces.map((p) => p.subjectId))];
   const cards = data.palaces.map((p) => ({
     p,
     g: guides[p.id],
@@ -112,59 +138,55 @@ function PalaceCatalog({ data, state, update, today, examDate }) {
     }));
     window.location.hash = task.path.slice(1);
   };
-  const startRecall = (palace) => {
+  const startRecall = (palace, mode = "random", order) => {
     const current = state.focus?.memorySession;
     if (current?.palaceId !== palace.id || current.phase === "summary") {
       setSession(
         update,
         createMemorySession(
           palace.id,
-          makeMemoryQueue(palace, state, today, examDate, "random"),
-          "random",
+          order || makeMemoryQueue(palace, state, today, examDate, mode),
+          mode,
         ),
       );
     }
     window.location.hash = path(palace).slice(1);
   };
   const session = state.focus?.memorySession;
-  const resume =
-    session?.phase !== "summary" &&
-    data.palaces.find((p) => p.id === session?.palaceId);
-  const recommended = cards
-    .filter((c) => c.progress.repair || c.progress.due)
-    .sort((a, b) => {
-      const score = (c) =>
-        c.progress.repair * 6 +
-        c.progress.due * 3 +
-        c.p.unitIds.reduce(
-          (n, id) =>
-            n +
-            (focusProgress(
-              data.units.find((u) => u.id === id),
-              state,
-              today,
-            ).needsRepair
-              ? 10
-              : 0),
-          0,
-        );
-      return score(b) - score(a);
-    })[0];
-  const shortReview = resume
-    ? {
-        href: path(resume),
-        title: `${guides[resume.id].shortTitle} · 继续回忆`,
-        reason: `第 ${session.index + 1}/${session.order.length} 站，草稿与结果已保存。`,
-      }
-    : recommended
-      ? {
-          href: path(recommended.p),
-          title: `${recommended.g.shortTitle} · 补全条件`,
-          reason: recommended.progress.repair
-            ? `${recommended.progress.repair} 个位置还有漏项，先回忆，再核对。`
-            : `${recommended.progress.due} 个位置今天到期，撤掉提示再说一遍。`,
-        }
-      : null;
+  const suggestion = memoryStudySuggestion(
+    data,
+    state,
+    today,
+    examDate,
+    focusDay,
+  );
+  const shortReview = suggestion && {
+    href: path(suggestion.palace, suggestion.station),
+    title: `${guides[suggestion.palace.id].shortTitle} · ${suggestion.kind === "learn" ? "配合今日考点" : suggestion.kind === "resume" ? "继续回忆" : "闭卷复测"}`,
+    reason: suggestion.reason,
+    rank: suggestion.rank,
+    actionLabel: suggestion.kind === "learn" ? "看这一站" : "开始回忆",
+    onStart:
+      suggestion.kind === "learn"
+        ? null
+        : () =>
+            startRecall(
+              suggestion.palace,
+              suggestion.kind === "review" ? "weak" : "random",
+              suggestion.order,
+            ),
+  };
+  const visible = cards.filter(({ p, g }) => {
+    const units = p.unitIds.map((id) => data.units.find((u) => u.id === id));
+    return (
+      (subject === "all" || p.subjectId === subject) &&
+      (paper === "all" || units.some((u) => u.paperId === paper)) &&
+      (!query.trim() ||
+        `${p.title} ${g.anchor} ${units.map((u) => u.title).join(" ")} ${p.stations.map((s) => `${s.place} ${s.decode}`).join(" ")}`.includes(
+          query.trim(),
+        ))
+    );
+  });
   return (
     <div className="mp-atlas">
       <header className="mp-library-heading">
@@ -185,7 +207,10 @@ function PalaceCatalog({ data, state, update, today, examDate }) {
       />
       <div className="mp-catalog-heading">
         <h3>
-          按主题学习 <small>{cards.length} 个主题</small>
+          按主题学习{" "}
+          <small>
+            {visible.length} / {cards.length} 个主题
+          </small>
         </h3>
         <div
           className="mp-subject-filter"
@@ -204,87 +229,122 @@ function PalaceCatalog({ data, state, update, today, examDate }) {
           ))}
         </div>
       </div>
+      <div className="mp-catalog-tools">
+        <label>
+          <span>按资料找</span>
+          <select
+            value={paper}
+            onChange={(e) => {
+              setPaper(e.target.value);
+              setSubject("all");
+            }}
+            aria-label="按资料筛选记忆场景"
+          >
+            <option value="all">全部考前聚焦</option>
+            {data.papers.map((p) => (
+              <option value={p.id} key={p.id}>
+                {p.shortTitle || p.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="mp-search">
+          <Search size={17} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="搜考点、规则或场景"
+            aria-label="搜索记忆场景"
+          />
+        </label>
+      </div>
+      <p className="mp-catalog-help">
+        按今日考点找到对应位置即可。先用场景记住区别，再关图复述、换个事实判断，最后回到原考点做客观题。
+      </p>
+      {!visible.length && (
+        <p className="mp-empty">
+          没有匹配的主题，试试更短的关键词或切回全部资料。
+        </p>
+      )}
       <div className="mp-palace-grid">
-        {cards
-          .filter((c) => subject === "all" || c.p.subjectId === subject)
-          .map(({ p, g, progress }, i) => {
-            const tasks = agenda.tasks.filter((task) => task.palaceId === p.id);
-            const unfinished =
-              session?.palaceId === p.id && session.phase !== "summary";
-            return (
-              <article
-                className="mp-palace-card mp-topic-card"
-                key={p.id}
-                style={{ "--mp-card-delay": `${Math.min(i, 5) * 45}ms` }}
+        {visible.map(({ p, g, progress }, i) => {
+          const tasks = agenda.tasks.filter((task) => task.palaceId === p.id);
+          const unfinished =
+            session?.palaceId === p.id && session.phase !== "summary";
+          return (
+            <article
+              className="mp-palace-card mp-topic-card"
+              key={p.id}
+              style={{ "--mp-card-delay": `${Math.min(i, 5) * 45}ms` }}
+            >
+              <a
+                className="mp-card-art"
+                href={path(p)}
+                aria-label={`进入主题：${g.shortTitle}`}
               >
-                <a
-                  className="mp-card-art"
-                  href={path(p)}
-                  aria-label={`进入主题：${g.shortTitle}`}
-                >
-                  <MemoryScenePreview palace={p} />
-                  <span>{subjectById[p.subjectId].name}</span>
-                </a>
-                <div className="mp-card-body">
-                  <div className="mp-card-meta">
-                    <span>{p.stations.length} 个记忆位置</span>
-                    <span>
-                      <Clock3 size={13} />约 {g.estimatedMinutes} 分钟
-                    </span>
-                  </div>
-                  <h4>{g.shortTitle}</h4>
-                  <p>{g.anchor}</p>
-                  <div className="mp-topic-actions">
-                    <a href={path(p)}>
-                      {unfinished ? "继续学习" : "看图记忆"}{" "}
-                      <ArrowRight size={15} />
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => startRecall(p)}
-                      aria-label={`${unfinished ? "继续" : "开始"}闭卷回忆：${g.shortTitle}`}
-                    >
-                      <EyeOff size={15} />
-                      {unfinished ? "继续回忆" : "闭卷回忆"}
-                    </button>
-                  </div>
-                  <div className="mp-topic-status">
-                    {progress.repair
-                      ? `${progress.repair} 处待补全`
-                      : progress.due
-                        ? `${progress.due} 处今天复测`
-                        : progress.practiced
-                          ? `已练 ${progress.practiced}/${progress.total} 处`
-                          : "尚未开始"}
-                  </div>
-                  {tasks.length > 0 && (
-                    <div className="mp-topic-cases">
-                      <span>案情练习 · 分清易混规则</span>
-                      {tasks.map((task) => (
-                        <TaskAction
-                          key={task.id}
-                          task={task}
-                          onStartQuiz={startQuiz}
-                          className="mp-topic-case"
-                        >
-                          <div>
-                            <strong>{task.short}</strong>
-                            <small>
-                              {task.status}
-                              {task.firstToday !== undefined
-                                ? ` · 今日首次 ${task.firstToday}/3`
-                                : ""}
-                            </small>
-                          </div>
-                          <ArrowRight size={16} />
-                        </TaskAction>
-                      ))}
-                    </div>
-                  )}
+                <MemoryScenePreview palace={p} />
+                <span>{subjectById[p.subjectId].name}</span>
+              </a>
+              <div className="mp-card-body">
+                <div className="mp-card-meta">
+                  <span>{p.stations.length} 个记忆位置</span>
+                  <span>
+                    <Clock3 size={13} />约 {g.estimatedMinutes} 分钟
+                  </span>
                 </div>
-              </article>
-            );
-          })}
+                <h4>{g.shortTitle}</h4>
+                <p>{g.anchor}</p>
+                <div className="mp-topic-actions">
+                  <a href={path(p)}>
+                    {unfinished ? "继续学习" : "看图记忆"}{" "}
+                    <ArrowRight size={15} />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => startRecall(p)}
+                    aria-label={`${unfinished ? "继续" : "开始"}闭卷回忆：${g.shortTitle}`}
+                  >
+                    <EyeOff size={15} />
+                    {unfinished ? "继续回忆" : "闭卷回忆"}
+                  </button>
+                </div>
+                <div className="mp-topic-status">
+                  {progress.repair
+                    ? `${progress.repair} 处待补全`
+                    : progress.due
+                      ? `${progress.due} 处今天复测`
+                      : progress.practiced
+                        ? `已练 ${progress.practiced}/${progress.total} 处`
+                        : "尚未开始"}
+                </div>
+                {tasks.length > 0 && (
+                  <div className="mp-topic-cases">
+                    <span>案情练习 · 分清易混规则</span>
+                    {tasks.map((task) => (
+                      <TaskAction
+                        key={task.id}
+                        task={task}
+                        onStartQuiz={startQuiz}
+                        className="mp-topic-case"
+                      >
+                        <div>
+                          <strong>{task.short}</strong>
+                          <small>
+                            {task.status}
+                            {task.firstToday !== undefined
+                              ? ` · 今日首次 ${task.firstToday}/3`
+                              : ""}
+                          </small>
+                        </div>
+                        <ArrowRight size={16} />
+                      </TaskAction>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </article>
+          );
+        })}
       </div>
       <p className="mp-bottom-note">
         看图回忆与案情练习分别记录，进度保存在当前浏览器。
@@ -302,6 +362,7 @@ function PalaceStudy({
   update,
   today,
   examDate,
+  explicitStation,
 }) {
   const g = guides[p.id];
   const [index, setIndex] = useState(initialIndex);
@@ -313,9 +374,12 @@ function PalaceStudy({
       ? saved
       : null;
   const [view, setView] = useState(
-    session && session.phase !== "summary" ? "practice" : "guide",
+    !explicitStation && session && session.phase !== "summary"
+      ? "practice"
+      : "guide",
   );
   const [walkOpen, setWalkOpen] = useState(false);
+  const [guideCovered, setGuideCovered] = useState(false);
   const [message, setMessage] = useState("");
   const progress = palaceProgress(p, state, today, examDate);
   const station = p.stations[index];
@@ -336,6 +400,12 @@ function PalaceStudy({
     if (session && !session.quality && view === "practice")
       setSession(update, (old) => ({ ...old, hintLevel: 2 }));
     setView("guide");
+  };
+  const continueRecall = () => {
+    if (!session) return start("random");
+    if (view === "guide" && !session.quality)
+      setSession(update, (old) => ({ ...old, hintLevel: 2 }));
+    setView("practice");
   };
   function start(mode, chosen) {
     const order =
@@ -393,7 +463,7 @@ function PalaceStudy({
             {g.estimatedMinutes}分钟
           </span>
           <h2>{g.shortTitle}</h2>
-          {view === "guide" && <p>{g.anchor}</p>}
+          {view === "guide" && !guideCovered && <p>{g.anchor}</p>}
         </div>
         <div className="mp-route-count">
           <strong>
@@ -415,7 +485,7 @@ function PalaceStudy({
         <button
           className={view === "practice" ? "active" : ""}
           aria-pressed={view === "practice"}
-          onClick={() => (session ? setView("practice") : start("random"))}
+          onClick={continueRecall}
         >
           <EyeOff size={17} />
           {session
@@ -425,6 +495,20 @@ function PalaceStudy({
             : "闭卷练习"}
         </button>
       </div>
+      {view === "guide" && (
+        <div className="mp-picture-recall-toggle">
+          <button
+            type="button"
+            className={guideCovered ? "active" : ""}
+            aria-pressed={guideCovered}
+            onClick={() => setGuideCovered(!guideCovered)}
+          >
+            {guideCovered ? <Eye size={16} /> : <EyeOff size={16} />}
+            {guideCovered ? "展开讲解" : "遮住讲解，凭图回忆"}
+          </button>
+          <p>先凭物件回答，再展开核对；此步骤不计掌握进度。</p>
+        </div>
+      )}
       {view === "guide" &&
         memoryTasks.some((task) => task.palaceId === p.id) && (
           <div className="mp-related-cases">
@@ -445,32 +529,48 @@ function PalaceStudy({
       )}
       {view === "guide" ? (
         <>
-          <div className="mp-orientation">
-            <Footprints size={20} />
-            <div>
-              <strong>先站在这里</strong>
-              <p>{g.setting}</p>
-              <button
-                className="mp-text-button"
-                onClick={() => setWalkOpen(!walkOpen)}
-                aria-expanded={walkOpen}
-              >
-                {walkOpen ? "收起走法" : "看一遍完整走法"}
-                <ChevronRight size={15} />
-              </button>
-              {walkOpen && <p className="mp-walkthrough">{g.walkthrough}</p>}
+          {!guideCovered && (
+            <div className="mp-orientation">
+              <Footprints size={20} />
+              <div>
+                <strong>先站在这里</strong>
+                <p>{g.setting}</p>
+                <button
+                  className="mp-text-button"
+                  onClick={() => setWalkOpen(!walkOpen)}
+                  aria-expanded={walkOpen}
+                >
+                  {walkOpen ? "收起走法" : "看一遍完整走法"}
+                  <ChevronRight size={15} />
+                </button>
+                {walkOpen && <p className="mp-walkthrough">{g.walkthrough}</p>}
+              </div>
             </div>
-          </div>
+          )}
           <div className="mp-learning-layout">
             <div className="mp-scene-column">
               <MemoryScene
                 palace={p}
+                anchor={guideCovered ? undefined : detail}
+                recall={
+                  guideCovered
+                    ? {
+                        prompt: station.prompt,
+                        onReveal: () => setGuideCovered(false),
+                      }
+                    : undefined
+                }
+                showNavigation={false}
                 activeIndex={index}
                 onSelect={(i) => select(i, false)}
-                onRead={() =>
-                  document
-                    .getElementById("mp-station")
-                    ?.scrollIntoView({ block: "start", behavior: "instant" })
+                onRead={
+                  guideCovered
+                    ? undefined
+                    : () =>
+                        document.getElementById("mp-station")?.scrollIntoView({
+                          block: "start",
+                          behavior: "instant",
+                        })
                 }
               />
               <div className="mp-route-ribbon" aria-label="固定行走顺序">
@@ -489,7 +589,9 @@ function PalaceStudy({
                       title={s.place}
                     >
                       <b>{i + 1}</b>
-                      <span>{g.stations[s.id].cue}</span>
+                      <span>
+                        {guideCovered ? s.place : g.stations[s.id].cue}
+                      </span>
                       {r.status === "ready" && <Check size={12} />}
                     </button>
                   );
@@ -507,36 +609,52 @@ function PalaceStudy({
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <div>
-                  <span>把这个位置记牢</span>
+                  <span>
+                    {guideCovered ? "看着物件，把条件说出来" : "把这个位置记牢"}
+                  </span>
                   <h3>{station.place}</h3>
                 </div>
               </div>
-              <div className="mp-action">
-                <span className="mp-mini-label">在脑海中做这个动作</span>
-                <p>{detail.action}</p>
-              </div>
-              <div className="mp-rule">
-                <span className="mp-mini-label">画面对应的法律规则</span>
-                <p>{station.decode}</p>
-              </div>
-              <div className="mp-checklist">
-                <h4>闭卷时必须说出</h4>
-                <ol>
-                  {detail.checks.map((c, i) => (
-                    <li key={i}>
-                      <span>{i + 1}</span>
-                      {c}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-              <div className="mp-trap">
-                <Lightbulb size={18} />
-                <p>
-                  <strong>选项最爱改这里</strong>
-                  {detail.trap}
-                </p>
-              </div>
+              {!guideCovered && (
+                <>
+                  <div className="mp-rule">
+                    <span className="mp-mini-label">画面对应的法律规则</span>
+                    <p>{station.decode}</p>
+                  </div>
+                  <div className="mp-checklist">
+                    <h4>闭卷时必须说出</h4>
+                    <ol>
+                      {detail.checks.map((c, i) => (
+                        <li key={i}>
+                          <span>{i + 1}</span>
+                          {c}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </>
+              )}
+              {!guideCovered && station.unitIds && (
+                <div className="mp-station-sources">
+                  <span>这一站对应的考点</span>
+                  {station.unitIds.map((id) => {
+                    const unit = data.units.find((u) => u.id === id);
+                    return (
+                      <a key={id} href={`#/focus/unit/${id}`}>
+                        {unit.title}
+                        <small>
+                          {unit.overlap.level === "confirmed"
+                            ? "与背诵卷重合 · "
+                            : ""}
+                          PDF 第{unit.pages.join("、")}页 ·{" "}
+                          {unit.questions.length}题
+                        </small>
+                        <ArrowRight size={14} />
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
               <div className="mp-station-move">
                 <button
                   className="secondary"
@@ -592,7 +710,7 @@ function PalaceStudy({
         </>
       ) : session ? (
         <Practice
-          {...{ p, g, session, state, update, today, examDate }}
+          {...{ p, g, session, state, update, today, examDate, data }}
           onStart={start}
           onGuide={backToGuide}
         />
@@ -602,30 +720,36 @@ function PalaceStudy({
           <button onClick={() => start("random")}>开始抽问</button>
         </div>
       )}
-      <details className="mp-linked-units">
-        <summary>
-          <Target size={18} />
-          把记忆用到客观题里<span>{p.unitIds.length}组考点</span>
-        </summary>
-        {p.unitIds.map((id) => {
-          const u = data.units.find((x) => x.id === id);
-          return (
-            <a
-              href={`#/focus/unit/${id}${state.focus?.learned[id] ? "?review" : ""}`}
-              key={id}
-            >
-              <div>
-                <strong>{u.title}</strong>
-                <small>
-                  讲义第{u.pages.join("、")}页 · {u.questions.length}
-                  道原创客观题 · 新旧资料页码见单元
-                </small>
-              </div>
-              <ArrowRight size={17} />
-            </a>
-          );
-        })}
-      </details>
+      {view === "guide" && !guideCovered && (
+        <details className="mp-linked-units">
+          <summary>
+            <Target size={18} />
+            把记忆用到客观题里<span>{p.unitIds.length}组考点</span>
+          </summary>
+          {p.unitIds.map((id) => {
+            const u = data.units.find((x) => x.id === id);
+            return (
+              <a
+                href={`#/focus/unit/${id}${state.focus?.learned[id] ? "?review" : ""}`}
+                key={id}
+              >
+                <div>
+                  <strong>{u.title}</strong>
+                  <small>
+                    {
+                      data.papers.find((paper) => paper.id === u.paperId)
+                        .shortTitle
+                    }{" "}
+                    · PDF 第{u.pages.join("、")}页 · {u.questions.length}
+                    道原创客观题 · 新旧资料页码见单元
+                  </small>
+                </div>
+                <ArrowRight size={17} />
+              </a>
+            );
+          })}
+        </details>
+      )}
     </div>
   );
 }
@@ -633,6 +757,7 @@ function PalaceStudy({
 function Practice({
   p,
   g,
+  data,
   session: s,
   state,
   update,
@@ -669,6 +794,7 @@ function Practice({
           memorySession: {
             ...next.focus.memorySession,
             quality,
+            transferOpen: true,
             results: [
               ...s.results.filter((r) => r.stationId !== station.id),
               result,
@@ -719,7 +845,7 @@ function Practice({
   if (s.phase === "summary") {
     const weak = s.results.filter(
       (r) =>
-        r.quality !== "exact" || r.assisted || r.transferQuality === "partial",
+        r.quality !== "exact" || r.assisted || r.transferQuality !== "exact",
     );
     const independent = s.results.length - weak.length;
     return (
@@ -758,15 +884,17 @@ function Practice({
                 {p.stations.find((x) => x.id === r.stationId).place}
               </span>
               <b className={weak.includes(r) ? "repair" : "ready"}>
-                {r.transferQuality === "partial"
-                  ? "变式题会混淆"
-                  : r.assisted
-                    ? "下次撤掉提示"
-                    : r.quality === "exact"
-                      ? "闭卷说全"
-                      : r.quality === "partial"
-                        ? "还有漏项"
-                        : "重新串联"}
+                {!r.transferQuality
+                  ? "变式尚未完成"
+                  : r.transferQuality === "partial"
+                    ? "变式题会混淆"
+                    : r.assisted
+                      ? "下次撤掉提示"
+                      : r.quality === "exact"
+                        ? "闭卷说全"
+                        : r.quality === "partial"
+                          ? "还有漏项"
+                          : "重新串联"}
               </b>
             </li>
           ))}
@@ -792,6 +920,21 @@ function Practice({
             再来一轮闭卷抽问
           </button>
           <a href={home}>返回全部路线 →</a>
+        </div>
+        <div className="mp-station-sources">
+          <span>下一步：用客观题检验刚才的规则</span>
+          {p.unitIds.map((id) => {
+            const u = data.units.find((unit) => unit.id === id);
+            return (
+              <a href={`#/focus/unit/${id}`} key={id}>
+                {u.title}
+                <small>
+                  {u.questions.length} 道客观题 · 沿用原考点的答题进度
+                </small>
+                <ArrowRight size={15} />
+              </a>
+            );
+          })}
         </div>
       </section>
     );
@@ -999,8 +1142,12 @@ function Practice({
                   )}
                 </div>
                 <div className="mp-next-action">
-                  <span>本轮进度自动保存，随时可以稍后继续。</span>
-                  <button onClick={next}>
+                  <span>
+                    {s.transferQuality
+                      ? "本轮进度已保存，可以继续下一站。"
+                      : "完成上方变式判断，再进入下一站。"}
+                  </span>
+                  <button onClick={next} disabled={!s.transferQuality}>
                     {s.index + 1 < s.order.length ? "下一站" : "查看本轮结果"}
                     <ArrowRight size={17} />
                   </button>

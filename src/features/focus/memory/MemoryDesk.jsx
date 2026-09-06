@@ -35,7 +35,9 @@ export function TaskAction({ task, onStartQuiz, className, children }) {
 export default function MemoryDesk({ agenda, shortReview, onStartQuiz }) {
   const next = agenda.next;
   const shortFirst =
-    !agenda.examReached && shortReview && (!next || next.rank > 1);
+    !agenda.examReached &&
+    shortReview &&
+    (!next || shortReview.rank <= next.rank);
   if (!next && !shortFirst)
     return (
       <p className="md-next-note">
@@ -56,10 +58,17 @@ export default function MemoryDesk({ agenda, shortReview, onStartQuiz }) {
         <p>{shortFirst ? shortReview.reason : next.reason}</p>
       </div>
       {shortFirst ? (
-        <a className="md-next-action" href={shortReview.href}>
-          继续学习
-          <ArrowRight size={16} />
-        </a>
+        shortReview.onStart ? (
+          <button className="md-next-action" onClick={shortReview.onStart}>
+            {shortReview.actionLabel}
+            <ArrowRight size={16} />
+          </button>
+        ) : (
+          <a className="md-next-action" href={shortReview.href}>
+            {shortReview.actionLabel}
+            <ArrowRight size={16} />
+          </a>
+        )
       ) : (
         <TaskAction
           task={next}

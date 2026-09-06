@@ -27,6 +27,8 @@ export default function MemoryScene({
   activeIndex,
   onSelect,
   onRead,
+  anchor,
+  recall,
   concealLabels = false,
   showNavigation = true,
   interactive = true,
@@ -35,10 +37,14 @@ export default function MemoryScene({
   const [zoom, setZoom] = useState(false);
   const [markers, setMarkers] = useState(true);
   const map = useRef(null);
+  const hideLabels = concealLabels || !interactive;
+  const showAnchor = Boolean(anchor) && !hideLabels;
   const [x, y] = scene.points[activeIndex];
   const scale = zoom ? 2 : 1;
   const left = zoom ? Math.max(0, Math.min(50, x - 25)) : 0;
   const top = zoom ? Math.max(0, Math.min(50, y - 25)) : 0;
+  const currentX = (x - left) * scale;
+  const currentY = (y - top) * scale;
   const chooseByKeyboard = (event, index) => {
     if (
       !["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)
@@ -61,7 +67,7 @@ export default function MemoryScene({
       <div className="memory-scene-heading">
         <div>
           <span className="memory-scene-eyebrow">一处场景 · 一组规则</span>
-          <strong>{scene.title}</strong>
+          <strong>{hideLabels ? "回想这一处场景" : scene.title}</strong>
         </div>
         <a
           className="memory-scene-original"
@@ -74,17 +80,17 @@ export default function MemoryScene({
         </a>
       </div>
       <div
-        className="memory-illustration"
+        className={`memory-illustration${hideLabels ? "" : " memory-illustration--study"}`}
         ref={map}
         role="group"
         aria-label={
-          concealLabels ? "回忆场景" : `${scene.title}，点击编号选择记忆位置`
+          hideLabels ? "回忆场景" : `${scene.title}，点击编号选择记忆位置`
         }
       >
         <img
           className="memory-illustration-image"
           src={imageUrl(scene)}
-          alt={concealLabels ? "用于提示空间位置的虚构场景" : scene.alt}
+          alt={hideLabels ? "用于提示空间位置的虚构场景" : scene.alt}
           width="1536"
           height="1024"
           decoding="async"
@@ -99,7 +105,7 @@ export default function MemoryScene({
           palace.stations.map((station, index) => {
             const [px, py] = scene.points[index];
             const selected = activeIndex === index;
-            const label = concealLabels
+            const label = hideLabels
               ? `第 ${index + 1} 站`
               : `第 ${index + 1} 站：${station.place}`;
             const style = {
@@ -133,6 +139,16 @@ export default function MemoryScene({
               </span>
             );
           })}
+        {markers && !hideLabels && (
+          <div
+            className={`memory-object-label ${currentY >= 50 ? "memory-object-label--above" : "memory-object-label--below"}`}
+            style={{ "--object-x": `${currentX}%`, top: `${currentY}%` }}
+            aria-hidden="true"
+          >
+            <span>看这里</span>
+            <strong>{scene.landmarks[activeIndex]}</strong>
+          </div>
+        )}
       </div>
       <div
         className="memory-scene-toolbar"
@@ -161,20 +177,16 @@ export default function MemoryScene({
           onClick={() => setMarkers(!markers)}
         >
           {markers ? <EyeOff size={15} /> : <Eye size={15} />}
-          {markers ? "隐藏编号看场景" : "显示记忆位置"}
+          {markers ? "隐藏标记看场景" : "显示记忆位置"}
         </button>
       </div>
       <figcaption>
         <div className="memory-scene-caption" aria-live="polite">
           <span className="memory-scene-current">{number(activeIndex)}</span>
           <div>
-            <small>
-              {concealLabels
-                ? "回想这个位置"
-                : `先找到${scene.landmarks[activeIndex]}`}
-            </small>
+            <small>{hideLabels ? "回想这个位置" : "看见这个物件"}</small>
             <strong>
-              {concealLabels
+              {hideLabels
                 ? `回想第 ${activeIndex + 1} 站的物件与规则`
                 : palace.stations[activeIndex].place}
             </strong>
@@ -183,12 +195,35 @@ export default function MemoryScene({
             {activeIndex + 1} / {palace.stations.length}
           </span>
         </div>
-        {onRead && (
+        {showAnchor && (
+          <div className="memory-anchor" aria-label="这一站怎样帮助记忆">
+            <div className="memory-anchor-action">
+              <span className="memory-anchor-label">在脑海中做这个动作</span>
+              <p>{anchor.action}</p>
+            </div>
+            <div className="memory-anchor-distinction">
+              <span className="memory-anchor-label">做题抓住这个区别</span>
+              <p>{anchor.trap}</p>
+            </div>
+          </div>
+        )}
+        {recall && !hideLabels && (
+          <div className="memory-picture-recall">
+            <span className="memory-anchor-label">
+              凭这个物件，回答下面的问题
+            </span>
+            <p>{recall.prompt}</p>
+            <button type="button" onClick={recall.onReveal}>
+              <Eye size={16} /> 我已说完，核对条件
+            </button>
+          </div>
+        )}
+        {onRead && !hideLabels && (
           <button type="button" className="memory-scene-read" onClick={onRead}>
             查看这一站的条件 ↓
           </button>
         )}
-        {!concealLabels && (
+        {!hideLabels && !showAnchor && !recall && (
           <p className="memory-scene-instruction">
             先认物件，再说条件。沿编号走一遍，随后切换到「闭卷练习」。
           </p>
@@ -204,7 +239,7 @@ export default function MemoryScene({
                 onClick={() => onSelect(index)}
               >
                 <span>{number(index)}</span>
-                {concealLabels ? `第 ${index + 1} 站` : station.place}
+                {hideLabels ? `第 ${index + 1} 站` : station.place}
               </button>
             ))}
           </nav>

@@ -371,6 +371,31 @@
   border-bottom-color: var(--mp-green);
   color: var(--mp-green);
 }
+.mp-picture-recall-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin: -10px 0 25px;
+}
+.mp-picture-recall-toggle button {
+  flex-shrink: 0;
+  padding: 9px 12px;
+  border: 1px solid #cdd6c2;
+  background: transparent;
+  color: var(--mp-green);
+  font-size: 12px;
+}
+.mp-picture-recall-toggle button.active {
+  border-color: #9bab89;
+  background: #e5ebdc;
+}
+.mp-picture-recall-toggle p {
+  margin: 0;
+  color: #79836f;
+  font-size: 12px;
+  line-height: 1.8;
+}
 .mp-orientation {
   display: flex;
   gap: 14px;
@@ -1642,5 +1667,84 @@
   }
   .mp-topic-card .mp-card-body {
     padding: 19px;
+  }
+}
+
+.mp-catalog-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 12px;
+}
+.mp-catalog-tools label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.mp-catalog-tools label > span {
+  white-space: nowrap;
+  font-size: 13px;
+  color: #647366;
+}
+.mp-catalog-tools select,
+.mp-catalog-tools input {
+  min-width: 0;
+  padding: 11px 13px;
+  border: 1px solid #d6ddcf;
+  border-radius: 9px;
+  background: #fffef8;
+  color: #2d4838;
+  font: inherit;
+  font-size: 14px;
+}
+.mp-catalog-tools .mp-search {
+  flex: 1;
+}
+.mp-search input {
+  width: 100%;
+}
+.mp-catalog-help {
+  color: #65705f;
+  font-size: 13px;
+  line-height: 1.9;
+  margin-bottom: 24px;
+}
+.mp-station-sources {
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #dcded1;
+}
+.mp-station-sources > span {
+  font-size: 12px;
+  color: #627361;
+}
+.mp-station-sources a {
+  display: block;
+  position: relative;
+  padding: 12px 22px 12px 0;
+  font-size: 14px;
+  color: #2c5746;
+  line-height: 1.7;
+}
+.mp-station-sources small {
+  display: block;
+  color: #79846f;
+  font-size: 12px;
+}
+.mp-station-sources svg {
+  position: absolute;
+  top: 17px;
+  right: 0;
+}
+@media (max-width: 620px) {
+  .mp-catalog-tools {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .mp-catalog-tools select {
+    flex: 1;
+    width: 0;
   }
 }

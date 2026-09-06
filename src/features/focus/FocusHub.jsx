@@ -16,6 +16,7 @@ import {
 import oldLessons from "../../data/lessons.json";
 import { subjectById } from "../../data/subjects.js";
 import { emptyFocusState } from "../../lib/focus-state.js";
+import { memoryLinksForUnits } from "../../lib/memory.js";
 import {
   focusExamDate,
   focusStudyMinutes,
@@ -85,6 +86,29 @@ function UnitRow({ unit, data, state, today, review = false }) {
         <ArrowRight size={17} />
       </span>
     </a>
+  );
+}
+
+function UnitMemoryLinks({ unit, data }) {
+  const links = memoryLinksForUnits(data, [unit.id]);
+  if (!links.length) return null;
+  return (
+    <aside className="focus-memory-links" aria-label="本考点的记忆场景">
+      <strong>条件总记混？到场景里走一遍。</strong>
+      <p>先记这一站，再返回本考点闭卷复述和做题。场景学习包含在本组时间里。</p>
+      {links.map(({ palace, stations }) => (
+        <a
+          key={palace.id}
+          href={`#/focus/memory/${palace.id}?station=${stations[0].id}`}
+        >
+          <span>
+            {palace.title}
+            <small>{stations.map((s) => s.place).join(" → ")}</small>
+          </span>
+          <ArrowRight size={17} />
+        </a>
+      ))}
+    </aside>
   );
 }
 
@@ -170,7 +194,7 @@ export default function FocusHub({
         <Suspense
           fallback={<p className="memory-loading">正在打开记忆宫殿……</p>}
         >
-          <MemoryPalaces {...{ data, state, update, today, route }} />
+          <MemoryPalaces {...{ data, state, update, today, route, focusDay }} />
         </Suspense>
       ) : current === "plan" ? (
         <FocusPlan {...{ data, state, today }} baseSpent={day.spentTime} />
@@ -379,6 +403,10 @@ function FocusToday({ data, state, update, today, focusDay: p, day }) {
             <li>逐项判断选择题，写出错项错在哪里。</li>
             <li>第二天撤掉提示，再答一次。</li>
           </ol>
+          <p>
+            某组条件难记时，从考点页进入对应场景，走完回到该考点做题。只学当天用到的位置。
+          </p>
+          <a href="#/focus/memory">查看今日记忆推荐 →</a>
           <hr />
           <h3>其他科目保持手感</h3>
           <p>
@@ -845,6 +873,7 @@ function FocusUnit({ unit, data, state, update, today }) {
             </div>
           </article>
           <FocusSource {...{ unit, data }} />
+          <UnitMemoryLinks {...{ unit, data }} />
           <div className="focus-actions">
             <span>先说清规则，再记限定词。</span>
             <button onClick={() => patch({ phase: "recall", revealed: false })}>
@@ -1089,6 +1118,7 @@ function FocusUnit({ unit, data, state, update, today }) {
             </a>
           </div>
           <FocusSource {...{ unit, data }} />
+          <UnitMemoryLinks {...{ unit, data }} />
         </section>
       )}
     </div>
@@ -1110,6 +1140,9 @@ function FocusPlan({ data, state, today, baseSpent = 0 }) {
         <h2>前五天抓重点，最后两天反复测。</h2>
         <p>
           按每天可用时间安排，先复习到期错点，再增加新考点。表中是依据当前记录推算的任务，完成后会更新。
+        </p>
+        <p>
+          记忆宫殿跟着当天考点走：难记时看对应位置，随即关图复述。无需另外通关整座宫殿，也不额外增加每天的任务量。
         </p>
         <button className="secondary" onClick={() => window.print()}>
           打印背诵计划
@@ -1170,6 +1203,17 @@ function FocusPlan({ data, state, today, baseSpent = 0 }) {
                     <li key={u.id}>
                       <a href={link(u.id)}>{u.title}</a>
                       <span>{focusStudyMinutes(u, state)}分钟</span>
+                      {memoryLinksForUnits(data, [u.id])
+                        .slice(0, 1)
+                        .map(({ palace, stations }) => (
+                          <a
+                            className="focus-plan-memory"
+                            key={palace.id}
+                            href={`#/focus/memory/${palace.id}?station=${stations[0].id}`}
+                          >
+                            记忆场景 ↗
+                          </a>
+                        ))}
                     </li>
                   ))}
                 </ul>

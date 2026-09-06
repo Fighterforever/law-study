@@ -23,9 +23,11 @@ test("刷新备份保留乱序、草稿和提示，旧记录无练习草稿仍�
   assert.ok(validMemorySession(undefined));
 });
 
-test("未自评不能换站，换站清除提示和勾选但保留本轮结果", () => {
+test("规则与变式均自评后才能换站，换站清除提示但保留本轮结果", () => {
   const first = createMemorySession("focus-company", [2, 0], "random");
   assert.equal(advanceMemorySession(first), first);
+  const ruleOnly = { ...first, quality: "exact" };
+  assert.equal(advanceMemorySession(ruleOnly), ruleOnly);
   const graded = {
     ...first,
     notes: "本题草稿",
@@ -54,7 +56,11 @@ test("未自评不能换站，换站清除提示和勾选但保留本轮结果",
   assert.equal(next.transferQuality, "");
   assert.deepEqual(next.results, graded.results);
   assert.equal(
-    advanceMemorySession({ ...next, quality: "exact" }).phase,
+    advanceMemorySession({
+      ...next,
+      quality: "exact",
+      transferQuality: "partial",
+    }).phase,
     "summary",
   );
   assert.equal(createMemorySession("focus-company", [0], "cued").hintLevel, 1);
@@ -105,6 +111,13 @@ test("每个现有记忆位置都有对应动作、条件清单和变式，不�
     new Set(Object.values(scenes).map((s) => s.file)).size,
     data.palaces.length,
   );
+  const linkedUnits = new Set(data.palaces.flatMap((p) => p.unitIds));
+  for (const unit of data.units.filter((u) =>
+    ["focus-theory-supplement-1", "focus-criminal-supplement-2"].includes(
+      u.paperId,
+    ),
+  ))
+    assert.ok(linkedUnits.has(unit.id), `${unit.id} 补充考点缺少场景入口`);
   for (const palace of data.palaces) {
     const guide = guides[palace.id];
     const scene = scenes[palace.id];
@@ -128,10 +141,22 @@ test("每个现有记忆位置都有对应动作、条件清单和变式，不�
       Object.keys(guide.stations).sort(),
       palace.stations.map((s) => s.id).sort(),
     );
+    if (palace.stations.some((s) => s.unitIds)) {
+      assert.deepEqual(
+        [...new Set(palace.stations.flatMap((s) => s.unitIds))].sort(),
+        [...palace.unitIds].sort(),
+        `${palace.id} 的考点入口必须有对应位置`,
+      );
+      for (const station of palace.stations)
+        assert.ok(
+          station.unitIds.length &&
+            station.unitIds.every((id) => palace.unitIds.includes(id)),
+        );
+    }
     for (const station of palace.stations) {
       const detail = guide.stations[station.id];
       assert.ok(detail.cue && detail.action && detail.trap);
-      assert.ok(detail.checks.length > 0 && detail.checks.length <= 3);
+      assert.ok(detail.checks.length > 0 && detail.checks.length <= 4);
       assert.ok(
         detail.checks.every((c) => typeof c === "string" && c.length > 0),
       );

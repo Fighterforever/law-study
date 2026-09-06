@@ -21,7 +21,7 @@ function stationDraft(mode) {
   };
 }
 export function advanceMemorySession(session) {
-  if (!session.quality) return session;
+  if (!session.quality || !session.transferQuality) return session;
   return session.index + 1 === session.order.length
     ? { ...session, phase: "summary" }
     : { ...session, index: session.index + 1, ...stationDraft(session.mode) };

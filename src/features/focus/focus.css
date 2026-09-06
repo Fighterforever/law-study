@@ -1262,3 +1262,45 @@
     grid-template-columns: 1fr;
   }
 }
+
+.focus-memory-links {
+  margin: 24px 0;
+  padding: 20px 24px;
+  border: 1px solid #d6ded2;
+  border-radius: 16px;
+  background: #f0f4eb;
+  text-align: left;
+}
+.focus-memory-links > strong {
+  font-size: 17px;
+  color: #274c3c;
+}
+.focus-memory-links > p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #5b6d60;
+}
+.focus-memory-links > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #d6ded2;
+  color: #274c3c;
+}
+.focus-memory-links small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #637166;
+}
+.focus-memory-links svg {
+  flex-shrink: 0;
+}
+.focus-plan-memory {
+  font-size: 12px;
+  white-space: nowrap;
+  color: #42745a;
+}

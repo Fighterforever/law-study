@@ -7,6 +7,8 @@ import {
   palaceProgress,
   makeMemoryQueue,
   saveMemoryRating,
+  memoryLinksForUnits,
+  memoryStudySuggestion,
 } from "./memory.js";
 
 const today = "2026-09-06";
@@ -19,6 +21,72 @@ const rating = (date, quality = "exact", assisted = false) => ({
   date,
   quality,
   assisted,
+});
+
+test("宫殿入口定位关联站点；推荐跟随今日考点，优先续练与隔日复测", () => {
+  const data = {
+    palaces: [
+      { id: "old", unitIds: ["old-unit"], stations: [{ id: "door" }] },
+      {
+        id: "new",
+        unitIds: ["a", "b"],
+        stations: [
+          { id: "a-stop", unitIds: ["a"] },
+          { id: "b-stop", unitIds: ["b"] },
+        ],
+      },
+    ],
+  };
+  const state = initialState(today);
+  const day = { paused: false, remaining: 6, review: [], learn: [{ id: "b" }] };
+  assert.deepEqual(
+    memoryLinksForUnits(data, ["b"])[0].stations.map((s) => s.id),
+    ["b-stop"],
+  );
+  assert.equal(memoryLinksForUnits(data, ["missing"]).length, 0);
+  assert.equal(
+    memoryLinksForUnits(data, ["old-unit"])[0].stations[0].id,
+    "door",
+  );
+  const next = memoryStudySuggestion(data, state, today, examDate, day);
+  assert.equal(next.palace.id, "new");
+  assert.equal(next.station.id, "b-stop");
+  assert.equal(
+    memoryStudySuggestion(data, state, today, examDate, {
+      ...day,
+      remaining: 2,
+    }),
+    null,
+  );
+  state.focus.palace["old-door"] = rating("2026-09-05");
+  assert.equal(
+    memoryStudySuggestion(data, state, today, examDate, day).kind,
+    "review",
+  );
+  delete state.focus.palace["old-door"];
+  state.focus.palace["new-a-stop"] = rating("2026-09-05");
+  assert.deepEqual(
+    memoryStudySuggestion(data, state, today, examDate, {
+      ...day,
+      remaining: 2,
+    }).order,
+    [0],
+    "到期推荐只抽已学位置，不能顺带追加同场景的全新站",
+  );
+  state.focus.memorySession = {
+    palaceId: "new",
+    phase: "recall",
+    index: 0,
+    order: [1],
+  };
+  assert.equal(
+    memoryStudySuggestion(data, state, today, examDate, day).kind,
+    "resume",
+  );
+  assert.equal(
+    memoryStudySuggestion(data, state, examDate, examDate, day),
+    null,
+  );
 });
 
 test("闭卷通过只说明本次表现，次日复测；提示和漏项保持待修补", () => {

@@ -1,5 +1,7 @@
 .memory-scene {
   --scene-accent: #557666;
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
   overflow: hidden;
   border: 1px solid #dcd5c5;
@@ -32,6 +34,7 @@
   color: var(--scene-accent);
 }
 .memory-scene-heading strong {
+  overflow-wrap: anywhere;
   font-family: var(--serif, "Songti SC", serif);
   color: #373f37;
   font-size: clamp(19px, 2.1vw, 27px);
@@ -85,6 +88,7 @@
     box-shadow 0.15s;
 }
 .memory-map-marker.active {
+  z-index: 2;
   background: var(--scene-accent);
   border-color: #fffbe9;
   box-shadow:
@@ -96,6 +100,51 @@
 }
 .memory-map-static {
   pointer-events: none;
+}
+.memory-illustration--study .memory-map-marker:not(.active) {
+  opacity: 0.62;
+  box-shadow: 0 2px 7px #1117;
+}
+.memory-illustration--study .memory-map-marker:hover,
+.memory-illustration--study .memory-map-marker:focus-visible {
+  opacity: 1;
+}
+.memory-object-label {
+  --label-inset: min(122px, 50%);
+  position: absolute;
+  left: clamp(
+    var(--label-inset),
+    var(--object-x),
+    calc(100% - var(--label-inset))
+  );
+  z-index: 3;
+  display: grid;
+  gap: 3px;
+  width: max-content;
+  max-width: min(220px, calc(100% - 24px));
+  padding: 9px 13px;
+  border: 1px solid #fff7e6;
+  border-radius: 9px;
+  background: #fffaf0f5;
+  box-shadow: 0 4px 18px #172a344d;
+  color: #293d35;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.memory-object-label--above {
+  transform: translate(-50%, calc(-100% - 32px));
+}
+.memory-object-label--below {
+  transform: translate(-50%, 32px);
+}
+.memory-object-label > span {
+  font-size: 10px;
+  color: var(--scene-accent);
+}
+.memory-object-label > strong {
+  font-size: 14px;
+  font-weight: 600;
 }
 .memory-scene-toolbar {
   display: flex;
@@ -137,6 +186,11 @@
   align-items: center;
   gap: 14px;
 }
+.memory-scene-caption > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .memory-scene-current {
   display: grid;
   place-items: center;
@@ -173,10 +227,51 @@
   line-height: 1.8;
   color: #72786a;
 }
+.memory-anchor {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #e0dacb;
+}
+.memory-anchor-label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--scene-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.memory-anchor p {
+  margin: 0;
+  color: #38483f;
+  font-size: 14px;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+.memory-anchor-distinction {
+  border-left: 3px solid var(--scene-accent);
+  padding: 3px 0 3px 13px;
+}
+.memory-picture-recall {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #e0dacb;
+}
+.memory-picture-recall p {
+  margin: 8px 0 18px;
+  color: #293d35;
+  font-size: 16px;
+  line-height: 1.9;
+}
+.memory-picture-recall button {
+  width: 100%;
+  font-size: 14px;
+}
 .memory-scene-stops {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+  margin-top: 18px;
 }
 .memory-scene-stops button {
   display: flex;
@@ -242,6 +337,18 @@
       0 2px 10px #1118,
       0 0 0 3px #fff6df8c;
   }
+  .memory-object-label {
+    --label-inset: min(97px, 50%);
+    max-width: min(170px, calc(100% - 24px));
+    gap: 2px;
+    padding: 7px 9px;
+  }
+  .memory-object-label > strong {
+    font-size: 12px;
+  }
+  .memory-object-label > span {
+    display: none;
+  }
   .memory-scene-toolbar {
     padding: 8px;
     gap: 2px;
@@ -273,6 +380,15 @@
   }
   .memory-scene-instruction {
     font-size: 12px;
+  }
+  .memory-anchor {
+    gap: 14px;
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+  .memory-anchor p {
+    font-size: 13px;
+    line-height: 1.8;
   }
 }
 @media (prefers-reduced-motion: reduce) {
