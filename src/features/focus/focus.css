@@ -283,11 +283,14 @@
 }
 .focus-filters {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: center;
   margin: 16px 0 24px;
 }
 .focus-filters select {
+  min-width: 0;
+  max-width: 100%;
   background: #fffefb;
   border: 1px solid #d5dcca;
   border-radius: 6px;
@@ -304,6 +307,16 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 17px;
+}
+.focus-paper-summary {
+  margin: 0 0 20px;
+  color: #617363;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.focus-paper-summary strong {
+  color: var(--green);
+  margin-right: 12px;
 }
 .focus-topic-card {
   background: var(--paper);
@@ -358,12 +371,14 @@
 }
 .focus-card-foot a {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 7px;
   font-weight: 600;
 }
 .focus-card-foot > span {
   color: #77806f;
+  line-height: 1.6;
 }
 .focus-page-index {
   margin-top: 32px;
@@ -1021,7 +1036,8 @@
   .focus-filters select {
     padding: 10px;
     font-size: 12px;
-    max-width: 42%;
+    flex: 1 1 44%;
+    max-width: 100%;
   }
   .focus-library-intro h2 {
     font-size: 23px;

@@ -71,6 +71,8 @@ import {
 } from "./lib/study.js";
 
 const lessonById = Object.fromEntries(lessons.map((l) => [l.id, l]));
+const focusSubjectIds = [...new Set(focusData.units.map((u) => u.subjectId))];
+const focusPageCount = focusData.papers.reduce((n, p) => n + p.pageCount, 0);
 const coverageById = Object.fromEntries(
   coverage.map((s) => [s.subjectId, s.domains]),
 );
@@ -976,17 +978,18 @@ function Library({ state }) {
           </details>
         </div>
       )}
-      {(filter === "all" ||
-        focusData.papers.some((p) => p.subjectId === filter)) && (
+      {(filter === "all" || focusSubjectIds.includes(filter)) && (
         <div className="plain-note">
           <strong>同科补充 · 考前聚焦</strong>
           <p>
-            新增商经知、三国法和民诉的完整聚焦讲解，含与旧册重合点、客观题及记忆路线。
+            聚焦讲解覆盖
+            {focusSubjectIds.map((id) => subjectById[id].name).join("、")}，
+            可按讲义查找规则、旧册重合点和客观题，也可进入场景记忆路线。
           </p>
           <a
             href={`#/focus/library${filter === "all" ? "" : `?subject=${filter}`}`}
           >
-            查看{filter === "all" ? "三科" : subjectById[filter].name}聚焦考点 →
+            查看{filter === "all" ? "全部" : subjectById[filter].name}聚焦考点 →
           </a>
         </div>
       )}
@@ -3158,7 +3161,8 @@ function Sources() {
           道原创客观题、{focusData.palaces.length} 条记忆路线。
         </p>
         <p>
-          在全部考点底部可按67页原讲义逐页定位；重合重点列出旧册同一规则的出处。
+          在全部考点底部可按{focusPageCount}
+          页原讲义逐页定位；重合重点列出旧册同一规则的出处。
         </p>
         <a href="#/focus/library">打开讲义页码索引 →</a>
       </div>
@@ -3225,7 +3229,9 @@ function Sources() {
         <section>
           <h2>资料范围与记录保存</h2>
           <p>
-            本站服务于2026年法考复习。“考前聚焦”逐页整理三份讲义共67页；八科旧课按专题选编，原有八册1666页未逐页审校。规则修正与新法变化写在对应单元，并附法源链接；办理实际案件时请另行核对现行法和司法解释。
+            本站服务于2026年法考复习。“考前聚焦”逐页整理
+            {focusData.papers.length}份讲义共{focusPageCount}
+            页；八科旧课按专题选编，原有八册1666页未逐页审校。规则修正与新法变化写在对应单元，并附法源链接；办理实际案件时请另行核对现行法和司法解释。
           </p>
           <p>
             选择题按预设答案核对，口头复述和宫殿回忆请依参考答案自评。学习记录保存在当前浏览器；清除缓存或更换域名可能丢失记录，请定期导出备份。本站无需登录，暂不提供跨设备同步。

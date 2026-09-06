@@ -127,6 +127,35 @@ test("七日表只预测未来，不改写原始进度；首轮后排隔日复�
   assert.ok(days[1].review.length > 0);
   assert.equal(days.at(-1).learn.length, 0);
 });
+test("当日重点之后补回漏学重点，不被未来重点挤到队尾", () => {
+  const [future, missed, current] = ["future", "missed", "current"].map(
+    (id) => ({ ...unit, id }),
+  );
+  const scheduled = {
+    ...data,
+    units: [future, missed, current],
+    campaign: {
+      ...data.campaign,
+      days: [
+        { date: "2026-09-06", unitIds: [missed.id] },
+        { date: "2026-09-07", unitIds: [current.id] },
+        { date: "2026-09-08", unitIds: [future.id] },
+      ],
+    },
+  };
+  const s = fresh();
+  s.settings.weekday = 80;
+  const before = structuredClone(s);
+  assert.deepEqual(
+    makeFocusDay(scheduled, s, "2026-09-07").learn.map((u) => u.id),
+    [current.id, missed.id],
+  );
+  assert.deepEqual(s, before);
+  s.focus.learned[missed.id] = "2026-09-06";
+  const after = makeFocusDay(scheduled, s, "2026-09-07");
+  assert.ok(!after.learn.some((u) => u.id === missed.id));
+  assert.ok(after.review.some((u) => u.id === missed.id));
+});
 test("旧备份继续可用，新答题草稿、乱序选项与宫殿记录往返完整", () => {
   const legacy = fresh();
   delete legacy.focus;
@@ -221,21 +250,20 @@ test("聚焦内容的页码、原课程链接与客观题评分契约完整", as
     ids = new Set(live.units.map((u) => u.id)),
     questions = new Set();
   assert.equal(ids.size, live.units.length);
+  assert.equal(new Set(live.papers.map((p) => p.id)).size, live.papers.length);
   for (const paper of live.papers) {
     assert.deepEqual(
       paper.readPages,
       Array.from({ length: paper.pageCount }, (_, i) => i + 1),
     );
     const covered = new Set(
-      live.units
-        .filter((u) => u.subjectId === paper.subjectId)
-        .flatMap((u) => u.pages),
+      live.units.filter((u) => u.paperId === paper.id).flatMap((u) => u.pages),
     );
     for (let page = 2; page <= paper.pageCount; page++)
       assert.ok(covered.has(page), `${paper.id} 第${page}页缺少入口`);
   }
   for (const u of live.units) {
-    const paper = live.papers.find((p) => p.subjectId === u.subjectId);
+    const paper = live.papers.find((p) => p.id === u.paperId);
     assert.ok(paper);
     assert.ok(
       u.pages.length > 0 &&
@@ -248,6 +276,13 @@ test("聚焦内容的页码、原课程链接与客观题评分契约完整", as
       `${u.id} 旧课链接`,
     );
     if (u.priority === "core") assert.ok(u.questions.length >= 2);
+    assert.ok(u.questions.length > 0);
+    assert.ok(u.rules.length > 0 && u.recall.answer.length > 0);
+    assert.ok(Number.isInteger(u.estimatedMinutes) && u.estimatedMinutes > 0);
+    if (u.overlap.level === "confirmed") {
+      assert.ok(u.overlap.pdfPages.length > 0, `${u.id} 重合出处`);
+      assert.equal(u.overlap.pdfPages.length, u.overlap.printedPages.length);
+    }
     for (const q of u.questions) {
       assert.ok(!questions.has(q.id));
       questions.add(q.id);
@@ -260,6 +295,7 @@ test("聚焦内容的页码、原课程链接与客观题评分契约完整", as
           ),
       );
       assert.equal(new Set(q.answers).size, q.answers.length);
+      assert.ok(["single", "multiple"].includes(q.type));
       if (q.type === "single") assert.equal(q.answers.length, 1);
     }
   }

@@ -225,11 +225,17 @@ export function makeFocusDay(data, state, date = localDate(), baseSpent = 0) {
   const preferred =
     data.campaign.days.find((d) => d.date === date)?.unitIds || [];
   const preferredUnits = preferred.map((id) => byId.get(id)).filter(Boolean);
+  const earlier = data.campaign.days
+    .filter((d) => d.date < date)
+    .flatMap((d) => d.unitIds);
+  const earlierUnits = earlier.map((id) => byId.get(id)).filter(Boolean);
   const candidates = [
     ...new Set([
       ...preferredUnits.filter((u) => u.priority === "core").map((u) => u.id),
+      ...earlierUnits.filter((u) => u.priority === "core").map((u) => u.id),
       ...data.units.filter((u) => u.priority === "core").map((u) => u.id),
       ...preferred,
+      ...earlier,
       ...data.units.map((u) => u.id),
     ]),
   ]

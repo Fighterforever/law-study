@@ -31,6 +31,13 @@ const MemoryPalaces = lazy(() => import("./memory/MemoryPalaces.jsx"));
 
 const link = (id, review = false) =>
   `#/focus/unit/${id}${review ? "?review" : ""}`;
+const focusSubjects = (data) => [
+  ...new Set(data.units.map((u) => u.subjectId)),
+];
+const unitSource = (unit, data) => {
+  const paper = data.papers.find((p) => p.id === unit.paperId);
+  return `${paper.shortTitle || paper.title} · PDF 第${unit.pages.join("、")}页`;
+};
 const tabs = [
   ["today", "今日冲刺"],
   ["library", "全部考点"],
@@ -55,7 +62,7 @@ const shuffled = (items) => {
 const changeFocus = (update, fn) =>
   update((s) => ({ ...s, focus: fn(s.focus || emptyFocusState()) }));
 
-function UnitRow({ unit, state, today, review = false }) {
+function UnitRow({ unit, data, state, today, review = false }) {
   const progress = focusProgress(unit, state, today);
   return (
     <a className="focus-unit-row" href={link(unit.id, review)}>
@@ -67,7 +74,7 @@ function UnitRow({ unit, state, today, review = false }) {
       </span>
       <div>
         <small>
-          {subjectById[unit.subjectId].name} · 讲义第{unit.pages.join("、")}页
+          {unitSource(unit, data)}
           {unit.overlap.level === "confirmed" ? " · 与背诵卷重合" : ""}
         </small>
         <h3>{unit.title}</h3>
@@ -91,8 +98,10 @@ export function FocusHomeCard({ data, focusDay, state, today }) {
         <span className="eyebrow">新 · 考前聚焦</span>
         <h2>重合考点，先背会、再做对。</h2>
         <p>
-          商经知、三国法、民诉 ·{" "}
-          {data.papers.reduce((n, p) => n + p.pageCount, 0)}页讲义已整理为
+          {focusSubjects(data)
+            .map((id) => subjectById[id].name)
+            .join("、")}{" "}
+          · {data.papers.reduce((n, p) => n + p.pageCount, 0)}页讲义已整理为
           {data.units.length}个考点单元
         </p>
         <small>
@@ -190,9 +199,7 @@ function FocusToday({ data, state, update, today, focusDay: p, day }) {
       {!state.settings.configured && (
         <div className="plain-note">
           <strong>先选复习起点，七日表会随之调整。</strong>
-          <p>
-            民诉比较熟悉时，每组先用约8分钟闭卷查漏；商经知、三国法先看讲解。
-          </p>
+          <p>民诉比较熟悉时，每组先用约8分钟闭卷查漏；其他科目先看讲解。</p>
           <div className="inline-actions">
             <button
               onClick={() =>
@@ -226,7 +233,7 @@ function FocusToday({ data, state, update, today, focusDay: p, day }) {
                 }))
               }
             >
-              三科都从讲解开始
+              各科都从讲解开始
             </button>
           </div>
         </div>
@@ -323,7 +330,12 @@ function FocusToday({ data, state, update, today, focusDay: p, day }) {
                 <span>{p.reviewMinutes}分钟</span>
               </div>
               {p.review.map((u) => (
-                <UnitRow key={u.id} unit={u} {...{ state, today }} review />
+                <UnitRow
+                  key={u.id}
+                  unit={u}
+                  {...{ data, state, today }}
+                  review
+                />
               ))}
             </section>
           )}
@@ -334,7 +346,7 @@ function FocusToday({ data, state, update, today, focusDay: p, day }) {
                 <span>{p.newMinutes}分钟</span>
               </div>
               {p.learn.map((u) => (
-                <UnitRow key={u.id} unit={u} {...{ state, today }} />
+                <UnitRow key={u.id} unit={u} {...{ data, state, today }} />
               ))}
             </section>
           )}
@@ -344,7 +356,12 @@ function FocusToday({ data, state, update, today, focusDay: p, day }) {
               <h3>今天可以先收一收。</h3>
               <p>下面是你的错题和已学考点，按需要复盘。</p>
               {wrong.slice(0, 5).map((u) => (
-                <UnitRow key={u.id} unit={u} {...{ state, today }} review />
+                <UnitRow
+                  key={u.id}
+                  unit={u}
+                  {...{ data, state, today }}
+                  review
+                />
               ))}
             </div>
           )}
@@ -392,21 +409,31 @@ function FocusToday({ data, state, update, today, focusDay: p, day }) {
 }
 
 function FocusLibrary({ data, state, update, today, overlap, route }) {
+  const subjects = focusSubjects(data);
+  const params = new URLSearchParams(route.split("?")[1] || "");
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState(() => {
-    const requested = new URLSearchParams(route.split("?")[1] || "").get(
-      "subject",
-    );
-    return data.papers.some((p) => p.subjectId === requested)
-      ? requested
-      : "all";
+    const requested = params.get("subject");
+    return subjects.includes(requested) ? requested : "all";
+  });
+  const [paper, setPaper] = useState(() => {
+    const requested = params.get("paper");
+    return data.papers.some((p) => p.id === requested) ? requested : "all";
   });
   const [filter, setFilter] = useState("all");
   const f = state.focus || emptyFocusState();
+  const selectedPaper = data.papers.find((p) => p.id === paper);
+  const indexPapers = data.papers.filter(
+    (p) =>
+      (paper === "all" || p.id === paper) &&
+      (subject === "all" ||
+        data.units.some((u) => u.paperId === p.id && u.subjectId === subject)),
+  );
   const list = data.units.filter(
     (u) =>
       (!overlap || u.overlap.level === "confirmed") &&
       (subject === "all" || u.subjectId === subject) &&
+      (paper === "all" || u.paperId === paper) &&
       (filter !== "wrong" || focusProgress(u, state, today).needsRepair) &&
       (filter !== "saved" || f.bookmarks.includes(u.id)) &&
       (filter !== "new" || !f.learned[u.id]) &&
@@ -432,7 +459,7 @@ function FocusLibrary({ data, state, update, today, overlap, route }) {
         <div className="focus-cross-groups">
           {(data.crossGroups || []).map((group) => (
             <section key={group.id}>
-              <span className="eyebrow">两份考前聚焦也重合</span>
+              <span className="eyebrow">不同聚焦讲义中的同一规则</span>
               <h3>{group.title}</h3>
               <p>{group.rule}</p>
               <small>同一规则先理解一遍，再换案情闭卷做题。</small>
@@ -466,12 +493,46 @@ function FocusLibrary({ data, state, update, today, overlap, route }) {
         <select
           aria-label="筛选学科"
           value={subject}
-          onChange={(e) => setSubject(e.target.value)}
+          onChange={(e) => {
+            const next = e.target.value;
+            setSubject(next);
+            if (
+              next !== "all" &&
+              paper !== "all" &&
+              !data.units.some(
+                (u) => u.subjectId === next && u.paperId === paper,
+              )
+            )
+              setPaper("all");
+          }}
         >
-          <option value="all">三科全部</option>
+          <option value="all">全部学科</option>
+          {subjects.map((id) => (
+            <option key={id} value={id}>
+              {subjectById[id].name}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="筛选讲义"
+          value={paper}
+          onChange={(e) => {
+            const next = e.target.value;
+            setPaper(next);
+            if (
+              next !== "all" &&
+              subject !== "all" &&
+              !data.units.some(
+                (u) => u.paperId === next && u.subjectId === subject,
+              )
+            )
+              setSubject("all");
+          }}
+        >
+          <option value="all">全部讲义</option>
           {data.papers.map((p) => (
-            <option key={p.id} value={p.subjectId}>
-              {subjectById[p.subjectId].name}
+            <option key={p.id} value={p.id}>
+              {p.shortTitle || p.title}
             </option>
           ))}
         </select>
@@ -487,6 +548,12 @@ function FocusLibrary({ data, state, update, today, overlap, route }) {
         </select>
         <span>{list.length}个考点</span>
       </div>
+      {selectedPaper && (
+        <p className="focus-paper-summary">
+          <strong>{selectedPaper.shortTitle || selectedPaper.title}</strong>
+          {selectedPaper.summary}
+        </p>
+      )}
       <div className="focus-card-grid">
         {list.map((u) => (
           <article className="focus-topic-card" key={u.id}>
@@ -522,7 +589,7 @@ function FocusLibrary({ data, state, update, today, overlap, route }) {
             )}
             <div className="focus-card-foot">
               <span>
-                讲义{u.pages.join("、")}页 · {u.estimatedMinutes}分钟
+                {unitSource(u, data)} · {u.estimatedMinutes}分钟
               </span>
               <a href={link(u.id, f.learned[u.id])}>
                 {f.learned[u.id] ? "再次复测" : "开始学习"}
@@ -541,15 +608,15 @@ function FocusLibrary({ data, state, update, today, overlap, route }) {
       <details className="focus-page-index">
         <summary>
           按原讲义页码查找 · 共
-          {data.papers.reduce((n, p) => n + p.pageCount, 0)}页
+          {indexPapers.reduce((n, p) => n + p.pageCount, 0)}页
         </summary>
-        {data.papers.map((p) => (
+        {indexPapers.map((p) => (
           <section key={p.id}>
             <h3>{p.title}</h3>
             {Array.from({ length: p.pageCount }, (_, i) => i + 1).map(
               (page) => {
                 const units = data.units.filter(
-                  (u) => u.subjectId === p.subjectId && u.pages.includes(page),
+                  (u) => u.paperId === p.id && u.pages.includes(page),
                 );
                 return (
                   <div key={page}>
@@ -577,7 +644,7 @@ function FocusLibrary({ data, state, update, today, overlap, route }) {
 }
 
 function FocusSource({ unit, data }) {
-  const paper = data.papers.find((p) => p.subjectId === unit.subjectId);
+  const paper = data.papers.find((p) => p.id === unit.paperId);
   return (
     <details className="focus-source">
       <summary>
@@ -585,13 +652,16 @@ function FocusSource({ unit, data }) {
         讲义出处与旧册重合点
       </summary>
       <p>
-        {paper.title} · PDF {unit.pages.join("、")}页 · 印刷{" "}
-        {unit.printedPages.join("、")}页
+        {paper.title} · PDF 第{unit.pages.join("、")}页
+        {unit.printedPages.length > 0 &&
+          ` · 印刷第${unit.printedPages.join("、")}页`}
       </p>
       <p>
-        {unit.overlap.book} · PDF{" "}
-        {unit.overlap.pdfPages.join("、") || "见对应章节"}页 · 印刷{" "}
-        {unit.overlap.printedPages.join("、") || "见对应章节"}页
+        {unit.overlap.book}
+        {unit.overlap.pdfPages.length > 0 &&
+          ` · PDF 第${unit.overlap.pdfPages.join("、")}页`}
+        {unit.overlap.printedPages.length > 0 &&
+          ` · 印刷第${unit.overlap.printedPages.join("、")}页`}
       </p>
       <p>{unit.overlap.reason}</p>
       {unit.overlap.lessonIds.map((id) => (
@@ -715,7 +785,7 @@ function FocusUnit({ unit, data, state, update, today }) {
       </a>
       <header className="focus-unit-heading">
         <p className="eyebrow">
-          {subjectById[unit.subjectId].name} · 讲义第{unit.pages.join("、")}页 ·{" "}
+          {unitSource(unit, data)} ·{" "}
           {mode === "review"
             ? "隔日复测"
             : `约${focusStudyMinutes(unit, state)}分钟`}
