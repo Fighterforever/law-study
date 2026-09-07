@@ -390,20 +390,20 @@ function PalaceStudy({
     if (scroll && window.matchMedia("(max-width: 1200px)").matches)
       requestAnimationFrame(() =>
         document
-          .getElementById("mp-station")
+          .getElementById("mp-scene")
           ?.scrollIntoView({ block: "start", behavior: "instant" }),
       );
   };
   const backToGuide = () => {
     if (session && session.phase !== "summary")
       select(session.order[session.index]);
-    if (session && !session.quality && view === "practice")
+    if (session && !session.transferQuality && view === "practice")
       setSession(update, (old) => ({ ...old, hintLevel: 2 }));
     setView("guide");
   };
   const continueRecall = () => {
     if (!session) return start("random");
-    if (view === "guide" && !session.quality)
+    if (view === "guide" && !session.transferQuality)
       setSession(update, (old) => ({ ...old, hintLevel: 2 }));
     setView("practice");
   };
@@ -533,22 +533,25 @@ function PalaceStudy({
             <div className="mp-orientation">
               <Footprints size={20} />
               <div>
-                <strong>先站在这里</strong>
-                <p>{g.setting}</p>
                 <button
                   className="mp-text-button"
                   onClick={() => setWalkOpen(!walkOpen)}
                   aria-expanded={walkOpen}
                 >
-                  {walkOpen ? "收起走法" : "看一遍完整走法"}
+                  {walkOpen ? "收起路线说明" : "第一次来？先熟悉路线"}
                   <ChevronRight size={15} />
                 </button>
-                {walkOpen && <p className="mp-walkthrough">{g.walkthrough}</p>}
+                {walkOpen && (
+                  <>
+                    <p>{g.setting}</p>
+                    <p className="mp-walkthrough">{g.walkthrough}</p>
+                  </>
+                )}
               </div>
             </div>
           )}
           <div className="mp-learning-layout">
-            <div className="mp-scene-column">
+            <div className="mp-scene-column" id="mp-scene">
               <MemoryScene
                 palace={p}
                 anchor={guideCovered ? undefined : detail}
@@ -586,11 +589,11 @@ function PalaceStudy({
                       key={s.id}
                       className={`${i === index ? "active" : ""} ${r.status}`}
                       aria-current={i === index ? "step" : undefined}
-                      title={s.place}
+                      title={guideCovered ? `第 ${i + 1} 站` : s.place}
                     >
                       <b>{i + 1}</b>
                       <span>
-                        {guideCovered ? s.place : g.stations[s.id].cue}
+                        {guideCovered ? `第 ${i + 1} 站` : g.stations[s.id].cue}
                       </span>
                       {r.status === "ready" && <Check size={12} />}
                     </button>
@@ -612,7 +615,11 @@ function PalaceStudy({
                   <span>
                     {guideCovered ? "看着物件，把条件说出来" : "把这个位置记牢"}
                   </span>
-                  <h3>{station.place}</h3>
+                  <h3>
+                    {guideCovered
+                      ? `第 ${index + 1} 站 · 凭图回忆`
+                      : station.place}
+                  </h3>
                 </div>
               </div>
               {!guideCovered && (
@@ -635,8 +642,10 @@ function PalaceStudy({
                 </>
               )}
               {!guideCovered && station.unitIds && (
-                <div className="mp-station-sources">
-                  <span>这一站对应的考点</span>
+                <details className="mp-station-sources">
+                  <summary>
+                    本站考点与客观题 · {station.unitIds.length}组
+                  </summary>
                   {station.unitIds.map((id) => {
                     const unit = data.units.find((u) => u.id === id);
                     return (
@@ -653,7 +662,7 @@ function PalaceStudy({
                       </a>
                     );
                   })}
-                </div>
+                </details>
               )}
               <div className="mp-station-move">
                 <button
@@ -779,44 +788,26 @@ function Practice({
       assisted,
       transferQuality: "",
     };
+    setSession(update, (old) => ({
+      ...old,
+      quality,
+      transferOpen: true,
+      results: [
+        ...old.results.filter((r) => r.stationId !== station.id),
+        result,
+      ],
+    }));
+  }
+  function gradeTransfer(quality) {
+    if (s.transferQuality) return;
     update((old) => {
       const next = saveMemoryRating(
         old,
         p,
         station,
-        { quality, assisted },
+        { quality: quality === "partial" ? "partial" : s.quality, assisted },
         today,
       );
-      return {
-        ...next,
-        focus: {
-          ...next.focus,
-          memorySession: {
-            ...next.focus.memorySession,
-            quality,
-            transferOpen: true,
-            results: [
-              ...s.results.filter((r) => r.stationId !== station.id),
-              result,
-            ],
-          },
-        },
-      };
-    });
-  }
-  function gradeTransfer(quality) {
-    if (s.transferQuality) return;
-    update((old) => {
-      const next =
-        quality === "partial"
-          ? saveMemoryRating(
-              old,
-              p,
-              station,
-              { quality: "partial", assisted },
-              today,
-            )
-          : old;
       return {
         ...next,
         focus: {
@@ -826,7 +817,7 @@ function Practice({
             transferQuality: quality,
             results: s.results.map((r) =>
               r.stationId === station.id
-                ? { ...r, transferQuality: quality }
+                ? { ...r, assisted, transferQuality: quality }
                 : r,
             ),
           },
@@ -1074,13 +1065,17 @@ function Practice({
                 <div className="mp-saved" role="status">
                   <CheckCircle2 size={19} />
                   <span>
-                    {s.quality === "exact"
-                      ? assisted
-                        ? "借助线索说全了，下次撤掉提示。"
-                        : "本次闭卷说全了，结果已保存。"
-                      : s.quality === "partial"
-                        ? "漏项已记下，薄弱点练习会优先抽到。"
-                        : "已加入薄弱点，回到场景重新串起来。"}
+                    {!s.transferQuality
+                      ? "本轮自评已保存，完成下方变式后记录本站结果。"
+                      : s.transferQuality === "partial"
+                        ? "变式还会混淆，已记入薄弱点。"
+                        : s.quality === "exact"
+                          ? assisted
+                            ? "借助线索说全了，下次撤掉提示。"
+                            : "规则和变式都说全了，本次闭卷结果已保存。"
+                          : s.quality === "partial"
+                            ? "规则仍有漏项，已记入薄弱点。"
+                            : "已加入薄弱点，回到场景重新串起来。"}
                   </span>
                 </div>
                 <div className="mp-trap">

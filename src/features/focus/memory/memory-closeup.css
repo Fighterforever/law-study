@@ -1,0 +1,123 @@
+.memory-closeup {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  background: #e9e6db;
+}
+.memory-closeup > img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  object-fit: fill;
+  pointer-events: none;
+}
+.memory-comparison-visual {
+  display: flex;
+  align-items: center;
+  background: #e9e6db;
+}
+.memory-camera-position {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 12px 20px;
+  margin: 0;
+  color: #56695c;
+  background: #f3f2e8;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.memory-camera-position svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.memory-comparison-switch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  background: #f3f2e8;
+  color: #7a8775;
+}
+.memory-comparison-switch button {
+  display: block;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #d1d8c8;
+  background: #fffdf6;
+  color: #4c5d50;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.memory-comparison-switch button[aria-pressed="true"] {
+  border-color: var(--scene-accent);
+  background: #e9eee3;
+  box-shadow: inset 0 -3px var(--scene-accent);
+}
+.memory-comparison-switch button > span {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 11px;
+  font-weight: 400;
+  color: #788371;
+}
+.memory-comparison-question {
+  padding: 22px;
+}
+.memory-comparison-fact {
+  margin: 0 0 18px;
+  line-height: 1.9;
+  font-size: 14px;
+  color: #445646;
+}
+.memory-comparison-fact > span {
+  display: block;
+  color: #7c846e;
+  font-size: 11px;
+}
+.memory-comparison-question h4 {
+  margin: 0 0 18px;
+  color: #2d4e3b;
+  line-height: 1.8;
+  font-size: 16px;
+}
+.memory-comparison-explanation {
+  padding: 16px;
+  border-left: 3px solid var(--scene-accent);
+  background: #eef2e8;
+}
+.memory-comparison-explanation strong {
+  color: #526e56;
+  font-size: 12px;
+}
+.memory-comparison-explanation p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.memory-comparison-question > small {
+  display: block;
+  margin-top: 18px;
+  color: #7d856f;
+  font-size: 11px;
+  line-height: 1.8;
+}
+@media (max-width: 620px) {
+  .memory-comparison-switch {
+    gap: 6px;
+    padding: 10px;
+  }
+  .memory-comparison-switch button {
+    padding: 9px;
+    font-size: 12px;
+  }
+  .memory-comparison-question {
+    padding: 18px;
+  }
+  .memory-camera-position {
+    padding: 10px 15px;
+  }
+}

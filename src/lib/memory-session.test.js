@@ -83,7 +83,7 @@ test("导入拒绝重复或越界队列和错误评分，避免损坏续练", ()
   }
 });
 
-test("每个现有记忆位置都有对应动作、条件清单和变式，不遗漏或串站", () => {
+test("每个现有记忆位置都有动作、条件、近景和变式，不遗漏或串站", () => {
   const data = JSON.parse(
     readFileSync(new URL("../data/focus.json", import.meta.url), "utf8"),
   );
@@ -111,6 +111,19 @@ test("每个现有记忆位置都有对应动作、条件清单和变式，不�
     new Set(Object.values(scenes).map((s) => s.file)).size,
     data.palaces.length,
   );
+  const closeups = JSON.parse(
+    readFileSync(
+      new URL("../features/focus/memory/station-art.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  assert.deepEqual(
+    Object.keys(closeups).sort(),
+    data.palaces.map((p) => p.id).sort(),
+    "每条路线都必须有近景图集，不能遗漏或保留无对应路线的数据",
+  );
+  const hasText = (value) =>
+    typeof value === "string" && value.trim().length > 0;
   const linkedUnits = new Set(data.palaces.flatMap((p) => p.unitIds));
   for (const unit of data.units.filter((u) =>
     ["focus-theory-supplement-1", "focus-criminal-supplement-2"].includes(
@@ -121,6 +134,76 @@ test("每个现有记忆位置都有对应动作、条件清单和变式，不�
   for (const palace of data.palaces) {
     const guide = guides[palace.id];
     const scene = scenes[palace.id];
+    const closeup = closeups[palace.id];
+    assert.ok(hasText(closeup.file), `${palace.id} 缺少近景图集文件名`);
+    assert.ok(
+      existsSync(
+        new URL(
+          `../../public/memory-stations/${closeup.file}`,
+          import.meta.url,
+        ),
+      ),
+      `${palace.id} 的近景图集文件不存在`,
+    );
+    assert.equal(closeup.columns, 2);
+    assert.ok(
+      [closeup.rows, closeup.width, closeup.height].every(
+        (value) => Number.isInteger(value) && value > 0,
+      ),
+      `${palace.id} 的近景图集行数与尺寸必须为正整数`,
+    );
+    assert.deepEqual(
+      Object.keys(closeup.stations).sort(),
+      palace.stations.map((s) => s.id).sort(),
+      `${palace.id} 的近景必须与现有站点一一对应`,
+    );
+    assert.ok(
+      palace.stations.some((s) => s.id === closeup.contrast.stationId),
+      `${palace.id} 的近景对照须指向现有站点`,
+    );
+    for (const field of [
+      "before",
+      "after",
+      "question",
+      "explanation",
+      "beforeLabel",
+      "afterLabel",
+    ])
+      assert.ok(
+        hasText(closeup.contrast[field]),
+        `${palace.id} 的近景对照缺少 ${field}`,
+      );
+    const frames = [
+      ...Object.values(closeup.stations).map((s) => s.frame),
+      closeup.contrast.frame,
+    ];
+    assert.ok(
+      frames.every(
+        (frame) =>
+          Number.isInteger(frame) &&
+          frame >= 0 &&
+          frame < closeup.columns * closeup.rows,
+      ),
+      `${palace.id} 的近景帧索引必须为图集范围内的整数`,
+    );
+    assert.equal(
+      new Set(frames).size,
+      frames.length,
+      `${palace.id} 的站点与对照不能共用同一帧`,
+    );
+    for (const frame of frames) {
+      const [x, y, width, height] = closeup.frames[frame];
+      assert.ok(
+        [x, y, width, height].every(Number.isInteger) &&
+          x >= 0 &&
+          y >= 0 &&
+          width > 0 &&
+          height > 0 &&
+          x + width <= closeup.width &&
+          y + height <= closeup.height,
+        `${palace.id} 第 ${frame + 1} 帧必须落在实际图像内`,
+      );
+    }
     assert.ok(
       existsSync(
         new URL(`../../public/memory-scenes/${scene.file}`, import.meta.url),
@@ -155,6 +238,11 @@ test("每个现有记忆位置都有对应动作、条件清单和变式，不�
     }
     for (const station of palace.stations) {
       const detail = guide.stations[station.id];
+      const shot = closeup.stations[station.id];
+      assert.ok(
+        hasText(shot.object) && hasText(shot.viewpoint),
+        `${palace.id}/${station.id} 缺少近景物件或站位说明`,
+      );
       assert.ok(detail.cue && detail.action && detail.trap);
       assert.ok(detail.checks.length > 0 && detail.checks.length <= 4);
       assert.ok(

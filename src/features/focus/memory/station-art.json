@@ -1,0 +1,1760 @@
+{
+  "focus-commercial-palace-loss-chain": {
+    "file": "company-corridor.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 437],
+      [515, 3, 506, 437],
+      [3, 446, 506, 395],
+      [515, 446, 506, 395],
+      [3, 847, 506, 316],
+      [515, 847, 506, 316],
+      [3, 1169, 506, 364]
+    ],
+    "stations": {
+      "ledger": {
+        "frame": 0,
+        "object": "出资账本",
+        "viewpoint": "站在走廊入口账本台外，略俯视经办人的手。"
+      },
+      "letter": {
+        "frame": 1,
+        "object": "催缴信封",
+        "viewpoint": "站在挂号信窗口外，平视柜台和递信的手。"
+      },
+      "calendar": {
+        "frame": 2,
+        "object": "寄件回执与日历",
+        "viewpoint": "站在日历墙旁的窄桌前，略俯视回执。"
+      },
+      "board": {
+        "frame": 3,
+        "object": "董事会决议",
+        "viewpoint": "站在董事会议桌短边，平视签署决议的手。"
+      },
+      "notice": {
+        "frame": 4,
+        "object": "失权通知与股东档案",
+        "viewpoint": "站在走廊终点通知台前，略俯视发件托盘。"
+      },
+      "exit": {
+        "frame": 5,
+        "object": "转让文件与减资档案",
+        "viewpoint": "站在双出口之间的业务桌前，平视两个办事窗口。"
+      }
+    },
+    "contrast": {
+      "stationId": "letter",
+      "before": "股东出资已到期未缴，公司把书面催缴书交寄给股东。",
+      "after": "其他事实不变，只改为公司在电话中催促，未发出书面催缴书。",
+      "question": "仅作电话催促后，能否把书面催缴这一步视为完成？",
+      "explanation": "不能。公司应向到期未缴股东发出书面催缴书，口头催促不能替代。",
+      "beforeLabel": "交寄书面催缴书",
+      "afterLabel": "只作电话催促",
+      "frame": 6
+    }
+  },
+  "focus-commercial-palace-antitrust-numbers": {
+    "file": "market.webp",
+    "columns": 2,
+    "rows": 5,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 336],
+      [515, 3, 506, 336],
+      [3, 345, 506, 306],
+      [515, 345, 506, 306],
+      [3, 657, 506, 305],
+      [515, 657, 506, 305],
+      [3, 968, 506, 283],
+      [515, 968, 506, 283],
+      [3, 1257, 506, 276]
+    ],
+    "stations": {
+      "one": {
+        "frame": 0,
+        "object": "单家销售账簿",
+        "viewpoint": "站在一号摊桌顾客一侧，略俯视账簿。"
+      },
+      "two": {
+        "frame": 1,
+        "object": "两家合并销售报告",
+        "viewpoint": "站在二号摊桌前，略俯视并排的报告。"
+      },
+      "three": {
+        "frame": 2,
+        "object": "三家销售档案",
+        "viewpoint": "站在三号摊桌一端，平视整理档案的手。"
+      },
+      "ten": {
+        "frame": 3,
+        "object": "小摊主个人账本",
+        "viewpoint": "站在市场小门内侧，略俯视分开的账本。"
+      },
+      "unimplemented": {
+        "frame": 4,
+        "object": "尚未执行的协议",
+        "viewpoint": "站在未开张窗口外，平视收起的协议和货物。"
+      },
+      "implemented": {
+        "frame": 5,
+        "object": "违法所得袋与销售账簿",
+        "viewpoint": "站在营业收银台前，略俯视两个不同用途的资料区。"
+      },
+      "aggravated": {
+        "frame": 6,
+        "object": "加重处罚审查案卷",
+        "viewpoint": "站在红色电箱旁的检查桌前，略俯视调查材料。"
+      },
+      "others": {
+        "frame": 7,
+        "object": "协会协议与责任人员档案",
+        "viewpoint": "站在协会办公室侧门的接待桌前，平视递交材料的手。"
+      }
+    },
+    "contrast": {
+      "stationId": "unimplemented",
+      "before": "经营者已达成垄断协议，但尚未按协议开展经营行为。",
+      "after": "其他事实不变，只改为经营者已经开始按协议实施经营行为。",
+      "question": "开始实施后，还能直接套用“达成但尚未实施”的罚款规则吗？",
+      "explanation": "不能。尚未实施时可以处三百万元以下罚款；已经实施，应转入责令停止、没收违法所得及相应罚款规则，不能把两个阶段混用。",
+      "beforeLabel": "协议已达成，尚未实施",
+      "afterLabel": "已按协议开始实施",
+      "frame": 8
+    }
+  },
+  "focus-commercial-palace-insurance-events": {
+    "file": "insurance-house.webp",
+    "columns": 2,
+    "rows": 3,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 506],
+      [515, 3, 506, 506],
+      [3, 515, 506, 506],
+      [515, 515, 506, 506],
+      [3, 1027, 506, 506],
+      [515, 1027, 506, 506]
+    ],
+    "stations": {
+      "intent": {
+        "frame": 0,
+        "object": "黑色告知档案",
+        "viewpoint": "站在玄关黑色文件台前，略俯视核保资料。"
+      },
+      "negligence": {
+        "frame": 1,
+        "object": "灰色告知书与事故报告",
+        "viewpoint": "站在玄关灰色文件台前，平视理赔员核对两份报告。"
+      },
+      "deadlines": {
+        "frame": 2,
+        "object": "合同正本与发现记录",
+        "viewpoint": "站在玄关里面的期间书桌旁，略俯视日期文书。"
+      },
+      "policyholder": {
+        "frame": 3,
+        "object": "已缴保费收据",
+        "viewpoint": "站在致害案件室理赔柜台前，略俯视收据与现金价值资料。"
+      },
+      "suicide": {
+        "frame": 4,
+        "object": "复效批单与理赔档案",
+        "viewpoint": "站在复效档案室书桌前，平视翻开的批单。"
+      }
+    },
+    "contrast": {
+      "stationId": "policyholder",
+      "before": "合同成立三年，投保人已交足两年以上保险费，随后故意造成被保险人死亡。",
+      "after": "其他事实不变，只把缴费情况改为仅交足一年保险费。",
+      "question": "合同都成立三年，现金价值退还条件能否都只按合同年限判断？",
+      "explanation": "不能。本项两年线看已交足保险费的年限。原案符合该缴费条件，按约向其他权利人退还现金价值；变式不能只凭合同成立三年适用这一退还规则。故意致害的保险金不予给付。",
+      "beforeLabel": "已交足两年以上保费",
+      "afterLabel": "只交足一年保费",
+      "frame": 5
+    }
+  },
+  "focus-commercial-palace-labor-dismissal": {
+    "file": "labor-station.webp",
+    "columns": 2,
+    "rows": 3,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 506],
+      [515, 3, 506, 506],
+      [3, 515, 506, 506],
+      [515, 515, 506, 506],
+      [3, 1027, 506, 506],
+      [515, 1027, 506, 506]
+    ],
+    "stations": {
+      "fault": {
+        "frame": 0,
+        "object": "工会通知书",
+        "viewpoint": "站在过错快线人事窗口前，平视通知书交接。"
+      },
+      "notice": {
+        "frame": 1,
+        "object": "培训与调岗记录",
+        "viewpoint": "站在预告慢线服务台前，略俯视人事档案。"
+      },
+      "layoff": {
+        "frame": 2,
+        "object": "裁员花名册",
+        "viewpoint": "站在裁员广场的咨询桌前，略俯视花名册和回执。"
+      },
+      "rehire": {
+        "frame": 3,
+        "object": "重招通知与原职工名册",
+        "viewpoint": "站在回程窗口前，平视经办人拨出通知电话。"
+      },
+      "dispatch": {
+        "frame": 4,
+        "object": "原派遣合同与新岗位书",
+        "viewpoint": "站在派遣换乘窗口外，略俯视两份条件书。"
+      }
+    },
+    "contrast": {
+      "stationId": "fault",
+      "before": "单位设有工会，劳动者存在第39条法定过错；单位先向工会通知解除理由，再办理即时解除。",
+      "after": "其他事实不变，只改为单位跳过事先通知工会，直接向劳动者发解除通知。",
+      "question": "既然可以即时解除，是否就可以省去事先通知工会？",
+      "explanation": "不能。即时解除不要求预告期，也不支付经济补偿；单位有工会的，仍应事先通知工会。",
+      "beforeLabel": "先通知工会",
+      "afterLabel": "直接通知劳动者",
+      "frame": 5
+    }
+  },
+  "focus-commercial-palace-ip-matrix": {
+    "file": "ip-gallery.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 378],
+      [515, 3, 506, 378],
+      [3, 387, 506, 378],
+      [515, 387, 506, 378],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378]
+    ],
+    "stations": {
+      "coauthor": {
+        "frame": 0,
+        "object": "合作作品与许可合同",
+        "viewpoint": "站在合作画厅长桌前，略俯视作品和合同。"
+      },
+      "audiovisual": {
+        "frame": 1,
+        "object": "影片母盘与独立剧本",
+        "viewpoint": "站在放映厅制作桌旁，略俯视剧本手稿。"
+      },
+      "patent": {
+        "frame": 2,
+        "object": "咖啡馆营业用椅",
+        "viewpoint": "站在专利产品展厅的咖啡角桌边，平视椅子和店员的手。"
+      },
+      "license": {
+        "frame": 3,
+        "object": "许可协议与起诉授权",
+        "viewpoint": "站在许可窗口外，略俯视经办人的文件夹。"
+      },
+      "priority": {
+        "frame": 4,
+        "object": "首次申请回执",
+        "viewpoint": "站在优先权书桌前，略俯视申请材料。"
+      },
+      "innocent": {
+        "frame": 5,
+        "object": "进货发票与供货记录",
+        "viewpoint": "站在来源出口核验台前，平视出示发票的手。"
+      }
+    },
+    "contrast": {
+      "stationId": "patent",
+      "before": "咖啡馆只在营业中使用一把受外观设计专利保护的椅子，没有对外出售广告。",
+      "after": "其他事实不变，只增加对外刊登出售该椅子的广告。",
+      "question": "行为从营业中一般使用变成对外许诺销售，外观设计专利的控制范围怎样变化？",
+      "explanation": "外观设计不控制一般使用，但控制许诺销售。刊登出售广告进入许诺销售这一行为类型；侵权责任还须结合许可和法定抗辩等事实判断。",
+      "beforeLabel": "只作营业用椅",
+      "afterLabel": "刊登出售广告",
+      "frame": 6
+    }
+  },
+  "focus-international-palace-countermeasures": {
+    "file": "blocking-tower.webp",
+    "columns": 2,
+    "rows": 3,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 506],
+      [515, 3, 506, 506],
+      [3, 515, 506, 506],
+      [515, 515, 506, 506],
+      [3, 1027, 506, 506]
+    ],
+    "stations": {
+      "registry": {
+        "frame": 0,
+        "object": "外国措施审查卷",
+        "viewpoint": "站在一层登记台外，略俯视会同审查材料。"
+      },
+      "security-door": {
+        "frame": 1,
+        "object": "申请书与同意文书",
+        "viewpoint": "站在二层安全门旁的审批柜台前，平视两份文书。"
+      },
+      "control-room": {
+        "frame": 2,
+        "object": "清单主体与措施档案",
+        "viewpoint": "站在三层控制室案卷桌前，略俯视关联组织资料。"
+      },
+      "court-window": {
+        "frame": 3,
+        "object": "停止侵害请求与损失凭证",
+        "viewpoint": "站在四层法院受理窗口外，平视递交材料的手。"
+      }
+    },
+    "contrast": {
+      "stationId": "security-door",
+      "before": "企业确需执行已公告的外国措施，已经提交申请，并已取得工作机制同意。",
+      "after": "其他事实不变，只改为申请已提交，但尚未取得工作机制同意。",
+      "question": "只提交申请，能否把例外通道的条件视为齐全？",
+      "explanation": "不能。确需执行时，既要申请，还须经工作机制同意；申请与同意不能合成一步。",
+      "beforeLabel": "申请并已获同意",
+      "afterLabel": "仅提交申请",
+      "frame": 4
+    }
+  },
+  "focus-international-palace-no-political-offence": {
+    "file": "extradition-airfield.webp",
+    "columns": 2,
+    "rows": 3,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 506],
+      [515, 3, 506, 506],
+      [3, 515, 506, 506],
+      [515, 515, 506, 506],
+      [3, 1027, 506, 506]
+    ],
+    "stations": {
+      "war-crime": {
+        "frame": 0,
+        "object": "战争罪案卷",
+        "viewpoint": "站在停机坪边档案柜台外，略俯视两份审查材料。"
+      },
+      "humanity": {
+        "frame": 1,
+        "object": "危害人类罪档案",
+        "viewpoint": "站在到达大厅案卷柜前，平视审查员退回单页的手。"
+      },
+      "hijacking": {
+        "frame": 2,
+        "object": "劫机案件记录",
+        "viewpoint": "站在登机廊桥侧边的审查台前，略俯视飞行记录。"
+      },
+      "diplomat": {
+        "frame": 3,
+        "object": "外交证件与案件档案",
+        "viewpoint": "站在贵宾通道旁柜台前，平视证件和案卷。"
+      }
+    },
+    "contrast": {
+      "stationId": "war-crime",
+      "before": "战争罪案件已经排除政治犯罪拒绝理由，案卷继续审查，题目尚未给出其他拒绝引渡事由。",
+      "after": "其他事实不变，只增加一项已经成立的其他法定拒绝引渡事由。",
+      "question": "排除了政治犯罪拒绝理由，是否就可以无视新增的法定拒绝事由而直接引渡？",
+      "explanation": "不能。战争罪不得按政治犯罪理由拒绝，与其他拒绝引渡事由是否成立是两个判断；新增的法定拒绝事由仍须适用。",
+      "beforeLabel": "排除政治犯罪理由，继续审查",
+      "afterLabel": "另有法定拒绝事由成立",
+      "frame": 4
+    }
+  },
+  "focus-international-palace-diplomatic-lists": {
+    "file": "embassy-garden.webp",
+    "columns": 2,
+    "rows": 5,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 377],
+      [515, 3, 506, 377],
+      [3, 386, 506, 339],
+      [515, 386, 506, 339],
+      [3, 731, 506, 291],
+      [515, 731, 506, 291],
+      [3, 1028, 506, 250],
+      [515, 1028, 506, 250],
+      [3, 1284, 506, 249]
+    ],
+    "stations": {
+      "mission-heads": {
+        "frame": 0,
+        "object": "两位馆长任命书",
+        "viewpoint": "站在使馆前门接待桌前，略俯视任命资料。"
+      },
+      "military-attache": {
+        "frame": 1,
+        "object": "武官派遣书",
+        "viewpoint": "站在前庭警卫室柜台外，平视军帽旁的文书。"
+      },
+      "special-mission": {
+        "frame": 2,
+        "object": "特别使团成员名册",
+        "viewpoint": "站在临时会议亭签到桌旁，略俯视成员名单。"
+      },
+      "foreign-national": {
+        "frame": 3,
+        "object": "拟任人员护照",
+        "viewpoint": "站在前庭护照台外，平视翻开的护照。"
+      },
+      "private-real-estate": {
+        "frame": 4,
+        "object": "私人房契",
+        "viewpoint": "站在后院别墅的接待桌前，略俯视房契和起诉材料。"
+      },
+      "inheritance": {
+        "frame": 5,
+        "object": "私人继承文书",
+        "viewpoint": "站在后院遗嘱室桌边，平视翻阅遗嘱的手。"
+      },
+      "side-business": {
+        "frame": 6,
+        "object": "私人网店订单",
+        "viewpoint": "站在馆外商业柜台的顾客一侧，略俯视订单和收银机。"
+      },
+      "counterclaim": {
+        "frame": 7,
+        "object": "本诉与相关反诉文件",
+        "viewpoint": "站在后院法律接待桌前，略俯视并列的诉讼资料。"
+      }
+    },
+    "contrast": {
+      "stationId": "counterclaim",
+      "before": "外交人员主动起诉，对方提出与本诉直接相关的反诉。",
+      "after": "其他事实不变，只把对方反诉改为与本诉不直接相关。",
+      "question": "主动起诉是否会使外交人员对任何反诉都失去民事管辖豁免？",
+      "explanation": "不会。本项针对与本诉直接相关的反诉；变式不能只凭主动起诉，就按这一例外排除对不相关反诉的豁免。",
+      "beforeLabel": "反诉与本诉直接相关",
+      "afterLabel": "反诉与本诉不直接相关",
+      "frame": 8
+    }
+  },
+  "focus-international-palace-direct-application": {
+    "file": "industrial-checkpoints.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 378],
+      [515, 3, 506, 378],
+      [3, 387, 506, 378],
+      [515, 387, 506, 378],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378]
+    ],
+    "stations": {
+      "worker": {
+        "frame": 0,
+        "object": "安全帽与劳动条款",
+        "viewpoint": "站在工地入口检查台前，平视安全帽与合同。"
+      },
+      "food-health": {
+        "frame": 1,
+        "object": "食品样品与检验报告",
+        "viewpoint": "站在温室食品检验台前，略俯视密封样品。"
+      },
+      "environment": {
+        "frame": 2,
+        "object": "排水样品瓶",
+        "viewpoint": "站在污水处理池边的工作台前，平视取样瓶和规范资料。"
+      },
+      "forex": {
+        "frame": 3,
+        "object": "外汇规范与汇款申请",
+        "viewpoint": "站在外汇金库服务窗口前，略俯视结算材料。"
+      },
+      "antitrust": {
+        "frame": 4,
+        "object": "垄断协议审查卷",
+        "viewpoint": "站在竞争审查室门内的桌边，略俯视协议。"
+      },
+      "antidumping": {
+        "frame": 5,
+        "object": "进口货样与反倾销资料",
+        "viewpoint": "站在进口货台前，平视货样和报关资料。"
+      }
+    },
+    "contrast": {
+      "stationId": "forex",
+      "before": "外汇问题已有中国法中符合直接适用条件的强制规范，合同另有选法条款。",
+      "after": "其他事实不变，只把所依据的规范改为银行自行拟定的普通结算条款，题目未给出直接适用的中国强制规范。",
+      "question": "条款都涉及外汇，就能都认定为直接适用规范吗？",
+      "explanation": "不能。外汇只是事项线索，仍须识别中国法中符合条件的强制规范；银行普通结算条款不能替代这一法源与适用条件。",
+      "beforeLabel": "中国法中的直接适用规范",
+      "afterLabel": "银行普通结算条款",
+      "frame": 6
+    }
+  },
+  "focus-international-palace-miga-risks": {
+    "file": "overseas-power.webp",
+    "columns": 2,
+    "rows": 3,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 505, 506],
+      [514, 3, 507, 506],
+      [3, 515, 505, 506],
+      [514, 515, 507, 506],
+      [3, 1027, 505, 506]
+    ],
+    "stations": {
+      "currency": {
+        "frame": 0,
+        "object": "被拒汇款申请",
+        "viewpoint": "站在电站兑换窗口外，平视退回的汇款材料。"
+      },
+      "expropriation": {
+        "frame": 1,
+        "object": "控制室钥匙与接管令",
+        "viewpoint": "站在铜色发电机房的控制台旁，平视钥匙交接。"
+      },
+      "war": {
+        "frame": 2,
+        "object": "战乱损害清单",
+        "viewpoint": "站在防空地下室工作台前，略俯视受损部件与报告。"
+      },
+      "government-breach": {
+        "frame": 3,
+        "object": "违约合同与被阻的申请",
+        "viewpoint": "站在救济接待窗口外，平视合同与关闭的窗口。"
+      }
+    },
+    "contrast": {
+      "stationId": "government-breach",
+      "before": "东道国政府违约，投资者同时无法获得司法或仲裁救济。",
+      "after": "政府违约不变，只改为投资者可以正常获得司法或仲裁救济，且题目没有其他救济障碍。",
+      "question": "政府违约事实相同，能否在两案中都仅凭违约认定本险条件齐全？",
+      "explanation": "不能。政府违约之外，还须核对无法求助司法或仲裁、程序无理拖延或裁决不能执行等救济障碍；变式不能仅凭违约认定全部条件已齐。",
+      "beforeLabel": "违约且救济通道受阻",
+      "afterLabel": "违约但可以正常救济",
+      "frame": 4
+    }
+  },
+  "focus-international-palace-wto-procedure": {
+    "file": "trade-assembly.webp",
+    "columns": 2,
+    "rows": 3,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 506],
+      [515, 3, 506, 506],
+      [3, 515, 506, 506],
+      [515, 515, 506, 506],
+      [3, 1027, 506, 506],
+      [515, 1027, 506, 506]
+    ],
+    "stations": {
+      "consultation": {
+        "frame": 0,
+        "object": "保密磋商卷宗",
+        "viewpoint": "站在密谈室桌边，略俯看双方手中的同一份卷宗。"
+      },
+      "panel": {
+        "frame": 1,
+        "object": "临时会议案卷",
+        "viewpoint": "站在临时专家室圆桌一侧，看专家翻阅请求书。"
+      },
+      "appeal": {
+        "frame": 2,
+        "object": "法律问题书册",
+        "viewpoint": "站在上诉阶梯底部的阅卷台前，略俯视翻开的法律书。"
+      },
+      "reverse-consensus": {
+        "frame": 3,
+        "object": "成员反对汇总表",
+        "viewpoint": "站在表决厅书记员桌边，略俯看报告与汇总表。"
+      },
+      "retaliation": {
+        "frame": 4,
+        "object": "暂停减让申请卷",
+        "viewpoint": "站在分层桥入口的文书台前，向下看申请卷。"
+      }
+    },
+    "contrast": {
+      "stationId": "reverse-consensus",
+      "before": "成员一致反对通过报告。",
+      "after": "其他成员立场不变，其中一名成员不再反对。",
+      "question": "此时还能以反向协商一致阻止报告通过吗？",
+      "explanation": "不能。只有成员一致反对才能阻止通过；少了一名反对者，就不再符合这一条件。",
+      "beforeLabel": "一致反对",
+      "afterLabel": "一名不反对",
+      "frame": 5
+    }
+  },
+  "focus-civil-procedure-palace-marriage": {
+    "file": "marriage-registry.webp",
+    "columns": 2,
+    "rows": 3,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 506],
+      [515, 3, 506, 506],
+      [3, 515, 506, 506],
+      [515, 515, 506, 506],
+      [3, 1027, 506, 506],
+      [515, 1027, 506, 506]
+    ],
+    "stations": {
+      "age-gate": {
+        "frame": 0,
+        "object": "婚龄资料与起诉状",
+        "viewpoint": "站在登记处门口的接件台前，正看两侧亲属递件的手。"
+      },
+      "kinship-window": {
+        "frame": 1,
+        "object": "亲属关系核验册",
+        "viewpoint": "站在亲属核验窗外，略俯看工作人员核验两册资料。"
+      },
+      "bigamy-counter": {
+        "frame": 2,
+        "object": "婚姻证明与财产清单",
+        "viewpoint": "站在重婚柜台前，看合法配偶递交财产材料。"
+      },
+      "no-exit-hall": {
+        "frame": 3,
+        "object": "判决卷与调解书",
+        "viewpoint": "站在效力审理桌侧，看工作人员把两类文书分开。"
+      },
+      "archive-vault": {
+        "frame": 4,
+        "object": "死亡证明与在办卷",
+        "viewpoint": "站在档案柜前，略俯看死亡材料归入在办案卷。"
+      }
+    },
+    "contrast": {
+      "stationId": "age-gate",
+      "before": "甲未达法定婚龄、乙已达婚龄，递交起诉状的是甲的近亲属。",
+      "after": "甲乙情况不变，递交起诉状的人仅改为乙的近亲属。",
+      "question": "仅凭近亲属身份，乙这一方能按未达婚龄事由请求确认婚姻无效吗？",
+      "explanation": "不能。本项利害关系人为未达婚龄者本人的近亲属；更换为已达婚龄一方的近亲属，主体条件就不满足。",
+      "beforeLabel": "甲的近亲属",
+      "afterLabel": "乙的近亲属",
+      "frame": 5
+    }
+  },
+  "focus-civil-procedure-palace-foreign": {
+    "file": "foreign-terminal.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 378],
+      [515, 3, 506, 378],
+      [3, 387, 506, 378],
+      [515, 387, 506, 378],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378]
+    ],
+    "stations": {
+      "exclusive-lane": {
+        "frame": 0,
+        "object": "公司内部争议案卷",
+        "viewpoint": "站在专属安检通道的核验台前，略俯看公司材料。"
+      },
+      "parallel-runways": {
+        "frame": 1,
+        "object": "两地受理回执",
+        "viewpoint": "站在并行跑道窗前的受理台边，看两份回执并置。"
+      },
+      "pause-desk": {
+        "frame": 2,
+        "object": "中止申请与管辖材料",
+        "viewpoint": "站在中止申请柜台前，正看工作人员逐件核验。"
+      },
+      "five-lock-exit": {
+        "frame": 3,
+        "object": "管辖异议核对卷",
+        "viewpoint": "站在出口旁的审查台前，略俯看异议材料。"
+      },
+      "service-carousel": {
+        "frame": 4,
+        "object": "任职证明与共同被告卷",
+        "viewpoint": "站在送达转盘旁的接件台前，略俯看公司收件人的材料。"
+      },
+      "review-gate": {
+        "frame": 5,
+        "object": "裁定送达回证",
+        "viewpoint": "站在复议登机口旁的桌前，看回证与复议申请并置。"
+      }
+    },
+    "contrast": {
+      "stationId": "service-carousel",
+      "before": "外国人在中国公司担任主要负责人，该公司也是共同被告，拟向其任职公司送达。",
+      "after": "其他事实不变，仅改为该公司不是共同被告。",
+      "question": "能否仅凭主要负责人这一任职关系向公司送达他的文书？",
+      "explanation": "不能。向任职组织送达还要求该组织为共同被告；缺少这一条件，不能只凭任职关系完成该种送达。",
+      "beforeLabel": "公司是共同被告",
+      "afterLabel": "公司不是共同被告",
+      "frame": 6
+    }
+  },
+  "focus-civil-procedure-palace-arbitration": {
+    "file": "arbitration-observatory.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 428],
+      [515, 3, 506, 428],
+      [3, 437, 506, 380],
+      [515, 437, 506, 380],
+      [3, 823, 506, 340],
+      [515, 823, 506, 340],
+      [3, 1169, 506, 364]
+    ],
+    "stations": {
+      "formation-room": {
+        "frame": 0,
+        "object": "组庭约定书",
+        "viewpoint": "站在组庭圆桌边，略俯看双方约定与机构规则。"
+      },
+      "chief-chair": {
+        "frame": 1,
+        "object": "首席选定协议",
+        "viewpoint": "站在唯一首席席位前的桌边，略俯看两名仲裁员的选人材料。"
+      },
+      "online-screen": {
+        "frame": 2,
+        "object": "在线开庭终端",
+        "viewpoint": "站在在线屏幕侧前方，看秘书准备开庭。"
+      },
+      "ems-locker": {
+        "frame": 3,
+        "object": "约定送达信封",
+        "viewpoint": "站在送达柜的打包台前，略俯看秘书核对地址。"
+      },
+      "evidence-lab": {
+        "frame": 4,
+        "object": "鉴定委托与证据样本",
+        "viewpoint": "站在证据鉴定台前，看仲裁员把样本交给鉴定人。"
+      },
+      "three-month-clock": {
+        "frame": 5,
+        "object": "裁决收件回证",
+        "viewpoint": "站在出口钟下的文书台前，略俯看收件人与日历。"
+      }
+    },
+    "contrast": {
+      "stationId": "chief-chair",
+      "before": "双方已协议由各自选定的两名仲裁员共同选定首席。",
+      "after": "两名仲裁员仍共同选人，仅去掉双方关于该方式的协议。",
+      "question": "还能完整满足这一首席产生方式吗？",
+      "explanation": "不能。此种共同选定方式须有双方协议；两名仲裁员愿意共同选人，不能替代该前提。",
+      "beforeLabel": "有双方协议",
+      "afterLabel": "无双方协议",
+      "frame": 6
+    }
+  },
+  "focus-civil-procedure-palace-enforcement": {
+    "file": "execution-courtyard.webp",
+    "columns": 2,
+    "rows": 3,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 506],
+      [515, 3, 506, 506],
+      [3, 515, 506, 506],
+      [515, 515, 506, 506],
+      [3, 1027, 506, 506],
+      [515, 1027, 506, 506]
+    ],
+    "stations": {
+      "third-party-window": {
+        "frame": 0,
+        "object": "履行通知与异议书",
+        "viewpoint": "站在到期债权窗口外，略俯看送达回证和异议内容。"
+      },
+      "guarantee-safe": {
+        "frame": 1,
+        "object": "担保财产执行卷",
+        "viewpoint": "站在保险柜旁的阅卷台前，看执行人员核对担保材料。"
+      },
+      "settlement-fork": {
+        "frame": 2,
+        "object": "和解保证承诺页",
+        "viewpoint": "站在和解岔路旁的阅卷桌前，略俯看承诺页签名栏。"
+      },
+      "coownership-room": {
+        "frame": 3,
+        "object": "共有房产资料与同意书",
+        "viewpoint": "站在分割室工作台前，看共有人递交分割方案。"
+      },
+      "specific-object-dock": {
+        "frame": 4,
+        "object": "原物交付清单",
+        "viewpoint": "站在码头交付台边，看执行人员核验待交原物。"
+      }
+    },
+    "contrast": {
+      "stationId": "settlement-fork",
+      "before": "执行和解中的普通保证人未承诺自愿接受强制执行，现恢复原文书执行。",
+      "after": "其他事实不变，增加保证人明确承诺自愿接受强制执行。",
+      "question": "恢复原文书执行时，能否适用直接执行担保人财产的这一例外？",
+      "explanation": "可以进入这一例外判断。原情形缺少自愿接受强制执行的承诺；增加明确承诺后，该项阻碍消失，仍按已具备的其他条件处理。",
+      "beforeLabel": "没有自愿承诺",
+      "afterLabel": "有明确自愿承诺",
+      "frame": 5
+    }
+  },
+  "focus-theory-palace-law-foundry": {
+    "file": "theory-law-foundry.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 505, 432],
+      [514, 3, 507, 432],
+      [3, 441, 505, 379],
+      [514, 441, 507, 379],
+      [3, 826, 505, 341],
+      [514, 826, 507, 341],
+      [3, 1173, 505, 360],
+      [514, 1173, 507, 360]
+    ],
+    "stations": {
+      "furnaces": {
+        "frame": 0,
+        "object": "规范文本与评价笔记",
+        "viewpoint": "站在双火炉旁的书桌边，略俯看研究者区分两份材料。"
+      },
+      "mirrors": {
+        "frame": 1,
+        "object": "履约安排单",
+        "viewpoint": "站在铜镜下的工作台前，略俯看工匠用笔指向履约材料。"
+      },
+      "balance": {
+        "frame": 2,
+        "object": "防护用品与邻居财产资料",
+        "viewpoint": "站在称量台旁，看工作人员比较保护对象。"
+      },
+      "gate": {
+        "frame": 3,
+        "object": "规则检索册",
+        "viewpoint": "站在齿轮闸门旁的检索台前，略俯看翻检记录。"
+      },
+      "portal": {
+        "frame": 4,
+        "object": "公布文本与施行日历",
+        "viewpoint": "站在传送门入口的登记桌前，看工作人员核对公布文本。"
+      },
+      "contract": {
+        "frame": 5,
+        "object": "责任案卷与处理决定",
+        "viewpoint": "站在旧契约工作台前，略俯看责任卷和处分材料分开。"
+      },
+      "waterwheel": {
+        "frame": 6,
+        "object": "改革来文与本地建议册",
+        "viewpoint": "站在水轮旁的工坊桌边，看地方建议册递入修订卷。"
+      }
+    },
+    "contrast": {
+      "stationId": "mirrors",
+      "before": "工匠依合同规则安排自己的履约行为。",
+      "after": "合同规则不变，仅把判断对象改为估计合同相对人将怎样履约。",
+      "question": "法律作用由哪一种变为哪一种？",
+      "explanation": "由指引转为预测。原来安排自己的行为，改变后预估相对人的行为，观察对象发生变化。",
+      "beforeLabel": "安排自己行为",
+      "afterLabel": "预估对方行为",
+      "frame": 7
+    }
+  },
+  "focus-theory-palace-reasoning-observatory": {
+    "file": "theory-reasoning-observatory.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 431],
+      [515, 3, 506, 431],
+      [3, 440, 506, 340],
+      [515, 440, 506, 340],
+      [3, 786, 506, 363],
+      [515, 786, 506, 363],
+      [3, 1155, 506, 378],
+      [515, 1155, 506, 378]
+    ],
+    "stations": {
+      "orbits": {
+        "frame": 0,
+        "object": "法规适用意见卷",
+        "viewpoint": "站在星轨边的法务桌前，略俯看工作人员分送意见卷。"
+      },
+      "telescope": {
+        "frame": 1,
+        "object": "前提核验笔记",
+        "viewpoint": "站在双层望远镜旁的阅卷桌前，看研究者核对证据出处。"
+      },
+      "compass": {
+        "frame": 2,
+        "object": "规范与个案工作页",
+        "viewpoint": "站在星盘工作桌边，略俯看规范书与事实卷的交接。"
+      },
+      "prism": {
+        "frame": 3,
+        "object": "两份解释结论稿",
+        "viewpoint": "站在棱镜书桌前，略俯看研究者对齐两份结论。"
+      },
+      "bridge": {
+        "frame": 4,
+        "object": "立法目的与漏项资料",
+        "viewpoint": "站在缺口星桥入口的小桌前，看研究者补入遗漏案类材料。"
+      },
+      "stairs": {
+        "frame": 5,
+        "object": "法律案审议卷",
+        "viewpoint": "站在旋阶底部的文书台前，略俯看汇总意见。"
+      },
+      "receipts": {
+        "frame": 6,
+        "object": "备案回执与纠错卷",
+        "viewpoint": "站在陨石仓收件台前，看工作人员将报备和纠错分开。"
+      }
+    },
+    "contrast": {
+      "stationId": "prism",
+      "before": "文义解释与体系解释得出相同结论。",
+      "after": "仍用这两种方法，仅将二者结论改为相互对立。",
+      "question": "解释模式怎样变化？",
+      "explanation": "由累积变为冲突。使用多种方法且结果一致属于累积；结论对立时须进一步论证取舍。",
+      "beforeLabel": "两种方法结论相同",
+      "afterLabel": "两种方法结论对立",
+      "frame": 7
+    }
+  },
+  "focus-theory-palace-constitutional-islands": {
+    "file": "theory-constitutional-islands.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 445],
+      [515, 3, 506, 445],
+      [3, 454, 506, 407],
+      [515, 454, 506, 407],
+      [3, 867, 506, 335],
+      [515, 867, 506, 335],
+      [3, 1208, 506, 325]
+    ],
+    "stations": {
+      "amendment": {
+        "frame": 0,
+        "object": "修宪提议与表决记录",
+        "viewpoint": "站在修宪拱门旁的接件桌前，略俯看两阶段文书。"
+      },
+      "books": {
+        "frame": 1,
+        "object": "分散宪法性文献",
+        "viewpoint": "站在藏书亭书桌前，略俯看多份独立文献。"
+      },
+      "land": {
+        "frame": 2,
+        "object": "宅基地使用资料",
+        "viewpoint": "站在土地岛的测绘桌前，看居民核对使用资料。"
+      },
+      "autonomy": {
+        "frame": 3,
+        "object": "自治条例报批卷",
+        "viewpoint": "站在自治水渠旁的文书桌前，略俯看条例与报批信封。"
+      },
+      "interpretation": {
+        "frame": 4,
+        "object": "基本法条款与判决草稿",
+        "viewpoint": "站在灯塔底部的阅卷台前，看法务人员核对条款影响。"
+      },
+      "oath": {
+        "frame": 5,
+        "object": "宣誓文本与资格材料",
+        "viewpoint": "站在登岛桥旁的宣誓台侧，正看宣誓人的手与文本。"
+      }
+    },
+    "contrast": {
+      "stationId": "books",
+      "before": "该国没有统一宪法典，宪法性文献分散存在。",
+      "after": "其他情况不变，仅改为已有统一宪法典。",
+      "question": "按宪法形式分类，应怎样判断？",
+      "explanation": "改归成文宪法。有无统一宪法典决定这一形式分类；刚性与柔性仍须另看效力及制定、修改程序。",
+      "beforeLabel": "无统一宪法典",
+      "afterLabel": "有统一宪法典",
+      "frame": 6
+    }
+  },
+  "focus-theory-palace-rights-water-town": {
+    "file": "theory-rights-water-town.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 505, 429],
+      [514, 3, 507, 429],
+      [3, 438, 505, 349],
+      [514, 438, 507, 349],
+      [3, 793, 505, 350],
+      [514, 793, 507, 350],
+      [3, 1149, 505, 384]
+    ],
+    "stations": {
+      "mailbox": {
+        "frame": 0,
+        "object": "通信核验材料",
+        "viewpoint": "站在信箱旁的柜台前，略俯看实施人员证件与封口信件。"
+      },
+      "garden": {
+        "frame": 1,
+        "object": "劳动课本与休息座椅",
+        "viewpoint": "站在花园休息桌前，看劳动者收好工具后翻开课本。"
+      },
+      "pavilions": {
+        "frame": 2,
+        "object": "村居会议文书",
+        "viewpoint": "站在双议亭之间的接件桌前，略俯看两份会议资料。"
+      },
+      "recall-gates": {
+        "frame": 3,
+        "object": "罢免签到册与选票",
+        "viewpoint": "站在水闸旁的投票桌前，略俯看签到与计票资料。"
+      },
+      "ballot-dock": {
+        "frame": 4,
+        "object": "全选区名册与计票单",
+        "viewpoint": "站在选票渡口收件台前，看工作人员核对完整选民册。"
+      },
+      "status-lanterns": {
+        "frame": 5,
+        "object": "代表资格卷与履职记录",
+        "viewpoint": "站在灯笼架下的登记桌前，略俯看资格材料留存。"
+      }
+    },
+    "contrast": {
+      "stationId": "mailbox",
+      "before": "因追查刑事犯罪需要，公安机关依照法定程序检查通信。",
+      "after": "目的与程序条件不变，仅将实施主体改为用人单位。",
+      "question": "能否继续认为实施主体满足本项宪法规定？",
+      "explanation": "不能。宪法列举的实施主体为公安机关或者检察机关，用人单位不在其中。",
+      "beforeLabel": "公安机关实施",
+      "afterLabel": "用人单位实施",
+      "frame": 6
+    }
+  },
+  "focus-theory-palace-state-airship": {
+    "file": "theory-state-airship.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 378],
+      [515, 3, 506, 378],
+      [3, 387, 506, 378],
+      [515, 387, 506, 378],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378]
+    ],
+    "stations": {
+      "chambers": {
+        "frame": 0,
+        "object": "会议签到与主持资料",
+        "viewpoint": "站在双层议事舱入口的接待桌边，略俯看签到册。"
+      },
+      "nomination": {
+        "frame": 1,
+        "object": "人选提名函",
+        "viewpoint": "站在提名台的文书桌前，略俯看提名文件交接。"
+      },
+      "recess": {
+        "frame": 2,
+        "object": "闭会任免报送卷",
+        "viewpoint": "站在补位吊桥入口的阅卷桌前，看文书范围核验。"
+      },
+      "motions": {
+        "frame": 3,
+        "object": "联名提案册",
+        "viewpoint": "站在传声筒旁的收件台前，略俯看联名与事项封面。"
+      },
+      "helm": {
+        "frame": 4,
+        "object": "会议成员核验册",
+        "viewpoint": "站在航舵旁的会议接待桌前，略俯看人员资料。"
+      },
+      "local-dock": {
+        "frame": 5,
+        "object": "法院职务任免材料",
+        "viewpoint": "站在地方码头的文书台前，看不同提名来文归入同一接件卷。"
+      }
+    },
+    "contrast": {
+      "stationId": "helm",
+      "before": "核对的人员是中国人民银行行长，问其是否属于国务院常务会议成员。",
+      "after": "其他问题不变，仅把该人员的职务改为国务院秘书长。",
+      "question": "是否属于常务会议成员？",
+      "explanation": "秘书长属于常务会议成员；央行行长虽为国务院组成人员，并不因此进入常务会议成员范围。",
+      "beforeLabel": "央行行长",
+      "afterLabel": "国务院秘书长",
+      "frame": 6
+    }
+  },
+  "focus-theory-palace-planning-beacon": {
+    "file": "theory-planning-beacon.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 446],
+      [515, 3, 506, 446],
+      [3, 455, 506, 370],
+      [515, 455, 506, 370],
+      [3, 831, 506, 336],
+      [515, 831, 506, 336],
+      [3, 1173, 506, 360]
+    ],
+    "stations": {
+      "plan-map": {
+        "frame": 0,
+        "object": "航图与调整附件",
+        "viewpoint": "站在航图桌南侧，略俯视桌面，红铜灯塔始终在右后方。"
+      },
+      "evaluation": {
+        "frame": 1,
+        "object": "评估报告夹",
+        "viewpoint": "站在评估钟正前方，从桌沿看报告夹，保留左后的航图桌。"
+      },
+      "honors": {
+        "frame": 2,
+        "object": "绒垫勋章盒",
+        "viewpoint": "站在授勋台来宾一侧，平视打开的勋章盒与递交文书的手。"
+      },
+      "alarm": {
+        "frame": 3,
+        "object": "应急范围地图",
+        "viewpoint": "站在警报门内侧的值班桌前，略俯视一张行政区地图。"
+      },
+      "review-mail": {
+        "frame": 4,
+        "object": "审查文书收件台",
+        "viewpoint": "站在投递塔前的收件柜台外侧，平视信封交接。"
+      },
+      "correction": {
+        "frame": 5,
+        "object": "审查意见与反馈夹",
+        "viewpoint": "站在纠错灯室的工作台前，略俯视收到的意见和待寄反馈。"
+      }
+    },
+    "contrast": {
+      "stationId": "plan-map",
+      "before": "报送的是实施中的国家发展规划调整方案。",
+      "after": "仅将文件性质改为新一轮国家发展规划原草案。",
+      "question": "审查批准机关怎样变化？",
+      "explanation": "调整方案提请全国人大常委会审查批准；原规划草案提请全国人大审查批准。两种文件各自仍应履行相应编制、审议程序。",
+      "beforeLabel": "调整方案",
+      "afterLabel": "原规划草案",
+      "frame": 6
+    }
+  },
+  "focus-theory-palace-judicial-academy": {
+    "file": "theory-judicial-academy.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 505, 396],
+      [514, 3, 507, 396],
+      [3, 405, 505, 381],
+      [514, 405, 507, 381],
+      [3, 792, 505, 355],
+      [514, 792, 507, 355],
+      [3, 1153, 505, 380],
+      [514, 1153, 507, 380]
+    ],
+    "stations": {
+      "glass-scale": {
+        "frame": 0,
+        "object": "质证案卷桌",
+        "viewpoint": "站在透明门内的案卷桌旁，平视双方各自可拿取的材料。"
+      },
+      "jade-steps": {
+        "frame": 1,
+        "object": "法律工作履历夹",
+        "viewpoint": "站在玉阶底部的登记台前，略俯视履历、学位材料与任职证明。"
+      },
+      "kinship-doors": {
+        "frame": 2,
+        "object": "代理身份材料",
+        "viewpoint": "站在亲属纹门前的接待台外侧，平视来人递交的身份材料。"
+      },
+      "seven-seats": {
+        "frame": 3,
+        "object": "合议庭意见记录",
+        "viewpoint": "坐在陪审员一侧的席位，平视桌对面记录意见的书记员。"
+      },
+      "prosecutor-tower": {
+        "frame": 4,
+        "object": "分歧事项报送夹",
+        "viewpoint": "站在检察塔入口的办公桌旁，略俯视案件卷宗与重大事项夹。"
+      },
+      "discipline-circle": {
+        "frame": 5,
+        "object": "全体名册与表决票",
+        "viewpoint": "坐在惩戒圆桌的记录席，略俯视完整名册及已收表决票。"
+      },
+      "opinion-decision": {
+        "frame": 6,
+        "object": "审查意见与处分决定夹",
+        "viewpoint": "站在文书出口柜前的接待台外侧，略俯视两份不同装订的文书。"
+      }
+    },
+    "contrast": {
+      "stationId": "seven-seats",
+      "before": "七人合议庭中，人民陪审员对法律适用发表意见，未参加该项表决。",
+      "after": "仅将陪审员的行为改为参加法律适用的表决。",
+      "question": "哪一个行为超出了该人民陪审员的权限？",
+      "explanation": "七人合议庭的人民陪审员可以对法律适用发表意见，但不参加该项表决。发表意见与参加表决要分开。",
+      "beforeLabel": "发表意见",
+      "afterLabel": "参加表决",
+      "frame": 7
+    }
+  },
+  "focus-theory-palace-lawyer-atelier": {
+    "file": "theory-lawyer-atelier.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 378],
+      [515, 3, 506, 378],
+      [3, 387, 506, 378],
+      [515, 387, 506, 378],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378]
+    ],
+    "stations": {
+      "founder-bench": {
+        "frame": 0,
+        "object": "律所设立档案",
+        "viewpoint": "站在黄铜工作台前，略俯视个人履历和律所成立档案。"
+      },
+      "opposed-mirrors": {
+        "frame": 1,
+        "object": "双方委托案卷",
+        "viewpoint": "站在相对双镜之间的接案柜台前，略俯视同一案件的两份委托材料。"
+      },
+      "consent-screen": {
+        "frame": 2,
+        "object": "书面知情同意书",
+        "viewpoint": "站在纱屏内委托人一侧，略俯视律师说明的同意文件。"
+      },
+      "bound-hourglass": {
+        "frame": 3,
+        "object": "同案后续卷宗",
+        "viewpoint": "站在沙漏旁的案卷桌前，略俯视前审卷与后续审理卷的同案封套。"
+      },
+      "sealed-mandate": {
+        "frame": 4,
+        "object": "授权委托书",
+        "viewpoint": "站在封蜡公文箱前的签约桌旁，略俯视授权范围与待签补充文件。"
+      },
+      "cloak-exit": {
+        "frame": 5,
+        "object": "律师交接同意书",
+        "viewpoint": "坐在披风出口旁的委托人席位，平视接手律师与桌上的交接文件。"
+      }
+    },
+    "contrast": {
+      "stationId": "cloak-exit",
+      "before": "律师因健康原因不能继续承办；协商后，委托人不同意更换律师。",
+      "after": "仅将委托人的态度改为同意由本所另一合格律师接手。",
+      "question": "还应仅依据这一健康情形终止全部代理吗？",
+      "explanation": "不应。本项终止条件包含经协商委托人不同意更换律师。同意更换后，可以由合格律师接手妥善履行委托。",
+      "beforeLabel": "不同意更换",
+      "afterLabel": "同意更换",
+      "frame": 6
+    }
+  },
+  "focus-theory-palace-aid-harbor": {
+    "file": "theory-aid-harbor.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 504, 430],
+      [513, 3, 508, 430],
+      [3, 439, 504, 347],
+      [513, 439, 508, 347],
+      [3, 792, 504, 352],
+      [513, 792, 508, 352],
+      [3, 1150, 504, 383],
+      [513, 1150, 508, 383]
+    ],
+    "stations": {
+      "application-trays": {
+        "frame": 0,
+        "object": "工资材料申请夹",
+        "viewpoint": "站在港湾受理柜台外侧，略俯视申请人递交的工资材料。"
+      },
+      "empty-chair-bell": {
+        "frame": 1,
+        "object": "辩护委托核对台",
+        "viewpoint": "坐在空椅旁的接待席，略俯视有无委托辩护人的登记材料。"
+      },
+      "dated-clocks": {
+        "frame": 2,
+        "object": "临近期限申请夹",
+        "viewpoint": "站在日期钟台的服务柜台前，略俯视期限材料和待补申请页。"
+      },
+      "notary-arch": {
+        "frame": 3,
+        "object": "公证实习履历夹",
+        "viewpoint": "站在年龄拱门下的登记桌前，略俯视前职经历与实习证明。"
+      },
+      "will-candles": {
+        "frame": 4,
+        "object": "遗嘱本人申办桌",
+        "viewpoint": "坐在双烛桌的公证员一侧，平视本人递交申办材料的动作。"
+      },
+      "two-envelopes": {
+        "frame": 5,
+        "object": "公证书与收件凭证",
+        "viewpoint": "站在年轮表盘旁的接待桌前，略俯视公证书、收件凭证和复查申请。"
+      },
+      "return-ticket": {
+        "frame": 6,
+        "object": "援助终止复核夹",
+        "viewpoint": "站在回程票口的服务窗外侧，平视工作人员重新核对援助事项。"
+      }
+    },
+    "contrast": {
+      "stationId": "empty-chair-bell",
+      "before": "十七岁被告人没有委托辩护人。",
+      "after": "仅增加家属已经为该被告人委托辩护律师的事实。",
+      "question": "还须仅因其未成年，另通知法援机构再指派一名律师吗？",
+      "explanation": "不因该项另行指派。未成年人通知辩护规则以没有委托辩护人为前提；已有委托辩护人，该前提消失。",
+      "beforeLabel": "尚未委托辩护人",
+      "afterLabel": "已经委托辩护人",
+      "frame": 7
+    }
+  },
+  "focus-theory-palace-dynasty-river": {
+    "file": "theory-dynasty-river.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 411],
+      [515, 3, 506, 411],
+      [3, 420, 506, 390],
+      [515, 420, 506, 390],
+      [3, 816, 506, 358],
+      [515, 816, 506, 358],
+      [3, 1180, 506, 353],
+      [515, 1180, 506, 353]
+    ],
+    "stations": {
+      "zhou-rites": {
+        "frame": 0,
+        "object": "聘礼与婚期帖",
+        "viewpoint": "站在西周礼台来客一侧，略俯视礼物匣和分开放置的婚期材料。"
+      },
+      "bronze-dings": {
+        "frame": 1,
+        "object": "刑书铸鼎拓片",
+        "viewpoint": "站在两座青铜鼎之间的工作案前，平视工匠展开鼎面拓片。"
+      },
+      "six-bamboo": {
+        "frame": 2,
+        "object": "法经竹简案",
+        "viewpoint": "坐在竹简书案前，略俯视被分开整理的竹简卷。"
+      },
+      "han-family-tree": {
+        "frame": 3,
+        "object": "家族案卷与上请匣",
+        "viewpoint": "站在秋霜树下的案桌前，略俯视长者递交上请材料的动作。"
+      },
+      "codex-gates": {
+        "frame": 4,
+        "object": "法典首篇整理案",
+        "viewpoint": "站在法典石门内的书案前，略俯视卷首篇章的重排。"
+      },
+      "six-treasure-boxes": {
+        "frame": 5,
+        "object": "受财裁判案卷",
+        "viewpoint": "坐在财物匣旁的案桌来人一侧，略俯视收财后仍保持原状的裁判卷。"
+      },
+      "wood-swords": {
+        "frame": 6,
+        "object": "木剑旁的案情记录",
+        "viewpoint": "站在木剑架前的勘验案旁，略俯视成年人记录案情的手。"
+      }
+    },
+    "contrast": {
+      "stationId": "six-treasure-boxes",
+      "before": "依唐律情境，官员受财后没有枉法处理案件。",
+      "after": "仅将办案结果改为官员收财后枉法裁判。",
+      "question": "六赃的对应类型如何变化？",
+      "explanation": "由受财不枉法转为受财枉法。收财事实保留，只改变收财后的办案行为。",
+      "beforeLabel": "受财不枉法",
+      "afterLabel": "受财枉法",
+      "frame": 7
+    }
+  },
+  "focus-theory-palace-civic-library": {
+    "file": "theory-civic-library.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 378],
+      [515, 3, 506, 378],
+      [3, 387, 506, 378],
+      [515, 387, 506, 378],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378],
+      [515, 1155, 506, 378]
+    ],
+    "stations": {
+      "three-scrolls": {
+        "frame": 0,
+        "object": "历史文件档案桌",
+        "viewpoint": "站在书院入口档案桌前，略俯视分别展开的历史文件。"
+      },
+      "circuit-table": {
+        "frame": 1,
+        "object": "树下调解记录",
+        "viewpoint": "坐在树下圆桌的记录席，平视两位当事人与未签的调解记录。"
+      },
+      "printing-shelf": {
+        "frame": 2,
+        "object": "雕版与刊印法典",
+        "viewpoint": "站在雕版印刷台前，略俯视印工揭起纸页的动作。"
+      },
+      "beacon-square": {
+        "frame": 3,
+        "object": "便民维权服务桌",
+        "viewpoint": "站在领航灯下的广场服务桌前，平视群众递交材料的动作。"
+      },
+      "constitutional-towers": {
+        "frame": 4,
+        "object": "法治建设总图",
+        "viewpoint": "站在双塔模型前的规划桌旁，略俯视同时覆盖两部分的建设总图。"
+      },
+      "roads-buildings": {
+        "frame": 5,
+        "object": "三路衔接规划桌",
+        "viewpoint": "站在三条路交会处的工作台前，略俯视建筑规划图与建设记录。"
+      },
+      "team-double-books": {
+        "frame": 6,
+        "object": "法治队伍工作案",
+        "viewpoint": "坐在纪法双册工作台的一侧，平视共同研读案卷的工作人员。"
+      }
+    },
+    "contrast": {
+      "stationId": "circuit-table",
+      "before": "双方当事人都愿意继续调解。",
+      "after": "仅将一方的意愿改为明确表示不愿继续调解。",
+      "question": "能为减少诉讼而强迫其达成协议吗？",
+      "explanation": "不能。调解须自愿；一方不愿继续，不得强迫达成协议，也应保留其依法起诉的通道。",
+      "beforeLabel": "愿意继续",
+      "afterLabel": "一方不愿继续",
+      "frame": 7
+    }
+  },
+  "focus-criminal-palace-rain-rescue": {
+    "file": "criminal-rain-rescue.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 432],
+      [515, 3, 506, 432],
+      [3, 441, 506, 377],
+      [515, 441, 506, 377],
+      [3, 824, 506, 327],
+      [515, 824, 506, 327],
+      [3, 1157, 506, 376],
+      [515, 1157, 506, 376]
+    ],
+    "stations": {
+      "bottle": {
+        "frame": 0,
+        "object": "封口饮料与配料袋",
+        "viewpoint": "站在雨棚饮料台顾客一侧，平视递来的饮料与被遮挡的配料袋。"
+      },
+      "nursery": {
+        "frame": 1,
+        "object": "照护交接记录",
+        "viewpoint": "站在照护亭入口的值班桌前，略俯视无人签收的交接记录。"
+      },
+      "channels": {
+        "frame": 2,
+        "object": "事故经过案卷",
+        "viewpoint": "站在水渠旁的勘察台前，略俯视事故记录与现场照片。"
+      },
+      "clock": {
+        "frame": 3,
+        "object": "先后经过记录夹",
+        "viewpoint": "站在钟塔下的勘验桌前，略俯视同一案件的先后记录。"
+      },
+      "fork": {
+        "frame": 4,
+        "object": "行为与意图案情夹",
+        "viewpoint": "站在岔路栏杆内侧的工作台旁，略俯视动手前后的案情记录。"
+      },
+      "rope": {
+        "frame": 5,
+        "object": "送医救助交接单",
+        "viewpoint": "站在救生桥入口的急救交接台旁，平视救助者把伤者交给医护人员的动作。"
+      },
+      "arch": {
+        "frame": 6,
+        "object": "避险损坏的花瓶",
+        "viewpoint": "站在盾牌拱门内侧，平视避让动作与旁侧无辜者的花瓶。"
+      }
+    },
+    "contrast": {
+      "stationId": "rope",
+      "before": "甲以杀人故意刺伤乙后拒绝救助，由邻居独立送医并阻止乙死亡。本组只判断故意杀人的犯罪形态。",
+      "after": "杀人行为及乙尚未死亡的事实不变，仅将后续救助改为甲自愿立即送医，且正是甲的有效救助阻止乙死亡。",
+      "question": "同在杀人既遂之前，为何后一情形可以转向故意杀人的犯罪中止判断？",
+      "explanation": "原案由邻居独立救活，甲未自动有效防止死亡；变式中甲自愿且有效地阻止了杀人既遂结果，在其他条件齐备时成立中止。这里判断的是故意杀人形态，不能把结论套到已经完成的故意伤害犯罪。",
+      "beforeLabel": "邻居救活",
+      "afterLabel": "本人主动救活",
+      "frame": 7
+    }
+  },
+  "focus-criminal-palace-moon-market": {
+    "file": "criminal-moon-market.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 378],
+      [515, 3, 506, 378],
+      [3, 387, 506, 378],
+      [515, 387, 506, 378],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378],
+      [515, 1155, 506, 378]
+    ],
+    "stations": {
+      "carriage": {
+        "frame": 0,
+        "object": "修理费与留置钥匙",
+        "viewpoint": "站在马车修理铺柜台顾客一侧，略俯视修理单和仍由店主保管的钥匙。"
+      },
+      "camera": {
+        "frame": 1,
+        "object": "试用相机",
+        "viewpoint": "站在试用镜台的店主一侧，平视顾客在柜台范围内试用相机。"
+      },
+      "masks": {
+        "frame": 2,
+        "object": "追捕事件记录台",
+        "viewpoint": "站在面具架旁的值班桌前，略俯视逃跑经过的现场照片与记录。"
+      },
+      "cage": {
+        "frame": 3,
+        "object": "债务材料与索款来信",
+        "viewpoint": "站在空笼旁的接报柜台前，略俯视债务凭证与家属收到的索款材料。"
+      },
+      "cabinet": {
+        "frame": 4,
+        "object": "首饰暗格与钥匙",
+        "viewpoint": "站在珠宝柜右前方，略俯视只有行为人持钥匙的已闭合暗格。"
+      },
+      "account": {
+        "frame": 5,
+        "object": "余额转移记录夹",
+        "viewpoint": "站在账户柜台外侧，略俯视既有余额记录与新贷款申请的不同材料。"
+      },
+      "scales": {
+        "frame": 6,
+        "object": "退货商品与另案钱包",
+        "viewpoint": "站在退货双秤台的店员一侧，略俯视商品、退款凭证与另一独立物品。"
+      }
+    },
+    "contrast": {
+      "stationId": "cabinet",
+      "before": "甲已将首饰放入只有自己能够控制的暗格，实际建立了独立控制。",
+      "after": "仅改变控制结果：甲刚拿起首饰，主人就主动抓住首饰当场夺回，甲尚未建立独立控制；不是甲自愿交付给主人。",
+      "question": "盗窃既遂的判断为什么变化？",
+      "explanation": "原案已建立独立控制，可以认定既遂。变式尚未建立控制；已着手而因意志以外原因未取得的，按未遂判断。",
+      "beforeLabel": "已建立控制",
+      "afterLabel": "尚未建立控制",
+      "frame": 7
+    }
+  },
+  "focus-criminal-palace-trial-airship": {
+    "file": "criminal-trial-airship.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 377],
+      [515, 3, 506, 377],
+      [3, 386, 506, 379],
+      [515, 386, 506, 379],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378],
+      [515, 1155, 506, 378]
+    ],
+    "stations": {
+      "wheel": {
+        "frame": 0,
+        "object": "共同行动记录",
+        "viewpoint": "站在舵盘旁的案情讨论桌前，略俯视两人共同确认的同一份记录。"
+      },
+      "tools": {
+        "frame": 1,
+        "object": "帮助钥匙与门锁",
+        "viewpoint": "站在工具台左前方，平视已经插入门锁的钥匙，门与案卷保持在同一画面。"
+      },
+      "cables": {
+        "frame": 2,
+        "object": "取回工具的交接台",
+        "viewpoint": "站在缆绳架一侧的工作台前，平视工具被实际交还的动作。"
+      },
+      "inspection": {
+        "frame": 3,
+        "object": "药品实物与检验报告",
+        "viewpoint": "站在检验台工作人员一侧，略俯视药盒、样品和实质检验报告。"
+      },
+      "signal": {
+        "frame": 4,
+        "object": "账号服务结果记录",
+        "viewpoint": "站在信号塔下的工作柜台前，略俯视服务申请和是否完成的记录。"
+      },
+      "evidence": {
+        "frame": 5,
+        "object": "事前联络与转款材料",
+        "viewpoint": "站在分拣台记录员一侧，略俯视转款材料与是否存在的事前联络页。"
+      },
+      "mail": {
+        "frame": 6,
+        "object": "个人投案与单位材料",
+        "viewpoint": "站在投案信箱旁的接待桌前，平视投案人递交自己的供述材料。"
+      }
+    },
+    "contrast": {
+      "stationId": "tools",
+      "before": "甲有帮助故意并提供可用钥匙。正犯已用该钥匙尝试开门，但最终完全通过另一路径取财，钥匙对既遂结果没有实际贡献。",
+      "after": "甲的帮助故意、交付钥匙和正犯已经使用钥匙的事实不变，仅改为该钥匙实际打开门并促成正犯取财。",
+      "question": "两案中钥匙都已经使用，帮助犯既遂判断还须区分什么？",
+      "explanation": "还须区分对既遂结果的实际贡献。原案虽已尝试使用钥匙，最终取财完全依靠另一路径；变式由该钥匙实际促成取财，在帮助故意等其余条件齐备时，可认定帮助犯既遂。",
+      "beforeLabel": "已试用，但未促成取财",
+      "afterLabel": "已使用，并实际促成取财",
+      "frame": 7
+    }
+  },
+  "focus-criminal-palace-jade-treasury": {
+    "file": "criminal-jade-treasury.webp",
+    "columns": 2,
+    "rows": 4,
+    "width": 1024,
+    "height": 1536,
+    "frames": [
+      [3, 3, 506, 377],
+      [515, 3, 506, 377],
+      [3, 386, 506, 379],
+      [515, 386, 506, 379],
+      [3, 771, 506, 378],
+      [515, 771, 506, 378],
+      [3, 1155, 506, 378],
+      [515, 1155, 506, 378]
+    ],
+    "stations": {
+      "law": {
+        "frame": 0,
+        "object": "新旧条文案卷",
+        "viewpoint": "坐在新旧法卷台的审查席，略俯视与本案对应的两份条文材料。"
+      },
+      "seal": {
+        "frame": 1,
+        "object": "印章与单位决议",
+        "viewpoint": "站在印章屏风前的办公桌旁，略俯视用印文件及是否对应单位决议。"
+      },
+      "ledger": {
+        "frame": 2,
+        "object": "公款转付凭证",
+        "viewpoint": "站在公共账簿柜台外侧，略俯视负责人将公款转入自己收款夹的动作。"
+      },
+      "contract": {
+        "frame": 3,
+        "object": "项目合同与履行记录",
+        "viewpoint": "站在项目渠旁的合同桌前，略俯视合同附件与空缺的履行凭证。"
+      },
+      "payment": {
+        "frame": 4,
+        "object": "货物交付与预付款单",
+        "viewpoint": "站在预付款桥边的收货柜台前，平视实际货物与对应单据的交接。"
+      },
+      "shares": {
+        "frame": 5,
+        "object": "投资合同与风险记录",
+        "viewpoint": "站在银杏树下的投资审阅台前，略俯视认购材料和实际出资凭证。"
+      },
+      "influence": {
+        "frame": 6,
+        "object": "请托转交账目",
+        "viewpoint": "站在分水盘旁的办事桌前，略俯视中间人留存与转交的分开凭证。"
+      }
+    },
+    "contrast": {
+      "stationId": "ledger",
+      "before": "负责人利用管理公款的职权，将公款非法转给自己占有。",
+      "after": "仅将最终占有人改为他人；负责人自己没有分得款项。",
+      "question": "负责人自己未分钱，就当然排除贪污吗？",
+      "explanation": "不当然。为第三人非法占有也在贪污目的范围内，仍应结合实行行为等完整要件判断。",
+      "beforeLabel": "非法给自己",
+      "afterLabel": "非法给他人",
+      "frame": 7
+    }
+  }
+}
